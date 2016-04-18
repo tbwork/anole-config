@@ -1,0 +1,10 @@
+#common files and directories
+target/
+
+#ignore eclipse files
+.settings/
+.classpath
+.project
+
+#ignore idea files
+.idea
