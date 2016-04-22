@@ -14,6 +14,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netty.version>5.0.0.Alpha1</netty.version>
     <junit.version>4.12</junit.version>
+    <anole.common.version>0.0.1-SNAPSHOT</anole.common.version>
   </properties>
 
   <dependencies>
@@ -27,6 +28,11 @@
         <groupId>io.netty</groupId>
         <artifactId>netty-all</artifactId>
         <version>${netty.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.tbwork.anole</groupId>
+        <artifactId>anole-common</artifactId>
+        <version>${anole.common.version}</version>
     </dependency>
   </dependencies>
   <modules>
