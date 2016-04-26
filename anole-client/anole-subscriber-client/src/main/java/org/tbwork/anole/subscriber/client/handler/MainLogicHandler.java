@@ -2,8 +2,11 @@ package org.tbwork.anole.subscriber.client.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+ 
 
-import org.springframework.beans.factory.annotation.Autowired;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType; 
@@ -18,12 +21,15 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		super(autoRelease);
 	}
 	
-	@Autowired
-	private  AnoleSubscriberClient anoleSubscriberClient;
+	static Logger logger = LoggerFactory.getLogger(MainLogicHandler.class);
+	 
+	private  AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
 	
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
 			throws Exception {
+		 if(logger.isDebugEnabled())
+		     logger.debug("New message received (type = {})", msg.getType());
 		 MessageType msgType = msg.getType(); 
 		 switch(msgType)
 		 {  
@@ -49,5 +55,6 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		String value = rvMsg.getValue();
 		ConfigType type  = rvMsg.getValueType();
 		ConfigRetrieveWorkerManager.setConfigItem(key, value, type); 
+		logger.info("[:)] Retrieved config (key = {}) from remote server successfully! value = {}", key, value);
 	}
 }

@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.springframework.stereotype.Component;
+ 
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient; 
 
@@ -15,14 +14,8 @@ import sun.misc.Unsafe;
 /**
  * Provides different configuration retrieving methods. 
  * @author Tommy.Tang
- */
-@Component
-public class AnoleConfig {
-
-	
-	
-	private static AnoleSubscriberClient anoleSubscriberClient = null; 
-	 
+ */ 
+public class AnoleConfig { 
 	/**
 	 * @param key 
 	 * @param defaultValue

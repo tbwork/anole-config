@@ -2,6 +2,7 @@ package org.tbwork.anole.hub.server.push.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthenticationFirstMessage;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
@@ -9,6 +10,7 @@ import org.tbwork.anole.hub.server.util.ChannelHelper;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
+@Component
 public class NewConnectionHandler extends ChannelHandlerAdapter {
 
 	static final Logger logger = LoggerFactory.getLogger(NewConnectionHandler.class);

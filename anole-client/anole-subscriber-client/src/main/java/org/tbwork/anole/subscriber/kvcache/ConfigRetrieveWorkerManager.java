@@ -9,16 +9,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.c_2_s.GetConfigMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.StaticConfiguration;  
 import org.tbwork.anole.subscriber.exceptions.NotReadyToRetrieveRemoteConfigException;
 import org.tbwork.anole.subscriber.exceptions.RetrieveConfigTimeoutException;
-
-@Component
+ 
 public class ConfigRetrieveWorkerManager {
 
 	static final Logger logger = LoggerFactory.getLogger(ConfigRetrieveWorkerManager.class);
@@ -27,12 +25,7 @@ public class ConfigRetrieveWorkerManager {
 	
 	private static ExecutorService executorService = Executors.newFixedThreadPool(StaticConfiguration.RETRIEVING_THREAD_POOL_SIZE);
 
-	private static AnoleSubscriberClient anoleSubscriberClient = null;
-
-	public void setAnoleSubscriberClient(
-			AnoleSubscriberClient anoleSubscriberClient) {
-		ConfigRetrieveWorkerManager.anoleSubscriberClient = anoleSubscriberClient;
-	}
+	private static AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
 	
 	public static ConfigItem retrieveRemoteConfig(final String key){ 
 		final ConfigItem cItem = configMap.get(key);
@@ -50,8 +43,12 @@ public class ConfigRetrieveWorkerManager {
 					  }
 					  synchronized(cItem.getKey())
 					  {
+						  if(logger.isDebugEnabled())
+							  logger.debug("Enter waiting...");
 						  anoleSubscriberClient.sendMessage(new GetConfigMessage(key));
-						  cItem.wait(StaticConfiguration.RETRIEVING_CONFIG_TIMEOUT_TIME);  
+						  cItem.wait(StaticConfiguration.RETRIEVING_CONFIG_TIMEOUT_TIME);
+						  if(logger.isDebugEnabled())
+							  logger.debug("Waiting over...");
 						  return null;
 					  } 
 				  }

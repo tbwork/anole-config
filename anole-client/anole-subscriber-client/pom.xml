@@ -13,8 +13,7 @@
   <name>anole-subscriber-client</name>
   <url>http://maven.apache.org</url>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-     <org.springframework.version>3.2.8.RELEASE</org.springframework.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
      <fastjson.version>1.1.15</fastjson.version>
   </properties>
   <dependencies>
@@ -23,13 +22,8 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-	  <groupId>org.springframework</groupId>
-	  <artifactId>spring-context</artifactId>
-	  <version>${org.springframework.version}</version>
-	</dependency>
-		<dependency>
+    </dependency> 
+	<dependency>
 		<groupId>com.alibaba</groupId>
 		<artifactId>fastjson</artifactId>
 		<version>${fastjson.version}</version>

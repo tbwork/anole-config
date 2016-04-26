@@ -15,6 +15,8 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.tbwork.anole.hub.TimeEncoder;
 import org.tbwork.anole.hub.TimeServerHandler;  
 import org.tbwork.anole.hub.server.push.handler.AuthenticationHandler;
@@ -34,15 +36,25 @@ import com.google.common.base.Preconditions;
  * problem or omitting to call "close()" method.
  * @author Tommy.Tang
  */
+@Component
 public class AnolePushServer {
 
-	static volatile boolean started;
+	volatile boolean started;
 	static final Logger logger = LoggerFactory.getLogger(AnolePushServer.class);
-	static Channel channel = null;
-	static EventLoopGroup bossGroup = null;
-	static EventLoopGroup workerGroup = null;
+	Channel channel = null;
+	EventLoopGroup bossGroup = null;
+	EventLoopGroup workerGroup = null;
 	
-	public static void start(int port){
+	@Autowired
+	AuthenticationHandler authenticationHandler;
+	
+	@Autowired
+	MainLogicHandler mainLogicHandler;
+	
+	@Autowired
+	NewConnectionHandler newConnectionHandler;
+	
+	public void start(int port){
 		if(!started) //DCL-1
 		{
 			synchronized(AnolePushServer.class)
@@ -55,7 +67,7 @@ public class AnolePushServer {
 		} 
 	}
 	
-	public static void close()
+	public void close()
 	{
 		if(!started) //DCL-1
 		{
@@ -68,7 +80,7 @@ public class AnolePushServer {
 			}
 		} 
 	}
-	private static void executeStart(int port){
+	private void executeStart(int port){
 		Preconditions.checkArgument(port>0, "port should be > 0");
 		bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
@@ -81,10 +93,10 @@ public class AnolePushServer {
                  public void initChannel(SocketChannel ch) throws Exception {
                      ch.pipeline().addLast( 
                     		 new ObjectEncoder(),
-                    		 new NewConnectionHandler(), 
+                    		 newConnectionHandler, 
                     		 new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
-                    		 new AuthenticationHandler(false), 
-                    		 new MainLogicHandler(true)
+                    		 authenticationHandler, 
+                    		 mainLogicHandler
                     		 );
                  }
              })
@@ -106,7 +118,7 @@ public class AnolePushServer {
         }  
 	}
 	
-	private static void executeClose(){ 
+	private void executeClose(){ 
 		try {
 			channel.closeFuture().sync();
 		} catch (InterruptedException e) {
@@ -121,6 +133,15 @@ public class AnolePushServer {
 				started = false;
 			}
 		} 
+	}
+	
+	/**
+	 * Ping and clean bad connections.
+	 */
+	private void startMonitor(){
+		
+		
+		
 	}
 	
 }

@@ -5,8 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
@@ -31,8 +30,7 @@ import io.netty.util.internal.logging.InternalLoggerFactory;
 import com.google.common.base.Preconditions; 
 /** 
  * @author Tommy.Tang
- */
-@Component
+ */ 
 @Data
 public class AnoleSubscriberClient {
 
@@ -44,15 +42,26 @@ public class AnoleSubscriberClient {
 	SocketChannel socketChannel = null;
     int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server
+    @Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
+    private static AnoleSubscriberClient anoleSubscriberClient = new AnoleSubscriberClient();
     
-	public void connect(String remoteAddress, int port) {
+    
+    private AnoleSubscriberClient(){}
+    
+    public static AnoleSubscriberClient instance()
+    {
+    	return anoleSubscriberClient;
+    }
+    
+    
+	public void connect() {
 		if(!started) //DCL-1
 		{
 			synchronized(AnoleSubscriberClient.class)
 			{
 				if(!started)//DCL-2
 				{
-					executeConnect(remoteAddress, port); 
+					executeConnect(StaticConfiguration.REMOTE_ADDRESS, StaticConfiguration.PORT); 
 				}
 			}
 		} 

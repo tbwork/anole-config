@@ -11,6 +11,8 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.socket.SocketChannel;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service; 
 import org.tbwork.anole.common.message.s_2_c.PingMessage;
 import org.tbwork.anole.hub.server.client.manager.BaseClientManager; 
@@ -40,6 +42,7 @@ import org.tbwork.anole.hub.server.client.manager.model.SubscriberValidateReques
 @Service("subscriberClientManager")
 public class SubscriberClientManager implements BaseClientManager{
 
+	private static final Logger logger = LoggerFactory.getLogger(SubscriberClientManager.class);
 	
 	public Map<Integer,SubscriberClient> subscriberMap = new ConcurrentHashMap<Integer,SubscriberClient>();
 	
@@ -76,6 +79,7 @@ public class SubscriberClientManager implements BaseClientManager{
 		synchronized(subscriberMap){
 			if(scavenger_count_down > 0) // ping
 			{
+				logger.info("[:)] Loop of ping for all clients starts! ");
 				Set<Entry<Integer,SubscriberClient>> entrySet = subscriberMap.entrySet();
 				for(Entry<Integer,SubscriberClient> item: entrySet)
 				{
@@ -84,10 +88,14 @@ public class SubscriberClientManager implements BaseClientManager{
 					ping(client);
 				}
 				scavenger_count_down --;
+				logger.info("[:)] Loop of ping for all clients done successfully! ");
 			}
 			else // Time for scavenger to clean connections.
 			{
+				logger.info("[:)] Cleaning bad clients starts! ");
 				Set<Entry<Integer,SubscriberClient>> entrySet = subscriberMap.entrySet();
+				int totalCnt = entrySet.size();
+				int badCnt = 0;
 				for(Entry<Integer,SubscriberClient> item: entrySet)
 				{
 					Integer key = item.getKey();
@@ -95,9 +103,11 @@ public class SubscriberClientManager implements BaseClientManager{
 					if(!client.isValid() || client.maxNoResponsecount())
 					{
 						subscriberMap.remove(key);
+						badCnt ++;
 					}
 				}
 				scavenger_count_down = StaticConfiguration.SCAVENGER_PERIOD_BY_TIMES_OF_PING_PERIOD_SECOND;
+				logger.info("[:)] Cleaning bad clients done successfully, total count of clients:{}, count of alive clients:{}, count of bad clients:{}", totalCnt, totalCnt-badCnt, badCnt);
 			}
 				
 		} 

@@ -1,9 +1,13 @@
 package org.tbwork.anole.hub.server.push.handler;
 
+import java.lang.reflect.Constructor;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.AuthenticationBodyMessage;
@@ -28,6 +32,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
 
+@Component()
 public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> {
 
 	@Autowired
@@ -36,8 +41,8 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> 
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 	
-	public AuthenticationHandler(boolean autoRelease){
-		super(autoRelease);
+	public AuthenticationHandler(){
+		super(false);
 	}
 	
     @Override
@@ -70,7 +75,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> 
 		 					  										  (SocketChannel)ctx.channel()
 		 					  										  ));
 		 			  if(logger.isDebugEnabled())
-		 				  logger.info("New user logined successfully! username:'{}'", "tommy.tang");
+		 				  logger.info("[:)] New user logined successfully! username:'{}'", "tommy.tang");
 		 			  ReferenceCountUtil.release(msg);// Releasing the message which means no further process.
 		 		}
 		 		else  
