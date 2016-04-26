@@ -30,6 +30,11 @@ public class SubscriberClient {
 	{
 		return ++ no_response_count;
 	}
+	
+	public int decreaseNoResponseCount()
+	{
+		return -- no_response_count;
+	}
 	 
 	public boolean maxNoResponsecount()
 	{

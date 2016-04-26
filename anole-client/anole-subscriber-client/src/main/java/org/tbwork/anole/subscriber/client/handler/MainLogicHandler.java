@@ -4,14 +4,20 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType; 
 import org.tbwork.anole.common.message.c_2_s.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.ReturnValueMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.kvcache.ConfigRetrieveWorkerManager;
 
 public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
+	public MainLogicHandler(boolean autoRelease){
+		super(autoRelease);
+	}
+	
 	@Autowired
 	private  AnoleSubscriberClient anoleSubscriberClient;
 	
@@ -26,7 +32,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 	} break;
 		 	case S2C_RETURN_VALUE:{ 
 		 		ReturnValueMessage rvMsg = (ReturnValueMessage) msg;
-		 		
+		 		processConfigResponse(rvMsg);
 		 	} break;
 		 	  
 		 	default:{
@@ -35,7 +41,13 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 	} break; 
 		 }  
 	}
-	
-	private void readConfigMsg
 
+	
+	private void processConfigResponse(ReturnValueMessage rvMsg)
+	{
+		String key   = rvMsg.getKey(); 
+		String value = rvMsg.getValue();
+		ConfigType type  = rvMsg.getValueType();
+		ConfigRetrieveWorkerManager.setConfigItem(key, value, type); 
+	}
 }

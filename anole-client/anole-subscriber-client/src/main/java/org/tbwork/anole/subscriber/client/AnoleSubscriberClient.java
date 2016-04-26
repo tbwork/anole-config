@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
+import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
+import org.tbwork.anole.subscriber.client.handler.MainLogicHandler;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -20,6 +22,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory; 
 
@@ -114,8 +119,10 @@ public class AnoleSubscriberClient {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(
-                    		new TimeDecoder(), 
-                    		new TimeClientHandler()
+                    		new ObjectEncoder(),
+                   		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
+                    		new AuthenticationHandler(false), 
+                    		new MainLogicHandler(true)
                     		);
                 }
             }); 
@@ -124,7 +131,7 @@ public class AnoleSubscriberClient {
             if (f.isSuccess()) {
             	socketChannel = (SocketChannel)f.channel(); 
             	started = true;
-            	logger.info("[:)] Anole client successfully connected to the remote Anolo hub server with remote host = '{}' and port = ", host, port);			            	
+            	logger.info("[:)] Anole client successfully connected to the remote Anolo hub server with remote host = '{}' and port = {}", host, port);			            	
             } 
         }
         catch (InterruptedException e) {

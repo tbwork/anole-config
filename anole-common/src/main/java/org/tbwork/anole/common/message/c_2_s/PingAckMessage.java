@@ -1,0 +1,15 @@
+package org.tbwork.anole.common.message.c_2_s;
+
+import lombok.Data;
+
+import org.tbwork.anole.common.message.Message;
+import org.tbwork.anole.common.message.MessageType;
+import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
+@Data
+public class PingAckMessage  extends Message{
+
+	public PingAckMessage(){
+		super(MessageType.C2S_PING_ACK);
+	}
+	
+}

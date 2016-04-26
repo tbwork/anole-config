@@ -10,5 +10,5 @@ public interface BaseClientManager {
 
 	public void unregisterClient(BaseOperationRequest request);
 	
-	public void registerClient(BaseOperationRequest request);
+	public void registerClient(BaseOperationRequest request); 
 }

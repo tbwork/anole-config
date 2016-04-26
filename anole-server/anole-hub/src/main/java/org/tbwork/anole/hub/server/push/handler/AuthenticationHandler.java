@@ -11,6 +11,7 @@ import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.common.message.s_2_c.MatchFailAndCloseMessage;
 import org.tbwork.anole.hub.server.client.manager.BaseClientManager;
+import org.tbwork.anole.hub.server.client.manager.impl.SubscriberClientManager;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberRegisterRequest;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberValidateRequest;
 import org.tbwork.anole.hub.server.push.AnolePushServer;
@@ -27,25 +28,29 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
 
-public class AuthenticationHandler extends ChannelHandlerAdapter {
+public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> {
 
 	@Autowired
 	@Qualifier("subscriberClientManager")
-	private BaseClientManager cm;
+	private SubscriberClientManager cm;
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
+	
+	public AuthenticationHandler(boolean autoRelease){
+		super(autoRelease);
+	}
 	
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    }
-    
-    
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-    	Message message = (Message) msg;
-    	MessageType msgType = message.getType(); 
+    } 
+
+	@Override
+	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
+			throws Exception { 
+    	 Message message = msg;
+    	 MessageType msgType = message.getType(); 
 		 if(MessageType.C2S_AUTH_BODY.equals(msgType)) // authentification information from client
 		 {
 			    AuthenticationBodyMessage bodyMessage = (AuthenticationBodyMessage) msg;
@@ -64,6 +69,8 @@ public class AuthenticationHandler extends ChannelHandlerAdapter {
 		 					  										  clientInfo.getToken(), 
 		 					  										  (SocketChannel)ctx.channel()
 		 					  										  ));
+		 			  if(logger.isDebugEnabled())
+		 				  logger.info("New user logined successfully! username:'{}'", "tommy.tang");
 		 			  ReferenceCountUtil.release(msg);// Releasing the message which means no further process.
 		 		}
 		 		else  
@@ -83,7 +90,7 @@ public class AuthenticationHandler extends ChannelHandlerAdapter {
 		 }
 		
 		 // Passed the identification validation, go on processing logical staff.
-         ctx.fireChannelRead(msg);
-    }
+         ctx.fireChannelRead(msg); 
+	}
  
 }

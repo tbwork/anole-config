@@ -15,31 +15,41 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.AuthenticationBodyMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 
-public class AuthenticationHandler extends  ChannelHandlerAdapter  {
+public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 	
 	@Autowired
 	private AnoleSubscriberClient anoleSubscriberClient;
 	
+	public AuthenticationHandler(boolean autoRelease){
+		super(autoRelease);
+	} 
+	private AuthenticationBodyMessage getAuthInfo(){
+		AuthenticationBodyMessage authBody=new AuthenticationBodyMessage();
+    	authBody.setUsername("tommy.tang");
+    	authBody.setPassword("123456"); 
+    	return authBody;
+	}
+
 	@Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
-		  Message message = (Message) msg;
-		  MessageType msgType=  message.getType();
-          switch (msgType){
-            case S2C_AUTH_FIRST:{ //Please login first. 
-            	ctx.writeAndFlush(getAuthInfo());
-            	ReferenceCountUtil.release(msgType);
-            } break;
-            case S2C_AUTH_FAIL_CLOSE:{
-            	logger.error("[:(] Username or password is invalid, please check them and try again."); 
-            	anoleSubscriberClient.close(); // close the connection and wait for next trial
-            	ReferenceCountUtil.release(msgType);
+	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
+			throws Exception { 
+		MessageType msgType=  msg.getType();
+        switch (msgType){
+	        case S2C_AUTH_FIRST:{ //Please login first. 
+		      	ctx.writeAndFlush(getAuthInfo());
+		      	ReferenceCountUtil.release(msgType);
+	        } break;
+	        case S2C_AUTH_FAIL_CLOSE:{
+		      	logger.error("[:(] Username or password is invalid, please check them and try again."); 
+		      	anoleSubscriberClient.close(); // close the connection and wait for next trial
+		      	ReferenceCountUtil.release(msgType);
 			} break;
 		 	case S2C_AUTH_PASS:{ 
 		 		logger.info ("[:)] Login successfully.");
-		 		anoleSubscriberClient.setClientId(message.getClientId());
-		 		anoleSubscriberClient.setToken(message.getToken());
+		 		anoleSubscriberClient.setClientId(msg.getClientId());
+		 		anoleSubscriberClient.setToken(msg.getToken());
 		 		ReferenceCountUtil.release(msgType);
 		 	} break;
 		 	case S2C_MATCH_FAIL:{
@@ -47,19 +57,11 @@ public class AuthenticationHandler extends  ChannelHandlerAdapter  {
 		 		ctx.writeAndFlush(getAuthInfo());
 		 		ReferenceCountUtil.release(msgType);
 		 	} break;
-            default:{
-					 ctx.fireChannelRead(msg);
+	        default:{ 
 	        } break;
-          }
-          
-	}
-	
-	
-	private AuthenticationBodyMessage getAuthInfo(){
-		AuthenticationBodyMessage authBody=new AuthenticationBodyMessage();
-    	authBody.setUsername("tommy.tang");
-    	authBody.setPassword("123456"); 
-    	return authBody;
+        }
+        
+		
 	}
     
 }

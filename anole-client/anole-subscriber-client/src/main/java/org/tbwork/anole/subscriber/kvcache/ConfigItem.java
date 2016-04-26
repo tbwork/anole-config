@@ -4,7 +4,7 @@ import java.math.BigDecimal;
 
 import javax.xml.transform.TransformerConfigurationException;
 
-import org.tbwork.anole.common.ConfigValueType;
+import org.tbwork.anole.common.ConfigType;  
 import org.tbwork.anole.subscriber.exceptions.BadTransformValueFormatException;
 import org.tbwork.anole.subscriber.exceptions.IllegalConfigTransformException;
 
@@ -19,31 +19,52 @@ import lombok.Setter;
 public class ConfigItem {
 
 	private String key;
-	private ConfigValueType type;
+	private ConfigType type;
 	
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private String strValue; 
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private boolean boolValue;
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private double doubleValue;
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private float floatValue;
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private int intValue;
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private long longValue;
-	@Setter(AccessLevel.NONE)
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private short shortValue; 
-
-	public void setValue(String value, ConfigValueType type)
+	/**
+	 * True empty means user does not set value for the configuration.
+	 */
+	private boolean empty; 
+	
+	private boolean loaded;
+	
+	private ConfigItem(){
+		this.key = new String();
+		setSystemDefault();
+		
+	}
+	
+	public ConfigItem(String key){
+		this.key = key;
+		setSystemDefault();
+	}
+	
+	public void setValue(String value, ConfigType type)
 	{
 		this.type = type;
 		value = value.trim();
+		if(value == null || value.isEmpty())
+			return;
+		empty = false;
+		loaded = true;
 		switch(type){
 			case BOOL:{ //set boolValue
 				if(!"true".equals(value) && !"false".equals(value)) 
-					throw new BadTransformValueFormatException(value, ConfigValueType.BOOL); 
+					throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
 				if("true".equals(value)) 
 					boolValue = true;
 				else
@@ -63,7 +84,7 @@ public class ConfigItem {
 				 }
 				 catch(NumberFormatException e)
 				 {
-					 throw new BadTransformValueFormatException(value, ConfigValueType.NUMBER); 
+					 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
 				 }  
 			}break;
 			case STRING:{
@@ -73,13 +94,13 @@ public class ConfigItem {
 		}
 	}
 	
-	public String getStrValue(){
+	public String strValue(){
 	    return strValue;	
 	}
 	
 	public int intValue()
 	{
-		if(ConfigValueType.NUMBER.equals(type))
+		if(ConfigType.NUMBER.equals(type))
 		{
 			return intValue;
 		}
@@ -88,7 +109,7 @@ public class ConfigItem {
 	
 	public boolean boolValue()
 	{
-		if(ConfigValueType.NUMBER.equals(type))
+		if(ConfigType.BOOL.equals(type))
 		{
 			return boolValue;
 		}
@@ -97,7 +118,7 @@ public class ConfigItem {
 	
 	public double doubleValue()
 	{
-		if(ConfigValueType.NUMBER.equals(type))
+		if(ConfigType.NUMBER.equals(type))
 		{
 			return doubleValue;
 		}
@@ -106,7 +127,7 @@ public class ConfigItem {
 	
 	public float floatValue()
 	{
-		if(ConfigValueType.NUMBER.equals(type))
+		if(ConfigType.NUMBER.equals(type))
 		{
 			return floatValue;
 		}
@@ -115,30 +136,42 @@ public class ConfigItem {
 	
 	public short shortValue()
 	{
-		if(ConfigValueType.NUMBER.equals(type))
+		if(ConfigType.NUMBER.equals(type))
 		{
 			return shortValue;
 		}
 		return 0;
 	}
 	
-	
-	
-	private <T> T getObject(Class<T> clazz)
+	public long longValue()
 	{
-		if(ConfigValueType.JSON.equals(type)) 
+		if(ConfigType.NUMBER.equals(type))
+		{
+			return longValue;
+		}
+		return 0;
+	}
+	
+	
+	
+	public <T> T objectValue(Class<T> clazz)
+	{
+		if(ConfigType.JSON.equals(type)) 
 			return JSON.parseObject(strValue, clazz); 
 		else
-			throw new IllegalConfigTransformException(type, ConfigValueType.JSON);
+			throw new IllegalConfigTransformException(type, ConfigType.JSON);
 	} 
+	
+	private void setSystemDefault(){
+		this.empty       = true;
+		this.boolValue   = false;
+		this.doubleValue = 0.0;
+		this.floatValue  = 0.0f;
+		this.intValue    = 0;
+		this.longValue   = 0l;
+		this.shortValue  = 0;
+		this.strValue    = null;
+	}
 	 
 	
-	public static void main(String[] args) {
-		
-		String value = "-1.0";
-		
-		BigDecimal a = new BigDecimal(value);
-		System.out.println(a);
-		
-	}
 }

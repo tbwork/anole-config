@@ -1,6 +1,7 @@
 package org.tbwork.anole.hub.server.push;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
@@ -8,11 +9,17 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.serialization.ClassResolvers;
+import io.netty.handler.codec.serialization.ObjectDecoder;
+import io.netty.handler.codec.serialization.ObjectEncoder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.hub.TimeEncoder;
 import org.tbwork.anole.hub.TimeServerHandler;  
+import org.tbwork.anole.hub.server.push.handler.AuthenticationHandler;
+import org.tbwork.anole.hub.server.push.handler.MainLogicHandler;
+import org.tbwork.anole.hub.server.push.handler.NewConnectionHandler;
 
 import com.google.common.base.Preconditions;
 
@@ -31,7 +38,7 @@ public class AnolePushServer {
 
 	static volatile boolean started;
 	static final Logger logger = LoggerFactory.getLogger(AnolePushServer.class);
-	static SocketChannel socketChannel = null;
+	static Channel channel = null;
 	static EventLoopGroup bossGroup = null;
 	static EventLoopGroup workerGroup = null;
 	
@@ -72,7 +79,13 @@ public class AnolePushServer {
              .childHandler(new ChannelInitializer<SocketChannel>() {
                  @Override
                  public void initChannel(SocketChannel ch) throws Exception {
-                     ch.pipeline().addLast(new TimeEncoder(), new TimeServerHandler());
+                     ch.pipeline().addLast( 
+                    		 new ObjectEncoder(),
+                    		 new NewConnectionHandler(), 
+                    		 new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
+                    		 new AuthenticationHandler(false), 
+                    		 new MainLogicHandler(true)
+                    		 );
                  }
              })
              .option(ChannelOption.SO_BACKLOG, 128)      
@@ -81,9 +94,9 @@ public class AnolePushServer {
              // Bind and start to accept incoming connections. 
 			 ChannelFuture f = b.bind(port).sync(); 
              if(f.isSuccess())
-             {  
-            	 socketChannel = (SocketChannel)f.channel(); 
-            	 logger.info("[:)] Anole push server started succesfully !");
+             {    
+            	 channel = f.channel();
+            	 logger.info("[:)] Anole push server at local address (port = {}) started succesfully !", port);
             	 started = true;
              }
 			 
@@ -95,12 +108,12 @@ public class AnolePushServer {
 	
 	private static void executeClose(){ 
 		try {
-			socketChannel.closeFuture().sync();
+			channel.closeFuture().sync();
 		} catch (InterruptedException e) {
 			logger.error("[:(] Anole push server failed to close. Inner message: {}", e.getMessage());
 			e.printStackTrace();
 		}finally{ 
-			if(!socketChannel.isActive())
+			if(!channel.isActive())
 			{
 				logger.info("[:)] Anole push server closed successfully !");		
 				workerGroup.shutdownGracefully();

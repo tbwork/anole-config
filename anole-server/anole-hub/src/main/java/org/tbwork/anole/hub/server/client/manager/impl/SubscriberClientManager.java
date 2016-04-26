@@ -67,6 +67,11 @@ public class SubscriberClientManager implements BaseClientManager{
 		if(client != null)  client.setValid(false);  
 	}
 
+	public void pincAck(int clientId){
+		SubscriberClient client = subscriberMap.get(clientId);
+		if(client != null)
+			client.decreaseNoResponseCount();
+	}
 	public void pingAndScavenge(){ 
 		synchronized(subscriberMap){
 			if(scavenger_count_down > 0) // ping
