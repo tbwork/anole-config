@@ -13,8 +13,8 @@ public class SubscriberClient {
 
 	int token;
 	SocketChannel socketChannel;
-	@Getter(AccessLevel.NONE) 
-	int no_response_count;
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)  
+	int ping_promise_count;
 	boolean valid;
 	
 	public SubscriberClient(){}
@@ -22,22 +22,22 @@ public class SubscriberClient {
 	public SubscriberClient(int token, SocketChannel socketChannel){
 		this.token = token;
 		this.socketChannel = socketChannel;
-		this.no_response_count = 0;
+		this.ping_promise_count = 0;
 		this.valid =true;
 	}
 	
-	public int increaseNoResponseCount()
+	public int addPingPromise()
 	{
-		return ++ no_response_count;
+		return ++ ping_promise_count;
 	}
 	
-	public int decreaseNoResponseCount()
+	public int achievePingPromise()
 	{
-		return -- no_response_count;
+		return ping_promise_count >0 ? -- ping_promise_count : 0;
 	}
 	 
-	public boolean maxNoResponsecount()
+	public boolean maxPromiseCount()
 	{
-		return no_response_count < StaticConfiguration.MAX_NO_RESPONSE_COUNT ;
+		return ping_promise_count >= StaticConfiguration.MAX_PROMISE_COUNT ;
 	}
 }

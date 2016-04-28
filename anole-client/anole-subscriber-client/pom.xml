@@ -15,6 +15,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
      <fastjson.version>1.1.15</fastjson.version>
+     <servlet.api.version>2.5</servlet.api.version>
   </properties>
   <dependencies>
     <dependency>
@@ -27,6 +28,11 @@
 		<groupId>com.alibaba</groupId>
 		<artifactId>fastjson</artifactId>
 		<version>${fastjson.version}</version>
+	</dependency> 
+	<dependency>
+		<groupId>javax.servlet</groupId>
+		<artifactId>servlet-api</artifactId>
+		<version>${servlet.api.version}</version>
 	</dependency> 
   </dependencies>
 </project>

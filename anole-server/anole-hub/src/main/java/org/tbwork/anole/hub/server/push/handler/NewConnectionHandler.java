@@ -9,8 +9,9 @@ import org.tbwork.anole.hub.server.util.ChannelHelper;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-
+import io.netty.channel.ChannelHandler.Sharable;
 @Component
+@Sharable
 public class NewConnectionHandler extends ChannelHandlerAdapter {
 
 	static final Logger logger = LoggerFactory.getLogger(NewConnectionHandler.class);

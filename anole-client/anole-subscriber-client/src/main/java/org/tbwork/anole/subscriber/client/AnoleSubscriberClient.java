@@ -7,10 +7,15 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.message.Message;
+import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
 import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
 import org.tbwork.anole.subscriber.client.handler.MainLogicHandler;
+import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
+import org.tbwork.anole.subscriber.core.AnoleConfig;
+import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
+import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -40,11 +45,13 @@ public class AnoleSubscriberClient {
 	private static final Logger logger = LoggerFactory.getLogger(AnoleSubscriberClient.class);
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	SocketChannel socketChannel = null;
-    int clientId = 0; // assigned by the server
-    int token = 0;    // assigned by the server
     @Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
     private static AnoleSubscriberClient anoleSubscriberClient = new AnoleSubscriberClient();
+
+    private static final LongConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
     
+    int clientId = 0; // assigned by the server
+    int token = 0;    // assigned by the server
     
     private AnoleSubscriberClient(){}
     
@@ -61,7 +68,8 @@ public class AnoleSubscriberClient {
 			{
 				if(!started)//DCL-2
 				{
-					executeConnect(StaticConfiguration.REMOTE_ADDRESS, StaticConfiguration.PORT); 
+					executeConnect(AnoleConfig.getProperty("remoteAddress"), AnoleConfig.getIntProperty("remotePort")); 
+					lcMonitor.start();
 				}
 			}
 		} 
@@ -74,6 +82,7 @@ public class AnoleSubscriberClient {
 			{
 				if(!started)//DCL-2
 				{
+					lcMonitor.stop();
 					executeClose(); 
 				}
 			}
@@ -82,34 +91,35 @@ public class AnoleSubscriberClient {
 	}
 	
 	
-	public boolean sendMessage(Message msg)
+	public void sendMessage(Message msg)
 	{
-		if(socketChannel != null)
-		{
-		   tagMessage(msg);
-		   socketChannel.writeAndFlush(msg); 
-		   return true;
-		}
-		return false;
+		sendMessageWithFuture(msg);
 	}
 	
-	public boolean sendMessageWithListeners(Message msg, ChannelFutureListener ... listeners)
+	public void sendMessageWithListeners(Message msg, ChannelFutureListener ... listeners)
 	{
+		ChannelFuture f = sendMessageWithFuture(msg);
+		for(ChannelFutureListener item : listeners)
+		    f.addListener(item);  
+	} 
+	
+	
+	private ChannelFuture sendMessageWithFuture(Message msg){ 
 		if(socketChannel != null)
 		{
-			tagMessage(msg);
-			ChannelFuture f = socketChannel.writeAndFlush(msg);
-			for(ChannelFutureListener item : listeners)
-			    f.addListener(item);
-			return true;
+			if(!MessageType.C2S_AUTH_BODY.equals(msg.getType()))
+				tagMessage(msg);
+			return socketChannel.writeAndFlush(msg);
 		}
-		return false;
-	} 
+		throw new SocketChannelNotReadyException();
+	}
 	
 	/**
 	 * Tag each message with current clientId and token before sending.
 	 */
 	private void tagMessage(Message msg){
+		if(clientId == 0 && token == 0)
+			throw new AuthenticationNotReadyException();
 		msg.setClientId(clientId);
 	    msg.setToken(token);
 	}
@@ -152,6 +162,8 @@ public class AnoleSubscriberClient {
 	private void executeClose()
 	{
 		try {
+			clientId = 0; //reset
+			token = 0;//reset
 			socketChannel.closeFuture().sync();
 			socketChannel = null;
 		} catch (InterruptedException e) {

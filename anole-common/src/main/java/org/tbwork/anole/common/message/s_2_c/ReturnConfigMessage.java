@@ -7,15 +7,16 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 
 @Data
-public class ReturnValueMessage extends Message{
+public class ReturnConfigMessage extends Message{
 
 	private String key;
 	private String value;
 	private ConfigType valueType;
-	public ReturnValueMessage(){
-		super(MessageType.S2C_RETURN_VALUE);
+	public ReturnConfigMessage(){
+		super(MessageType.S2C_RETURN_CONFIG);
 	} 
-	public ReturnValueMessage(String key, String value, ConfigType valueType){ 
+	public ReturnConfigMessage(String key, String value, ConfigType valueType){ 
+		super(MessageType.S2C_RETURN_CONFIG);
 		this.key = key;
 		this.value = value;
 		this.valueType = valueType;

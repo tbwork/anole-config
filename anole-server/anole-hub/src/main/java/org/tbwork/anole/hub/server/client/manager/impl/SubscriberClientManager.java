@@ -14,7 +14,7 @@ import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service; 
-import org.tbwork.anole.common.message.s_2_c.PingMessage;
+import org.tbwork.anole.common.message.c_2_s.PingMessage;
 import org.tbwork.anole.hub.server.client.manager.BaseClientManager; 
 import org.tbwork.anole.hub.server.client.manager.StaticConfiguration;
 import org.tbwork.anole.hub.server.client.manager.model.BaseOperationRequest;
@@ -33,7 +33,7 @@ import org.tbwork.anole.hub.server.client.manager.model.SubscriberValidateReques
  * <b>1.</b> A Ping thread periodically sends ping message to
  * all of the clients respectively, and if certain client failed to
  * response, its corresponding no_response_count would increase by one,
- * {@link SubscriberClient#increaseNoResponseCount()}.<br>
+ * {@link SubscriberClient#addPingPromise()}.<br>
  * <b>2.</b> A scavenger thread periodically clean bad clients whose
  * connection with server is disconnected ( valid = false or
  * no_response_count > MAX_NO_RESPONSE_COUNT ).
@@ -60,7 +60,7 @@ public class SubscriberClientManager implements BaseClientManager{
  
 	public void registerClient(BaseOperationRequest request) {
 		SubscriberRegisterRequest srRequest =(SubscriberRegisterRequest)request;
-		SubscriberClient client = new SubscriberClient(srRequest.getClientId(), srRequest.getSocketChannel());
+		SubscriberClient client = new SubscriberClient(srRequest.getToken(), srRequest.getSocketChannel());
 		subscriberMap.put(srRequest.getClientId(), client); 
 	}
 
@@ -70,25 +70,24 @@ public class SubscriberClientManager implements BaseClientManager{
 		if(client != null)  client.setValid(false);  
 	}
 
-	public void pincAck(int clientId){
+	public void ackPing(int clientId){
 		SubscriberClient client = subscriberMap.get(clientId);
 		if(client != null)
-			client.decreaseNoResponseCount();
+			client.achievePingPromise();
 	}
+	
 	public void pingAndScavenge(){ 
 		synchronized(subscriberMap){
-			if(scavenger_count_down > 0) // ping
+			if(scavenger_count_down > 0)
 			{
-				logger.info("[:)] Loop of ping for all clients starts! ");
+				logger.info("[:)] Adding ping promise for all clients starts! ");
 				Set<Entry<Integer,SubscriberClient>> entrySet = subscriberMap.entrySet();
 				for(Entry<Integer,SubscriberClient> item: entrySet)
 				{
-					Integer key = item.getKey();
-					SubscriberClient client = subscriberMap.get(key);
-					ping(client);
+					item.getValue().addPingPromise(); 
 				}
 				scavenger_count_down --;
-				logger.info("[:)] Loop of ping for all clients done successfully! ");
+				logger.info("[:)] Adding ping promise for all clients (count = {}) done successfully! ", entrySet.size());
 			}
 			else // Time for scavenger to clean connections.
 			{
@@ -100,7 +99,7 @@ public class SubscriberClientManager implements BaseClientManager{
 				{
 					Integer key = item.getKey();
 					SubscriberClient client = subscriberMap.get(key);
-					if(!client.isValid() || client.maxNoResponsecount())
+					if(!client.isValid() || client.maxPromiseCount())
 					{
 						subscriberMap.remove(key);
 						badCnt ++;
@@ -115,7 +114,7 @@ public class SubscriberClientManager implements BaseClientManager{
 	
     private void ping(final SubscriberClient client)
     { 
-    	if(client.maxNoResponsecount()) client.setValid(false); 
+    	if(client.maxPromiseCount()) client.setValid(false); 
     	if(!client.isValid())           return;
     		
     	ChannelFuture f = client.getSocketChannel().writeAndFlush(new PingMessage());
@@ -123,7 +122,7 @@ public class SubscriberClientManager implements BaseClientManager{
 
 			public void operationComplete(ChannelFuture future)
 					throws Exception {
-				 client.increaseNoResponseCount(); //increase by one.
+				 client.addPingPromise(); //increase by one.
 			}
     	}); 
     }

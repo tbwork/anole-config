@@ -5,10 +5,11 @@ import lombok.Data;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 @Data
-public class PingMessage extends Message{
-
-	public PingMessage(){
-		super(MessageType.S2C_PING);
+public class PingAckMessage  extends Message{
+	
+	private int delayTime;
+	public PingAckMessage(){
+		super(MessageType.S2C_PING_ACK);
 	}
 	
 }

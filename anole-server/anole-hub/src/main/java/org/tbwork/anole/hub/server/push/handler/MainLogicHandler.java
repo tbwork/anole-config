@@ -12,18 +12,24 @@ import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType; 
 import org.tbwork.anole.common.message.c_2_s.GetConfigMessage;
-import org.tbwork.anole.common.message.s_2_c.ReturnValueMessage;
+import org.tbwork.anole.common.message.s_2_c.ReturnConfigMessage;
 import org.tbwork.anole.hub.server.client.manager.BaseClientManager;
 import org.tbwork.anole.hub.server.client.manager.impl.SubscriberClientManager;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberUnregisterRequest;
 import org.tbwork.anole.hub.server.repository.DataService;
+import org.tbwork.anole.hub.server.util.ChannelHelper;
 
+import io.netty.channel.ChannelHandler.Sharable;
 @Component
+@Sharable
 public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
 
 	@Autowired
 	@Qualifier("subscriberClientManager")
 	private SubscriberClientManager cm;
+	
+	@Autowired
+	private DataService dataService;
 	
 	static final Logger logger = LoggerFactory.getLogger(MainLogicHandler.class);
 	
@@ -33,9 +39,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
 	
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
-			throws Exception {
-		 if(logger.isDebugEnabled())
-			     logger.debug("New message received (type = {}, clientId = {})", msg.getType(), msg.getClientId());
+			throws Exception { 
 		 MessageType msgType = msg.getType();
 		 int clientId = msg.getClientId();
 		 int token = msg.getToken();
@@ -46,21 +50,24 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
 		 		logger.info("[:)] The client (address = {}) is closing...", ctx.channel().remoteAddress());
 		 		cm.unregisterClient(new SubscriberUnregisterRequest(clientId)); // remove from the registry
 		 	} break;
-		 	case C2S_GET_CONFIG:{  		 		
-		 		GetConfigMessage gcMsg = (GetConfigMessage) msg;
-		 		String key = gcMsg.getKey();
-		 		String value = DataService.getProperty(key);
-		 		ReturnValueMessage rvMsg = new ReturnValueMessage(key,value, ConfigType.STRING);
-		 		ctx.writeAndFlush(rvMsg);
+		 	case C2S_GET_CONFIG:{
+		 		ChannelHelper.sendMessage(ctx, processGetConfigMessage(msg)); 
 		 	} break;
-		 	case C2S_PING_ACK:{ 
-		 		logger.info("[:)] The client ( clientId = {}) responsed the ping request successfully.");
-		 		cm.pincAck(clientId);
+		 	case C2S_PING:{ 
+		 		logger.info("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
+		 		cm.ackPing(clientId);
 		 	} break;
 		 	default:break; 
 		 } 
 	}
  
+	private ReturnConfigMessage processGetConfigMessage(Message msg){
+		
+		GetConfigMessage gcMsg = (GetConfigMessage) msg;
+ 		String key = gcMsg.getKey();
+ 		String value = dataService.getProperty(key);
+ 		return new ReturnConfigMessage(key,value, ConfigType.STRING);  
+	}
 	
 	
 }

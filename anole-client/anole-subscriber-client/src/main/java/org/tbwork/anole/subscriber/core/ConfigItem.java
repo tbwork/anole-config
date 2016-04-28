@@ -1,12 +1,14 @@
-package org.tbwork.anole.subscriber.kvcache;
+package org.tbwork.anole.subscriber.core;
 
 import java.math.BigDecimal;
 
 import javax.xml.transform.TransformerConfigurationException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.ConfigType;  
 import org.tbwork.anole.subscriber.exceptions.BadTransformValueFormatException;
-import org.tbwork.anole.subscriber.exceptions.IllegalConfigTransformException;
+import org.tbwork.anole.subscriber.exceptions.ConfigTypeNotMatchedException;
 
 import com.alibaba.fastjson.JSON;
 
@@ -19,7 +21,7 @@ import lombok.Setter;
 public class ConfigItem {
 
 	private String key;
-	private ConfigType type;
+	private ConfigType type; 
 	
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private String strValue; 
@@ -36,11 +38,12 @@ public class ConfigItem {
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private short shortValue; 
 	/**
-	 * True empty means user does not set value for the configuration.
+	 * True empty means user does not set value 
+	 * (or set an empty value) for the configuration.
 	 */
 	private boolean empty; 
 	
-	private boolean loaded;
+	private volatile boolean loaded;
 	
 	private ConfigItem(){
 		this.key = new String();
@@ -55,43 +58,47 @@ public class ConfigItem {
 	
 	public void setValue(String value, ConfigType type)
 	{
-		this.type = type;
-		value = value.trim();
-		if(value == null || value.isEmpty())
-			return;
-		empty = false;
-		loaded = true;
-		switch(type){
-			case BOOL:{ //set boolValue
-				if(!"true".equals(value) && !"false".equals(value)) 
-					throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
-				if("true".equals(value)) 
-					boolValue = true;
-				else
-					boolValue = false; 
-			}break;
-			case JSON: {// set strValue
-				 strValue = value; 
-			}break;
-			case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
-				 try{
-					 BigDecimal a = new BigDecimal(value);
-					 intValue = a.toBigInteger().intValue();
-					 shortValue = (short) intValue;
-					 longValue = a.toBigInteger().longValue();
-					 floatValue = a.floatValue();
-					 doubleValue = a.doubleValue();
-				 }
-				 catch(NumberFormatException e)
-				 {
-					 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
-				 }  
-			}break;
-			case STRING:{
-				 strValue = value;
-			}break;
-			default:break;
-		}
+		synchronized(key){  
+			this.type = type;
+			this.strValue = value;
+			value = value.trim();
+			if(value == null || value.isEmpty())
+				return;
+			empty = false;
+			loaded = true;
+			switch(type){
+				case BOOL:{ //set boolValue
+					if(!"true".equals(value) && !"false".equals(value)) 
+						throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
+					if("true".equals(value)) 
+						boolValue = true;
+					else
+						boolValue = false; 
+				}break;
+				case JSON: {// set strValue
+					 strValue = value; 
+				}break;
+				case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
+					 try{
+						 BigDecimal a = new BigDecimal(value);
+						 intValue = a.toBigInteger().intValue();
+						 shortValue = (short) intValue;
+						 longValue = a.toBigInteger().longValue();
+						 floatValue = a.floatValue();
+						 doubleValue = a.doubleValue();
+					 }
+					 catch(NumberFormatException e)
+					 {
+						 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
+					 }  
+				}break;
+				case STRING:{
+					 strValue = value;
+				}break;
+				default:break;
+			} 
+			key.notify(); 
+		} 
 	}
 	
 	public String strValue(){
@@ -104,7 +111,7 @@ public class ConfigItem {
 		{
 			return intValue;
 		}
-		return 0;
+		throw new ConfigTypeNotMatchedException(type, ConfigType.JSON);
 	}
 	
 	public boolean boolValue()
@@ -154,12 +161,18 @@ public class ConfigItem {
 	
 	
 	
+	/**
+	 * If you want to get POJO object from the configuration
+	 * value, make sure the value is a valid JSON string.
+	 * @param clazz the POJO's class
+	 * @return the object of POJO's class
+	 */
 	public <T> T objectValue(Class<T> clazz)
 	{
 		if(ConfigType.JSON.equals(type)) 
 			return JSON.parseObject(strValue, clazz); 
 		else
-			throw new IllegalConfigTransformException(type, ConfigType.JSON);
+			throw new ConfigTypeNotMatchedException(type, ConfigType.JSON);
 	} 
 	
 	private void setSystemDefault(){

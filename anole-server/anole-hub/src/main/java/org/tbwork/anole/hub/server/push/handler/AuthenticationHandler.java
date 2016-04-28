@@ -31,8 +31,10 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
+import io.netty.channel.ChannelHandler.Sharable;
 
-@Component()
+@Component
+@Sharable
 public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> {
 
 	@Autowired
@@ -54,6 +56,8 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> 
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
 			throws Exception { 
+		 if(logger.isDebugEnabled())
+		     logger.debug("New message received (type = {}, clientId = {})", msg.getType(), msg.getClientId());
     	 Message message = msg;
     	 MessageType msgType = message.getType(); 
 		 if(MessageType.C2S_AUTH_BODY.equals(msgType)) // authentification information from client
@@ -68,7 +72,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> 
 		 			  ClientInfo clientInfo =  ClientInfoGenerator.generate(); 
 		 			  aptMsg.setClientId(clientInfo.getClientId());
 		 			  aptMsg.setToken(clientInfo.getToken());
-		 			  ctx.channel().writeAndFlush(aptMsg);  
+		 			  ChannelHelper.sendMessage(ctx, aptMsg); 
 		 			  //Register client 
 		 			  cm.registerClient(new SubscriberRegisterRequest(clientInfo.getClientId(), 
 		 					  										  clientInfo.getToken(), 
@@ -95,7 +99,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> 
 		 }
 		
 		 // Passed the identification validation, go on processing logical staff.
-         ctx.fireChannelRead(msg); 
+         ctx.fireChannelRead(msg);  
 	}
  
 }

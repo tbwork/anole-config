@@ -1,0 +1,4 @@
+env=all
+###Anole Client Configurations###
+remoteAddress=localhost
+n:remotePort=8080

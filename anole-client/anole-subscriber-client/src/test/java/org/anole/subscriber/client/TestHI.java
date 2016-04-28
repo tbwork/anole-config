@@ -1,18 +1,23 @@
 package org.anole.subscriber.client;
 
-public class TestHI {
+import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
+public class TestHI {
+  
 	
-	static Integer isHi(){
-		System.out.println("Called");
-		return 2;
-	}
-	
-	public static void main(String[] args) {
-		
-		
-		int a = isHi() == 2 ? isHi(): 0;
-		
-	}
-	
+   public static void main(String[] args) {
+	 
+		   File f = new File("/D:/Workspaces/LcbArch/Anole.w.oschina/anole/anole-client/anole-subscriber-client/target/classes/");
+		   if(f.exists()){
+			   System.out.println("yes");
+		   }
+		   else
+			   System.out.println("Not exists");
+	   
+   }
 }

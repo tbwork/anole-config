@@ -21,7 +21,6 @@ public class ServerStarter
         if(apServer!=null)
         {
         	apServer.start(8080);
-        }
-        
+        } 
     }
 }

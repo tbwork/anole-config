@@ -1,8 +1,11 @@
 package org.tbwork.anole.hub.server.repository;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class DataService {
 
-	public static String getProperty(String key){
+	public String getProperty(String key){
 		
 		if("1".equals(key)){
 			return "1-value";

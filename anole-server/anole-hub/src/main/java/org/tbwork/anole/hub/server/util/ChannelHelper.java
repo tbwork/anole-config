@@ -29,6 +29,12 @@ public class ChannelHelper {
 			}); 
 	}
 	
+	public static void sendMessage(final ChannelHandlerContext ctx, Object msg)
+	{ 
+		    ctx.writeAndFlush(msg);   
+	}
+	
+	
 	public static boolean checkValidity(Object msg){
 		return msg instanceof Message;
 	}
