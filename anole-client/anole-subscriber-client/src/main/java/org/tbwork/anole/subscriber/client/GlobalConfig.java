@@ -18,5 +18,5 @@ public class GlobalConfig {
 	public static final int RECONNECT_INTERVAL = 3; //second
 	 
 	
-	public static int PING_INTERVAL = 5 ; //second
+	public static int PING_INTERVAL = 5000 ; // millisecond
 }

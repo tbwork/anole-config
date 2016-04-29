@@ -76,7 +76,7 @@ public class AnoleConfigFileParser {
 		//t:type k:key v:value
 		String [] tkvArray = separateKV(content); 
 		String tk = tkvArray[0].trim();
-		String v = tkvArray[1].trim().toLowerCase();
+		String v = tkvArray[1].trim();
 		if("env".equals(tk)) {
 			configEnv = v;
 		}
@@ -88,7 +88,7 @@ public class AnoleConfigFileParser {
 			String k = tk; 
 			if(tkArray.length == 2){
 				t = tkArray[0].trim().toLowerCase(); 
-				k = tkArray[1].trim().toLowerCase();
+				k = tkArray[1].trim();
 			}
 			switch(t){
 				case "s":{

@@ -5,6 +5,7 @@ import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
 import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException;
 import org.tbwork.anole.subscriber.util.RegexUtil;
@@ -44,6 +45,8 @@ public class WebAnoleLoaderListener extends ClasspathAnoleLoader implements Serv
 
 	private static Logger logger = LoggerFactory.getLogger(WebAnoleLoaderListener.class);
  
+	private AnoleSubscriberClient asClient = AnoleSubscriberClient.instance(); 
+	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		 String configLocationString =  sce.getServletContext().getInitParameter("anoleConfigLocation");
@@ -53,7 +56,7 @@ public class WebAnoleLoaderListener extends ClasspathAnoleLoader implements Serv
 		 }
 		 else  
 			 this.load(RegexUtil.splitConfigLocations(configLocationString)); 
-			 
+		 asClient.connect();
 	}
 
 	@Override

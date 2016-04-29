@@ -40,4 +40,9 @@ public class SubscriberClient {
 	{
 		return ping_promise_count >= StaticConfiguration.MAX_PROMISE_COUNT ;
 	}
+	
+	public boolean testMaxPromiseCount()
+	{
+		return ping_promise_count+1 >= StaticConfiguration.MAX_PROMISE_COUNT ;
+	}
 }

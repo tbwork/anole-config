@@ -14,7 +14,7 @@ public class ScheduleJob {
 	
 	@Scheduled(fixedDelay = StaticConfiguration.PING_PERIOD_SECOND)
 	public void run(){
-		scm.pingAndScavenge();
+		scm.promisePingAndScavenge();
 	}
 	
 }

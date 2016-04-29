@@ -14,6 +14,8 @@ import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
 import org.tbwork.anole.subscriber.client.handler.MainLogicHandler;
 import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
+import org.tbwork.anole.subscriber.core.AnoleLoader;
+import org.tbwork.anole.subscriber.core.impl.ClasspathAnoleLoader;
 import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
 
@@ -58,8 +60,7 @@ public class AnoleSubscriberClient {
     public static AnoleSubscriberClient instance()
     {
     	return anoleSubscriberClient;
-    }
-    
+    } 
     
 	public void connect() {
 		if(!started) //DCL-1

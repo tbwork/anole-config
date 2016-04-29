@@ -14,18 +14,19 @@ import org.tbwork.anole.subscriber.core.impl.ClasspathAnoleLoader;
 public class ClientStart 
 {
     public static void main( String[] args )
-    {
-    	
-    	testLocalConfig();
+    { 
+    	testServer();
     }
     
     
     public static void testServer(){
+    	 
     	AnoleLoader anoleLoader = new ClasspathAnoleLoader();
     	anoleLoader.load();
-    	AnoleSubscriberClient client = AnoleSubscriberClient.instance();
     	
+    	AnoleSubscriberClient client = AnoleSubscriberClient.instance(); 
     	client.connect();
+    	
     	try {
 			TimeUnit.SECONDS.sleep(2);
 		} catch (InterruptedException e) {

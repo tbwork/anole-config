@@ -50,6 +50,10 @@ public class SubscriberClientManager implements BaseClientManager{
 	
 	public volatile int scavenger_count_down = StaticConfiguration.SCAVENGER_PERIOD_BY_TIMES_OF_PING_PERIOD_SECOND;
 	
+	private int totalCnt;
+	
+	private int aliveCnt;
+	
 	public boolean validte(BaseOperationRequest request) {
 		SubscriberValidateRequest svRequest = (SubscriberValidateRequest)request;
 		SubscriberClient client = subscriberMap.get(svRequest.getClientId());
@@ -76,15 +80,21 @@ public class SubscriberClientManager implements BaseClientManager{
 			client.achievePingPromise();
 	}
 	
-	public void pingAndScavenge(){ 
+	public void promisePingAndScavenge(){ 
 		synchronized(subscriberMap){
 			if(scavenger_count_down > 0)
 			{
-				logger.info("[:)] Adding ping promise for all clients starts! ");
+				logger.info("[:)] Start to add ping promise and sweep bad clients.");
 				Set<Entry<Integer,SubscriberClient>> entrySet = subscriberMap.entrySet();
 				for(Entry<Integer,SubscriberClient> item: entrySet)
 				{
-					item.getValue().addPingPromise(); 
+					SubscriberClient client = item.getValue();
+					if(client.isValid()){
+						client.addPingPromise(); 
+						if(client.maxPromiseCount())
+							// set to invalid to save scanning time
+							client.setValid(false);
+					}
 				}
 				scavenger_count_down --;
 				logger.info("[:)] Adding ping promise for all clients (count = {}) done successfully! ", entrySet.size());
@@ -96,12 +106,11 @@ public class SubscriberClientManager implements BaseClientManager{
 				int totalCnt = entrySet.size();
 				int badCnt = 0;
 				for(Entry<Integer,SubscriberClient> item: entrySet)
-				{
-					Integer key = item.getKey();
-					SubscriberClient client = subscriberMap.get(key);
+				{ 
+					SubscriberClient client = item.getValue();
 					if(!client.isValid() || client.maxPromiseCount())
 					{
-						subscriberMap.remove(key);
+						subscriberMap.remove(item.getKey());
 						badCnt ++;
 					}
 				}

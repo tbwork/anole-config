@@ -14,12 +14,12 @@ public class ClasspathAnoleLoader extends FileSystemAnoleLoader{
 	  
 	@Override
 	public void load() {
-		 load(new String[] {"*.anole"}); 
+		 load("*.anole"); 
 	}
 	
 	@Override
-	public void load(String configLocation) {
-		 load(new String[] {configLocation}); 
+	public void load(String configLocation) { 
+		 load(new String[] {ProjectUtil.classPath+configLocation}); 
 	}
 
 	@Override
