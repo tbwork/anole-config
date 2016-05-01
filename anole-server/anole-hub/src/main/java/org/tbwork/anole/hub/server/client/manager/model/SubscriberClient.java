@@ -14,16 +14,13 @@ public class SubscriberClient {
 	int token;
 	SocketChannel socketChannel;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)  
-	int ping_promise_count;
-	boolean valid;
-	
+	int ping_promise_count; 
 	public SubscriberClient(){}
 	
 	public SubscriberClient(int token, SocketChannel socketChannel){
 		this.token = token;
 		this.socketChannel = socketChannel;
-		this.ping_promise_count = 0;
-		this.valid =true;
+		this.ping_promise_count = 0; 
 	}
 	
 	public int addPingPromise()
@@ -39,10 +36,5 @@ public class SubscriberClient {
 	public boolean maxPromiseCount()
 	{
 		return ping_promise_count >= StaticConfiguration.MAX_PROMISE_COUNT ;
-	}
-	
-	public boolean testMaxPromiseCount()
-	{
-		return ping_promise_count+1 >= StaticConfiguration.MAX_PROMISE_COUNT ;
 	}
 }

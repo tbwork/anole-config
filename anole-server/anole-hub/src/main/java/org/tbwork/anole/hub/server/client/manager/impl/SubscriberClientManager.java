@@ -30,11 +30,11 @@ import org.tbwork.anole.hub.server.client.manager.model.SubscriberValidateReques
  * information of all clients with long connections.
  * The Subscribers(clients) do not need to worry about abuse
  * of connection due to the following features of SubscriberClientManager:<br>
- * <b>1.</b> A Ping thread periodically sends ping message to
+ * <p><b>1.</b> A Ping thread periodically sends ping message to
  * all of the clients respectively, and if certain client failed to
  * response, its corresponding no_response_count would increase by one,
- * {@link SubscriberClient#addPingPromise()}.<br>
- * <b>2.</b> A scavenger thread periodically clean bad clients whose
+ * {@link SubscriberClient#addPingPromise()}.
+ * <p><b>2.</b> A scavenger thread periodically clean bad clients whose
  * connection with server is disconnected ( valid = false or
  * no_response_count > MAX_NO_RESPONSE_COUNT ).
  * @author Tommy.Tang
@@ -47,8 +47,6 @@ public class SubscriberClientManager implements BaseClientManager{
 	public Map<Integer,SubscriberClient> subscriberMap = new ConcurrentHashMap<Integer,SubscriberClient>();
 	
 	public ExecutorService executorService = Executors.newSingleThreadExecutor();
-	
-	public volatile int scavenger_count_down = StaticConfiguration.SCAVENGER_PERIOD_BY_TIMES_OF_PING_PERIOD_SECOND;
 	
 	private int totalCnt;
 	
@@ -70,8 +68,7 @@ public class SubscriberClientManager implements BaseClientManager{
 
 	public void unregisterClient(BaseOperationRequest request) {
 		SubscriberUnregisterRequest suRequest =(SubscriberUnregisterRequest)request;
-		SubscriberClient client = subscriberMap.get(suRequest.getClientId()); 
-		if(client != null)  client.setValid(false);  
+		subscriberMap.remove(suRequest.getClientId()); 
 	}
 
 	public void ackPing(int clientId){
@@ -82,58 +79,21 @@ public class SubscriberClientManager implements BaseClientManager{
 	
 	public void promisePingAndScavenge(){ 
 		synchronized(subscriberMap){
-			if(scavenger_count_down > 0)
-			{
-				logger.info("[:)] Start to add ping promise and sweep bad clients.");
-				Set<Entry<Integer,SubscriberClient>> entrySet = subscriberMap.entrySet();
-				for(Entry<Integer,SubscriberClient> item: entrySet)
-				{
-					SubscriberClient client = item.getValue();
-					if(client.isValid()){
-						client.addPingPromise(); 
-						if(client.maxPromiseCount())
-							// set to invalid to save scanning time
-							client.setValid(false);
-					}
-				}
-				scavenger_count_down --;
-				logger.info("[:)] Adding ping promise for all clients (count = {}) done successfully! ", entrySet.size());
-			}
-			else // Time for scavenger to clean connections.
-			{
-				logger.info("[:)] Cleaning bad clients starts! ");
+				logger.info("[:)] Start to add ping promise and sweep bad clients."); 
 				Set<Entry<Integer,SubscriberClient>> entrySet = subscriberMap.entrySet();
 				int totalCnt = entrySet.size();
 				int badCnt = 0;
 				for(Entry<Integer,SubscriberClient> item: entrySet)
-				{ 
+				{
 					SubscriberClient client = item.getValue();
-					if(!client.isValid() || client.maxPromiseCount())
-					{
+					if(client.maxPromiseCount()){
 						subscriberMap.remove(item.getKey());
 						badCnt ++;
 					}
-				}
-				scavenger_count_down = StaticConfiguration.SCAVENGER_PERIOD_BY_TIMES_OF_PING_PERIOD_SECOND;
-				logger.info("[:)] Cleaning bad clients done successfully, total count of clients:{}, count of alive clients:{}, count of bad clients:{}", totalCnt, totalCnt-badCnt, badCnt);
-			}
-				
+					else
+						item.getValue().addPingPromise(); 
+				} 
+				logger.info("[:)] Adding ping promise and sweep bad clients done successfully! Scavenger report: total count of clients:{}, count of alive clients:{}, count of bad clients:{}", totalCnt, totalCnt-badCnt, badCnt);
 		} 
 	}
-	
-    private void ping(final SubscriberClient client)
-    { 
-    	if(client.maxPromiseCount()) client.setValid(false); 
-    	if(!client.isValid())           return;
-    		
-    	ChannelFuture f = client.getSocketChannel().writeAndFlush(new PingMessage());
-    	f.addListener(new ChannelFutureListener(){
-
-			public void operationComplete(ChannelFuture future)
-					throws Exception {
-				 client.addPingPromise(); //increase by one.
-			}
-    	}); 
-    }
-
 }
