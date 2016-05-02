@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+  
+  <!-- <properties>
+	<property name="driverClass" value="com.mysql.jdbc.Driver"/>
+	<property name="connectionString" value="jdbc:mysql://localhost:3306/anole"/>
+	<property name="username" value="root"/>
+	<property name="password" value="123456"/>
+  </properties> -->
+  <classPathEntry location="C:\Users\Tangbo\.m2\repository\mysql\mysql-connector-java\5.1.18\mysql-connector-java-5.1.18.jar" />
+  <context id="anole_db" >
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver" 
+    				connectionURL="jdbc:mysql://localhost:3306/anole" 
+    				userId="root" 
+    				password="123456" 
+    />
+    <javaTypeResolver >
+      <property name="forceBigDecimals" value="false" />
+    </javaTypeResolver>
+
+    <javaModelGenerator targetPackage="org.anole.infrastructure" targetProject="anole-infrastructure\src\main\java">
+      <property name="enableSubPackages" value="true" />
+      <property name="trimStrings" value="true" />
+    </javaModelGenerator>
+
+    <sqlMapGenerator targetPackage="sqlMap"  targetProject="anole-infrastructure\src\main\config">
+      <property name="enableSubPackages" value="false" />
+    </sqlMapGenerator>
+
+    <javaClientGenerator type="XMLMAPPER" targetPackage="org.anole.infrastructure"  targetProject="anole-infrastructure\src\main\java">
+      <property name="enableSubPackages" value="true" />
+    </javaClientGenerator>
+
+    <!-- 
+    <table schema="DB2ADMIN" tableName="ALLTYPES" domainObjectName="" >
+      <property name="useActualColumnNames" value="true"/>
+      <generatedKey column="Id" sqlStatement="MySql" identity="true" />
+      <columnOverride column="DATE_FIELD" property="startDate" />
+      <ignoreColumn column="FRED" />
+      <columnOverride column="LONG_VARCHAR_FIELD" jdbcType="VARCHAR" />
+    </table>
+     -->
+     <table tableName="anole_user" domainObjectName="Anole"></table>
+	  
+     
+  </context>
+</generatorConfiguration>

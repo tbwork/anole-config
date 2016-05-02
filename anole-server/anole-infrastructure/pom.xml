@@ -14,6 +14,8 @@
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <mysql.connector.version>5.1.18</mysql.connector.version>
+    <mybatis.version>3.3.1</mybatis.version>
   </properties>
   <dependencies>
     <dependency>
@@ -22,5 +24,15 @@
       <version>3.8.1</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+		<groupId>mysql</groupId>
+		<artifactId>mysql-connector-java</artifactId>
+		<version>${mysql.connector.version}</version>
+	</dependency> 
+	<dependency>
+		<groupId>org.mybatis</groupId>
+		<artifactId>mybatis</artifactId>
+		<version>${mybatis.version}</version>
+	</dependency> 
   </dependencies>
 </project>
