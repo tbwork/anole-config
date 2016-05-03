@@ -8,10 +8,10 @@
 	<property name="username" value="root"/>
 	<property name="password" value="123456"/>
   </properties> -->
-  <classPathEntry location="C:\Users\Tangbo\.m2\repository\mysql\mysql-connector-java\5.1.18\mysql-connector-java-5.1.18.jar" />
+  <classPathEntry location="C:\\Users\Tangbo\.m2\repository\org\mariadb\jdbc\mariadb-java-client\1.1.7\mariadb-java-client-1.1.7.jar" />
   <context id="anole_db" >
-    <jdbcConnection driverClass="com.mysql.jdbc.Driver" 
-    				connectionURL="jdbc:mysql://localhost:3306/anole" 
+    <jdbcConnection driverClass="org.mariadb.jdbc.Driver" 
+    				connectionURL="jdbc:mariadb://localhost:3306/anole" 
     				userId="root" 
     				password="123456" 
     />
@@ -20,21 +20,20 @@
     </javaTypeResolver>
 
 	<!-- Model Class -->
-    <javaModelGenerator targetPackage="org.anole.infrastructure" targetProject="anole-infrastructure\src\main\java">
-      <property name="enableSubPackages" value="true" />
+    <javaModelGenerator targetPackage="org.anole.infrastructure.model" targetProject="anole-infrastructure\src\main\java">
+      <property name="enableSubPackages" value="false" />
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
-
-	<!-- XML Files -->
+    
+    <!-- XML Files -->
     <sqlMapGenerator targetPackage="sqlMap"  targetProject="anole-infrastructure\src\main\config">
       <property name="enableSubPackages" value="false" />
     </sqlMapGenerator>
-
+    
 	<!-- DAO -->
-    <javaClientGenerator type="XMLMAPPER" targetPackage="org.anole.infrastructure"  targetProject="anole-infrastructure\src\main\java">
+    <javaClientGenerator type="XMLMAPPER" targetPackage="org.anole.infrastructure.dao"  targetProject="anole-infrastructure\src\main\java">
       <property name="enableSubPackages" value="true" />
     </javaClientGenerator>
-
     <!-- 
     <table schema="DB2ADMIN" tableName="ALLTYPES" domainObjectName="" >
       <property name="useActualColumnNames" value="true"/>
@@ -44,8 +43,13 @@
       <columnOverride column="LONG_VARCHAR_FIELD" jdbcType="VARCHAR" />
     </table>
      -->
-     <table tableName="anole_user" domainObjectName="Anole"></table>
-	  
-     
+     <table tableName="anole_user" domainObjectName="Anole" enableCountByExample="false" enableUpdateByExample="false"	enableDeleteByExample="false" enableSelectByExample="false"	selectByExampleQueryId="false">
+     	<generatedKey column="Id" sqlStatement="Mysql" identity="true" />  
+     </table>
+     <commentGenerator> 
+    	<property name="suppressAllComments" value="false" />
+    	<property name="suppressDate" value="false" />
+     </commentGenerator> 
+   
   </context>
 </generatorConfiguration>
