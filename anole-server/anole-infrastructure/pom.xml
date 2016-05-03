@@ -14,7 +14,7 @@
   <url>http://maven.apache.org</url>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <mysql.connector.version>5.1.18</mysql.connector.version>
+    <mariadb.version>1.1.7</mariadb.version>
     <mybatis.version>3.3.1</mybatis.version>
   </properties>
   <dependencies>
@@ -33,6 +33,11 @@
 		<groupId>org.mybatis</groupId>
 		<artifactId>mybatis</artifactId>
 		<version>${mybatis.version}</version>
+	</dependency> 
+	<dependency>
+		<groupId>org.mariadb.jdbc</groupId>
+		<artifactId>mariadb-java-client</artifactId>
+		<version>${mariadb.version}</version>
 	</dependency> 
   </dependencies>
 </project>
