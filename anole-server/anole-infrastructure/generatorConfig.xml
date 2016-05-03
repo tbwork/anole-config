@@ -19,15 +19,18 @@
       <property name="forceBigDecimals" value="false" />
     </javaTypeResolver>
 
+	<!-- Model Class -->
     <javaModelGenerator targetPackage="org.anole.infrastructure" targetProject="anole-infrastructure\src\main\java">
       <property name="enableSubPackages" value="true" />
       <property name="trimStrings" value="true" />
     </javaModelGenerator>
 
+	<!-- XML Files -->
     <sqlMapGenerator targetPackage="sqlMap"  targetProject="anole-infrastructure\src\main\config">
       <property name="enableSubPackages" value="false" />
     </sqlMapGenerator>
 
+	<!-- DAO -->
     <javaClientGenerator type="XMLMAPPER" targetPackage="org.anole.infrastructure"  targetProject="anole-infrastructure\src\main\java">
       <property name="enableSubPackages" value="true" />
     </javaClientGenerator>
