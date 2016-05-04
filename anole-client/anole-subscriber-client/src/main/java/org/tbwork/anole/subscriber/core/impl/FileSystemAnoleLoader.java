@@ -20,13 +20,7 @@ public class FileSystemAnoleLoader implements AnoleLoader{
 	
 	private AnoleConfigFileParser acfParser = AnoleConfigFileParser.instance();
 	
-	private AnoleSubscriberClient client = AnoleSubscriberClient.instance();
-	
-	@Override
-	public void load(String configLocation) {
-		 load(new String[] {configLocation});
-	}
-
+	private AnoleSubscriberClient client = AnoleSubscriberClient.instance(); 
 	@Override
 	public void load(String... configLocations) {
 		 for(String ifile : configLocations) 

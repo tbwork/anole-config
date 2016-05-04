@@ -11,7 +11,8 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
 import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
-import org.tbwork.anole.subscriber.client.handler.MainLogicHandler;
+import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler; 
+import org.tbwork.anole.subscriber.client.handler.OtherLogicHandler;
 import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
 import org.tbwork.anole.subscriber.core.AnoleLoader;
@@ -141,8 +142,9 @@ public class AnoleSubscriberClient {
                     ch.pipeline().addLast(
                     		new ObjectEncoder(),
                    		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
-                    		new AuthenticationHandler(false), 
-                    		new MainLogicHandler(true)
+                    		new AuthenticationHandler(), 
+                    		ConfigChangeNotifyMessageHandler.instance(),
+                    		new OtherLogicHandler()
                     		);
                 }
             }); 

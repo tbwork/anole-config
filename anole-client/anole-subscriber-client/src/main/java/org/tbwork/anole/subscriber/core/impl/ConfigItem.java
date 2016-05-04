@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.core;
+package org.tbwork.anole.subscriber.core.impl;
 
 import java.math.BigDecimal;
 

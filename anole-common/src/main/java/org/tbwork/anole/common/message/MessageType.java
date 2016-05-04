@@ -8,6 +8,7 @@ public enum MessageType {
 	S2C_MATCH_FAIL, //
 	S2C_PING_ACK,
 	S2C_RETURN_CONFIG,
+	S2C_CHANGE_NOTIFY,
 	
 	
 	C2S_AUTH_BODY, // 客户端发送身份信息给服务端

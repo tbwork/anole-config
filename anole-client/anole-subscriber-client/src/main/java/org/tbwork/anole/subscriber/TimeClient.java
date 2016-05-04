@@ -1,5 +1,9 @@
 package org.tbwork.anole.subscriber;
 
+import org.tbwork.anole.common.model.ConfigChangeDTO;
+import org.tbwork.anole.subscriber.core.AnoleConfig;
+import org.tbwork.anole.subscriber.core.impl.ChainedConfigObserver; 
+
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -13,6 +17,31 @@ public class TimeClient {
 
 	
 	 public static void main(String[] args) throws Exception {
+		 
+		 
+		   // AnoleConfig.registerPostObserver("123", new P);
+		 
+		 
+		    AnoleConfig.registerPreObserver("keyname", new ChainedConfigObserver(false) {
+				
+				@Override
+				public void process(ConfigChangeDTO ccDto) {
+					// TODO Auto-generated method stub
+					ccDto.getKey(); 
+					ccDto.getOrigValue();
+					ccDto.getDestValue();
+					ccDto.getOriConfigType(); 
+					ccDto.getDestConfigType(); 
+				}
+			});
+		 
+		 
+		 
+		 
+		 
+		 
+		 
+		 
 	        String host = "";
 	        int port = 0;
 	        if(args.length==0)

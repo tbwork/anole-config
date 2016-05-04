@@ -15,18 +15,13 @@ public class ClasspathAnoleLoader extends FileSystemAnoleLoader{
 	@Override
 	public void load() {
 		 load("*.anole"); 
-	}
+	} 
 	
-	@Override
-	public void load(String configLocation) { 
-		 load(new String[] {ProjectUtil.classPath+configLocation}); 
-	}
-
 	@Override
 	public void load(String... configLocations) {
 		 for(String ifile : configLocations) 
-			 loadFile(ifile, logger); 
+			 loadFile(ProjectUtil.classPath+ifile, logger); 
 		 AnoleConfig.initialized = true;
 	}
- 
+  
 }

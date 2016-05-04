@@ -12,19 +12,20 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType; 
+import org.tbwork.anole.common.message.s_2_c.ConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.ReturnConfigMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
 import org.tbwork.anole.subscriber.core.ConfigManager;
 
-public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
+public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
-	public MainLogicHandler(boolean autoRelease){
-		super(autoRelease);
+	public OtherLogicHandler(){
+		super(true);
 	}
 	
-	static Logger logger = LoggerFactory.getLogger(MainLogicHandler.class);
+	static Logger logger = LoggerFactory.getLogger(OtherLogicHandler.class);
 	 
 	private  AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
 	
@@ -42,7 +43,10 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 		ReturnConfigMessage rvMsg = (ReturnConfigMessage) msg;
 		 		processConfigResponse(rvMsg);
 		 	} break;
-		 	  
+		 	case S2C_CHANGE_NOTIFY:{
+		 		ConfigChangeNotifyMessage ccnMsg = (ConfigChangeNotifyMessage) msg;
+		 		processConfigChangeNotifyMessage(ccnMsg);
+		 	} break;
 		 	default:{
 		 		
 		 		
@@ -61,7 +65,10 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		String value = rvMsg.getValue();
 		logger.info("[:)] Retrieved config (key = {}) from remote server successfully! value = {}", key, value); 
 		ConfigType type  = rvMsg.getValueType();
-		ConfigManager.setConfigItem(key, value, type); 
-		
+		ConfigManager.setConfigItem(key, value, type);  
 	}
+	
+	private void processConfigChangeNotifyMessage(ConfigChangeNotifyMessage ccnMsg){
+		
+	} 
 }

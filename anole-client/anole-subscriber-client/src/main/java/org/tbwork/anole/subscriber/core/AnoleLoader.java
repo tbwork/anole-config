@@ -22,7 +22,7 @@ import org.tbwork.anole.subscriber.core.impl.ClasspathAnoleLoader;
  * locally, but we strongly recommend you put most of your 
  * configurations to the anole server.
  * @author Tommy.Tang
- * @see AnoleLoader#load(String)
+ * @see AnoleLoader#load()
  * @see AnoleLoader#load(String...)
  */
 public interface AnoleLoader { 
@@ -30,11 +30,7 @@ public interface AnoleLoader {
 	/**
 	 * Load "*.anole" files within the class-path directories.
 	 */
-	public void load();
-	/**
-	 * Load single configuration file. 
-	 */
-	public void load(String configLocation);
+	public void load(); 
 	/**
 	 * Load multiple configuration files. 
 	 */

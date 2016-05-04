@@ -24,8 +24,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 
 	private AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
 	
-	public AuthenticationHandler(boolean autoRelease){
-		super(autoRelease);
+	public AuthenticationHandler(){
+		super(false);
 	} 
 	private AuthenticationBodyMessage getAuthInfo(){
 		AuthenticationBodyMessage authBody=new AuthenticationBodyMessage();

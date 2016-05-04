@@ -11,6 +11,7 @@ import org.tbwork.anole.common.message.c_2_s.PingMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.ConnectionMonitor;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
+import org.tbwork.anole.subscriber.client.PingTask;
 
 public class LongConnectionMonitor implements ConnectionMonitor{
 

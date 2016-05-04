@@ -16,6 +16,7 @@ import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.c_2_s.GetConfigMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.GlobalConfig;  
+import org.tbwork.anole.subscriber.core.impl.ConfigItem;
 import org.tbwork.anole.subscriber.exceptions.ConfigMapNotReadyToRetrieveRemoteConfigException;
 import org.tbwork.anole.subscriber.exceptions.RetrieveConfigTimeoutException;
  
