@@ -8,8 +8,12 @@
   <packaging>pom</packaging>
 
   <name>anole-server</name>
-  <url>http://maven.apache.org</url>
-
+  <url>http://maven.apache.org</url> 
+  <modules>
+  	<module>anole-hub</module>
+    <module>anole-web</module>
+    <module>anole-infrastructure</module>
+  </modules>
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netty.version>5.0.0.Alpha1</netty.version>
@@ -47,9 +51,16 @@
 		<version>${google.guava}</version>
 	</dependency>   
   </dependencies>
-  <modules>
-  	<module>anole-hub</module>
-    <module>anole-web</module>
-    <module>anole-infrastructure</module>
-  </modules>
+  <build>  
+    <plugins>  
+        <plugin>  
+            <groupId>org.apache.maven.plugins</groupId>  
+            <artifactId>maven-compiler-plugin</artifactId>  
+            <configuration>  
+                <source>1.7</source>  
+                <target>1.7</target>  
+            </configuration>  
+        </plugin>  
+    </plugins>  
+  </build> 
 </project>
