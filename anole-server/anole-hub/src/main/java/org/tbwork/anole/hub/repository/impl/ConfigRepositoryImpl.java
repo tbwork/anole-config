@@ -113,6 +113,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	}
  
 	private boolean checkExistsAndReturn(String key){
+		先看看缓存有没有
 		String anyEnv = envRepo.getAnyoneEnv();
 		AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(key, anyEnv);
 		return aci == null;
