@@ -2,6 +2,7 @@ package org.tbwork.anole.hub.repository.impl;
 
 import org.springframework.beans.factory.annotation.Autowired; 
 import org.springframework.stereotype.Service;
+import org.tbwork.anole.hub.StaticConfiguration;
 import org.tbwork.anole.hub.cache.impl.localcache.LocalCache;
 import org.tbwork.anole.hub.repository.LockRepository;
 
@@ -30,7 +31,7 @@ public class LockRepositoryImpl implements LockRepository{
 		if(lc.get(ckey) == null){
 			  synchronized(lockOfNewLockOperation){
 				  if(lc.get(ckey) == null){ 
-					  lc.set(ckey, new Object());
+					  lc.set(ckey, new Object(), StaticConfiguration.ESTIMATED_INSERT_KEY_LIFETIME);
 				  }
 			  }
 	    }
@@ -45,14 +46,14 @@ public class LockRepositoryImpl implements LockRepository{
 	}
 
 	@Override
-	public Object removeInsertLock(String key) {
+	public void removeInsertLock(String key) {
 		String ckey = buildInsertCacheKey(key);
-		
+		lc.
 		return null;
 	}
 
 	@Override
-	public Object removeUpdateLock(String key, String env) {
+	public void removeUpdateLock(String key, String env) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -47,19 +47,14 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	}
 	
 	@Override
-	public void addConfig(ConfigDO config, String operator) { 
-		boolean flag = false;
+	public void addConfig(ConfigDO config, String operator) {  
 		if(!checkExistsAndReturn(config.getKey())){
 			synchronized(lr.getInsertLock(config.getKey())){
 				if(!checkExistsAndReturn(config.getKey())){
-					createConfiguration(config, operator);
-					flag = true;
+					createConfiguration(config, operator); 
 				}
 			} 
-		}
-		if(flag){
-			config.getKey()
-		}
+		} 
 		throw new ConfigItemAlreadyExistsException(config.getKey());
 	}
 
