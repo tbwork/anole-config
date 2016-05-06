@@ -32,7 +32,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	
 	@Override
 	public ConfigDO retrieveConfigByKey(String key, String env) {
-		String cacheKey = getCacheKey(env, key);
+		String cacheKey = buildConfigCacheKey(env, key);
 		ConfigDO cdo = cache.get(cacheKey);
 		if(cdo != null){
 			return cdo;
@@ -47,14 +47,18 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	}
 	
 	@Override
-	public void addConfig(ConfigDO config, String operator) {  
+	public void addConfig(ConfigDO config, String operator) { 
+		boolean flag = false;
 		if(!checkExistsAndReturn(config.getKey())){
 			synchronized(lr.getInsertLock(config.getKey())){
 				if(!checkExistsAndReturn(config.getKey())){
 					createConfiguration(config, operator); 
+					flag = true;
 				}
 			} 
 		} 
+		if(flag)
+			lr.removeInsertLock(config.getKey());
 		throw new ConfigItemAlreadyExistsException(config.getKey());
 	}
 
@@ -62,7 +66,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	public void setConfig(ConfigDO config, String env, String operator) {
 		
 		String key = config.getKey();
-		String cacheKey = getCacheKey(env, key);
+		String cacheKey = buildConfigCacheKey(env, key);
 		// Asynchronously remove cache item.
 		cache.asynRemove(cacheKey);
 		
@@ -113,13 +117,21 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	}
  
 	private boolean checkExistsAndReturn(String key){
-		先看看缓存有没有
-		String anyEnv = envRepo.getAnyoneEnv();
-		AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(key, anyEnv);
-		return aci == null;
+		String firstEnv = envRepo.getFirstEnv();
+		String ckey = buildConfigCacheKey(key, firstEnv);
+		if(cache.contain(ckey)) // check cache first.
+			return true;
+		else{// then check the database
+			AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(key, firstEnv);
+			// store to the cache
+			if(aci != null)
+				cache.asynSet(ckey, parseDPO(aci), 1000);
+			return aci != null;
+		}
+		
 	}
 	
-	private String getCacheKey(String env, String key){
+	private String buildConfigCacheKey(String env, String key){
 		return env + key;
 	}
 	

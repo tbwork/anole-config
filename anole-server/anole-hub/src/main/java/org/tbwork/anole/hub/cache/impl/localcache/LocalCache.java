@@ -72,5 +72,10 @@ public class LocalCache implements Cache{
 	@Override
 	public void asynRemove(String key) {
 		remove(key);
+	}
+
+	@Override
+	public boolean contain(String key) { 
+		return lc.containsKey(key);
 	} 
 }

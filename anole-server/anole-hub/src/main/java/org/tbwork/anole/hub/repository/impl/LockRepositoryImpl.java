@@ -9,6 +9,11 @@ import org.tbwork.anole.hub.repository.LockRepository;
 @Service
 public class LockRepositoryImpl implements LockRepository{
 
+	/**
+	 * Please note that here is LocalCache, which means
+	 * this part can and only can depend on LocalCache,
+	 * rather than other implementations of org.tbwork.anole.hub.cache.Cache
+	 */
 	@Autowired
 	private LocalCache lc;
 	
@@ -48,13 +53,14 @@ public class LockRepositoryImpl implements LockRepository{
 	@Override
 	public void removeInsertLock(String key) {
 		String ckey = buildInsertCacheKey(key);
-		lc.
-		return null;
+		// Do not worry if this failed, the cached item will be remove by LocalCache itself.
+		lc.asynRemove(ckey); 
 	}
 
 	@Override
 	public void removeUpdateLock(String key, String env) {
-		// TODO Auto-generated method stub
-		return null;
+		String ckey = buildUpdateCacheKey(key, env);
+		// Do not worry if this failed, the cached item will be remove by LocalCache itself.
+		lc.asynRemove(ckey); 
 	}
 }

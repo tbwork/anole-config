@@ -18,7 +18,7 @@ public interface Cache {
 	/**
 	 * Add or update a new cache item to the local-cache,
 	 * using the default expire time;
-	 * @param key the key
+	 * @param key the cache key
 	 * @param obj the cached item
 	 */
 	public <T> void set(String key, T obj);
@@ -31,7 +31,7 @@ public interface Cache {
 	 * in the LocalCache system.
 	 * <p>See {@link #set(String, Object)} for more functional
 	 * description. 
-	 * @param key the key
+	 * @param key the cache key
 	 * @param obj the cached item
 	 */
 	public <T> void asynSet(String key, T obj);
@@ -40,7 +40,7 @@ public interface Cache {
 	 * Add or update a new cache item to the local-cache,
 	 * and specify an expire time. For permanent cache
 	 * item, you just need to set its expireTime as -1;
-	 * @param key the key
+	 * @param key the cache key
 	 * @param obj the cached item
 	 * @param expireTime the expire time
 	 */
@@ -54,7 +54,7 @@ public interface Cache {
 	 * in the LocalCache system.
 	 * <p>See {@link #set(String, Object, long)} for more
 	 * functional description. 
-	 * @param key the key
+	 * @param key the cache key
 	 * @param obj the cached item
 	 * @param expireTime the expire time
 	 */
@@ -67,7 +67,7 @@ public interface Cache {
 	
 	/**
 	 * Remove specified cache item from the cache.
-	 * @param key the key
+	 * @param key the cache key
 	 */
 	public void remove(String key);
 	
@@ -79,8 +79,15 @@ public interface Cache {
 	 * in the LocalCache system.
 	 * <p>See {@link #remove(String)} for more functional
 	 * description. 
-	 * @param key the key
+	 * @param key the cache key
 	 */
 	public void asynRemove(String key);
+	
+	/**
+	 * Return true if the cache key is in the cache now,
+	 * otherwise return false;
+	 * @param key the cache key 
+	 */
+	public boolean contain(String key);
 	
 }

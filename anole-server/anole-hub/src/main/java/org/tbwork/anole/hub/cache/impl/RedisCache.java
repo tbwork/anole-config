@@ -50,4 +50,10 @@ public class RedisCache implements Cache{
 		
 	}
 
+	@Override
+	public boolean contain(String key) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 }
