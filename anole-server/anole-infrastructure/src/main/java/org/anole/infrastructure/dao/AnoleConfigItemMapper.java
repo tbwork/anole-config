@@ -11,6 +11,10 @@ public interface AnoleConfigItemMapper {
     int insertSelective(AnoleConfigItemWithBLOBs record);
 
     AnoleConfigItemWithBLOBs selectByPrimaryKey(Integer id);
+    
+    AnoleConfigItemWithBLOBs selectByKeyAndEnv(String key, String env);
+    
+    AnoleConfigItemWithBLOBs selectByKeyAndEnvWithoutStatus(String key, String env);
 
     int updateByPrimaryKeySelective(AnoleConfigItemWithBLOBs record);
 

@@ -5,14 +5,14 @@
     <id column="Id" property="id" jdbcType="INTEGER" />
     <result column="Username" property="username" jdbcType="VARCHAR" />
     <result column="Project" property="project" jdbcType="VARCHAR" />
+    <result column="Env" property="env" jdbcType="VARCHAR" />
     <result column="Role" property="role" jdbcType="TINYINT" />
-    <result column="EnvId" property="envId" jdbcType="TINYINT" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
     <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="Status" property="status" jdbcType="TINYINT" />
   </resultMap>
   <sql id="Base_Column_List" >
-    Id, Username, Project, Role, EnvId, CreateTime, UpdateTime, Status
+    Id, Username, Project, Env, Role, CreateTime, UpdateTime, Status
   </sql>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
     select 
@@ -28,11 +28,11 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into anole_user_project_map (Username, Project, Role, 
-      EnvId, CreateTime, UpdateTime, 
+    insert into anole_user_project_map (Username, Project, Env, 
+      Role, CreateTime, UpdateTime, 
       Status)
-    values (#{username,jdbcType=VARCHAR}, #{project,jdbcType=VARCHAR}, #{role,jdbcType=TINYINT}, 
-      #{envId,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+    values (#{username,jdbcType=VARCHAR}, #{project,jdbcType=VARCHAR}, #{env,jdbcType=VARCHAR}, 
+      #{role,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{status,jdbcType=TINYINT})
   </insert>
   <insert id="insertSelective" parameterType="org.anole.infrastructure.model.AnoleUserProjectMap" >
@@ -47,11 +47,11 @@
       <if test="project != null" >
         Project,
       </if>
+      <if test="env != null" >
+        Env,
+      </if>
       <if test="role != null" >
         Role,
-      </if>
-      <if test="envId != null" >
-        EnvId,
       </if>
       <if test="createTime != null" >
         CreateTime,
@@ -70,11 +70,11 @@
       <if test="project != null" >
         #{project,jdbcType=VARCHAR},
       </if>
+      <if test="env != null" >
+        #{env,jdbcType=VARCHAR},
+      </if>
       <if test="role != null" >
         #{role,jdbcType=TINYINT},
-      </if>
-      <if test="envId != null" >
-        #{envId,jdbcType=TINYINT},
       </if>
       <if test="createTime != null" >
         #{createTime,jdbcType=TIMESTAMP},
@@ -96,11 +96,11 @@
       <if test="project != null" >
         Project = #{project,jdbcType=VARCHAR},
       </if>
+      <if test="env != null" >
+        Env = #{env,jdbcType=VARCHAR},
+      </if>
       <if test="role != null" >
         Role = #{role,jdbcType=TINYINT},
-      </if>
-      <if test="envId != null" >
-        EnvId = #{envId,jdbcType=TINYINT},
       </if>
       <if test="createTime != null" >
         CreateTime = #{createTime,jdbcType=TIMESTAMP},
@@ -118,8 +118,8 @@
     update anole_user_project_map
     set Username = #{username,jdbcType=VARCHAR},
       Project = #{project,jdbcType=VARCHAR},
+      Env = #{env,jdbcType=VARCHAR},
       Role = #{role,jdbcType=TINYINT},
-      EnvId = #{envId,jdbcType=TINYINT},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
       Status = #{status,jdbcType=TINYINT}

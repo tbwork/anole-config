@@ -1,6 +1,6 @@
 package org.tbwork.anole.hub.server.client.manager.model;
 
-import org.tbwork.anole.hub.server.client.manager.StaticConfiguration;
+import org.tbwork.anole.hub.StaticConfiguration;
 
 import lombok.AccessLevel;
 import lombok.Data;

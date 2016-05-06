@@ -7,8 +7,6 @@ public class AnoleEnvironment {
 
     private String name;
 
-    private Byte envId;
-
     private String lastOperator;
 
     private Date createTime;
@@ -33,14 +31,6 @@ public class AnoleEnvironment {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
-    }
-
-    public Byte getEnvId() {
-        return envId;
-    }
-
-    public void setEnvId(Byte envId) {
-        this.envId = envId;
     }
 
     public String getLastOperator() {

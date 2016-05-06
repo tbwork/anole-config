@@ -7,6 +7,8 @@ public class AnoleProject {
 
     private String name;
 
+    private String creator;
+
     private String owner;
 
     private Date createTime;
@@ -31,6 +33,14 @@ public class AnoleProject {
 
     public void setName(String name) {
         this.name = name == null ? null : name.trim();
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator == null ? null : creator.trim();
     }
 
     public String getOwner() {

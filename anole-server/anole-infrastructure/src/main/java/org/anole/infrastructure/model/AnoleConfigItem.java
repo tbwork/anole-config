@@ -9,9 +9,9 @@ public class AnoleConfigItem {
 
     private Byte type;
 
-    private String owner;
+    private String creator;
 
-    private Byte envBinCode;
+    private String envName;
 
     private String lastOperator;
 
@@ -47,20 +47,20 @@ public class AnoleConfigItem {
         this.type = type;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getCreator() {
+        return creator;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner == null ? null : owner.trim();
+    public void setCreator(String creator) {
+        this.creator = creator == null ? null : creator.trim();
     }
 
-    public Byte getEnvBinCode() {
-        return envBinCode;
+    public String getEnvName() {
+        return envName;
     }
 
-    public void setEnvBinCode(Byte envBinCode) {
-        this.envBinCode = envBinCode;
+    public void setEnvName(String envName) {
+        this.envName = envName == null ? null : envName.trim();
     }
 
     public String getLastOperator() {

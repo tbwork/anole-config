@@ -9,9 +9,9 @@ public class AnoleUserProjectMap {
 
     private String project;
 
-    private Byte role;
+    private String env;
 
-    private Byte envId;
+    private Byte role;
 
     private Date createTime;
 
@@ -43,20 +43,20 @@ public class AnoleUserProjectMap {
         this.project = project == null ? null : project.trim();
     }
 
+    public String getEnv() {
+        return env;
+    }
+
+    public void setEnv(String env) {
+        this.env = env == null ? null : env.trim();
+    }
+
     public Byte getRole() {
         return role;
     }
 
     public void setRole(Byte role) {
         this.role = role;
-    }
-
-    public Byte getEnvId() {
-        return envId;
-    }
-
-    public void setEnvId(Byte envId) {
-        this.envId = envId;
     }
 
     public Date getCreateTime() {

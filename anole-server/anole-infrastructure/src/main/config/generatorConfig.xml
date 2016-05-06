@@ -7,10 +7,7 @@
 	<property name="connectionString" value="jdbc:mysql://localhost:3306/anole"/>
 	<property name="username" value="root"/>
 	<property name="password" value="123456"/>
-  </properties> -->
-  <!-- PC1 -->
-  <!-- <classPathEntry location="C:\Users\Tommy.Tang\.m2\repository\org\mariadb\jdbc\mariadb-java-client\1.1.7\mariadb-java-client-1.1.7.jar" />  -->
-  <!-- PC2 -->
+  </properties> --> 
   <classPathEntry location="D:\mariadb-java-client-1.1.7.jar" />
   <context id="anole_db" >
     <commentGenerator> 

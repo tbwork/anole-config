@@ -5,8 +5,8 @@
     <id column="Id" property="id" jdbcType="INTEGER" />
     <result column="Key" property="key" jdbcType="VARCHAR" />
     <result column="Type" property="type" jdbcType="TINYINT" />
-    <result column="Owner" property="owner" jdbcType="VARCHAR" />
-    <result column="EnvBinCode" property="envBinCode" jdbcType="TINYINT" />
+    <result column="Creator" property="creator" jdbcType="VARCHAR" />
+    <result column="EnvName" property="envName" jdbcType="VARCHAR" />
     <result column="LastOperator" property="lastOperator" jdbcType="VARCHAR" />
     <result column="Project" property="project" jdbcType="VARCHAR" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
@@ -18,8 +18,7 @@
     <result column="Description" property="description" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    Id, Key, Type, Owner, EnvBinCode, LastOperator, Project, CreateTime, UpdateTime, 
-    Status
+    Id, Key, Type, Creator, EnvName, LastOperator, Project, CreateTime, UpdateTime, Status
   </sql>
   <sql id="Blob_Column_List" >
     Value, Description
@@ -32,6 +31,25 @@
     from anole_config_item
     where Id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByKeyAndEnv" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from anole_config_item
+    where Key = #{key,jdbcType=VARCHAR}
+    AND EnvName = #{env,jdbcType=VARCHAR}
+    AND Status = 1
+  </select>
+  <select id="selectByKeyAndEnvWithoutStatus" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from anole_config_item
+    where Key = #{key,jdbcType=VARCHAR}
+    AND EnvName = #{env,jdbcType=VARCHAR} 
+  </select> 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from anole_config_item
     where Id = #{id,jdbcType=INTEGER}
@@ -40,12 +58,12 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into anole_config_item (Key, Type, Owner, 
-      EnvBinCode, LastOperator, Project, 
+    insert into anole_config_item (Key, Type, Creator, 
+      EnvName, LastOperator, Project, 
       CreateTime, UpdateTime, Status, 
       Value, Description)
-    values (#{key,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, #{owner,jdbcType=VARCHAR}, 
-      #{envBinCode,jdbcType=TINYINT}, #{lastOperator,jdbcType=VARCHAR}, #{project,jdbcType=VARCHAR}, 
+    values (#{key,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}, #{Creator,jdbcType=VARCHAR}, 
+      #{envName,jdbcType=VARCHAR}, #{lastOperator,jdbcType=VARCHAR}, #{project,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
       #{value,jdbcType=LONGVARCHAR}, #{description,jdbcType=LONGVARCHAR})
   </insert>
@@ -61,11 +79,11 @@
       <if test="type != null" >
         Type,
       </if>
-      <if test="owner != null" >
-        Owner,
+      <if test="creator != null" >
+        Creator,
       </if>
-      <if test="envBinCode != null" >
-        EnvBinCode,
+      <if test="envName != null" >
+        EnvName,
       </if>
       <if test="lastOperator != null" >
         LastOperator,
@@ -96,11 +114,11 @@
       <if test="type != null" >
         #{type,jdbcType=TINYINT},
       </if>
-      <if test="owner != null" >
-        #{owner,jdbcType=VARCHAR},
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
       </if>
-      <if test="envBinCode != null" >
-        #{envBinCode,jdbcType=TINYINT},
+      <if test="envName != null" >
+        #{envName,jdbcType=VARCHAR},
       </if>
       <if test="lastOperator != null" >
         #{lastOperator,jdbcType=VARCHAR},
@@ -134,11 +152,11 @@
       <if test="type != null" >
         Type = #{type,jdbcType=TINYINT},
       </if>
-      <if test="owner != null" >
-        Owner = #{owner,jdbcType=VARCHAR},
+      <if test="creator != null" >
+        Creator = #{creator,jdbcType=VARCHAR},
       </if>
-      <if test="envBinCode != null" >
-        EnvBinCode = #{envBinCode,jdbcType=TINYINT},
+      <if test="envName != null" >
+        EnvName = #{envName,jdbcType=VARCHAR},
       </if>
       <if test="lastOperator != null" >
         LastOperator = #{lastOperator,jdbcType=VARCHAR},
@@ -168,8 +186,8 @@
     update anole_config_item
     set Key = #{key,jdbcType=VARCHAR},
       Type = #{type,jdbcType=TINYINT},
-      Owner = #{owner,jdbcType=VARCHAR},
-      EnvBinCode = #{envBinCode,jdbcType=TINYINT},
+      Creator = #{creator,jdbcType=VARCHAR},
+      EnvName = #{envName,jdbcType=VARCHAR},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       Project = #{project,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
@@ -183,8 +201,8 @@
     update anole_config_item
     set Key = #{key,jdbcType=VARCHAR},
       Type = #{type,jdbcType=TINYINT},
-      Owner = #{owner,jdbcType=VARCHAR},
-      EnvBinCode = #{envBinCode,jdbcType=TINYINT},
+      Creator = #{creator,jdbcType=VARCHAR},
+      EnvName = #{envName,jdbcType=VARCHAR},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       Project = #{project,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},

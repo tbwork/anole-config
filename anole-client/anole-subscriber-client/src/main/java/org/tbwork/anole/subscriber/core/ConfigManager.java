@@ -49,7 +49,7 @@ public class ConfigManager {
 				  {
 					  if(cItem.isLoaded()) //DCL-2 
 						  return null;
-					  anoleSubscriberClient.sendMessage(new GetConfigMessage(key));
+					  anoleSubscriberClient.sendMessage( new GetConfigMessage(key, AnoleConfig.getProperty("env")));
 					  if(logger.isDebugEnabled())  
 						  logger.debug("GetConfigMessage sent successfully. Enter waiting...");
 					  synchronized(cItem.getKey())  {

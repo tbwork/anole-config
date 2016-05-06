@@ -1,4 +1,4 @@
-package org.tbwork.anole.hub.server.client.manager;
+package org.tbwork.anole.hub;
 
 public class StaticConfiguration {
 
@@ -16,4 +16,6 @@ public class StaticConfiguration {
 	 */
 	public static final int MAX_PROMISE_COUNT = 5 + 1;
 	public static final int PING_PERIOD_SECOND = 5*1000; //  ms 
+	public static final int EXPIRE_TIME = 60*60*1000 ;// ms  :  1 hour
+	public static final int CACHE_RECYCLE_INTERVAL = 60*1000; //ms  : 1min
 }

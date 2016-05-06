@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="org.anole.infrastructure.model.AnoleProject" >
     <id column="Id" property="id" jdbcType="INTEGER" />
     <result column="Name" property="name" jdbcType="VARCHAR" />
+    <result column="Creator" property="creator" jdbcType="VARCHAR" />
     <result column="Owner" property="owner" jdbcType="VARCHAR" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
     <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
@@ -13,7 +14,7 @@
     <result column="Description" property="description" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    Id, Name, Owner, CreateTime, UpdateTime, Status
+    Id, Name, Creator, Owner, CreateTime, UpdateTime, Status
   </sql>
   <sql id="Blob_Column_List" >
     Description
@@ -34,12 +35,12 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into anole_project (Name, Owner, CreateTime, 
-      UpdateTime, Status, Description
-      )
-    values (#{name,jdbcType=VARCHAR}, #{owner,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{description,jdbcType=LONGVARCHAR}
-      )
+    insert into anole_project (Name, Creator, Owner, 
+      CreateTime, UpdateTime, Status, 
+      Description)
+    values (#{name,jdbcType=VARCHAR}, #{creator,jdbcType=VARCHAR}, #{owner,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
+      #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="org.anole.infrastructure.model.AnoleProject" >
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
@@ -49,6 +50,9 @@
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="name != null" >
         Name,
+      </if>
+      <if test="creator != null" >
+        Creator,
       </if>
       <if test="owner != null" >
         Owner,
@@ -69,6 +73,9 @@
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null" >
+        #{creator,jdbcType=VARCHAR},
       </if>
       <if test="owner != null" >
         #{owner,jdbcType=VARCHAR},
@@ -93,6 +100,9 @@
       <if test="name != null" >
         Name = #{name,jdbcType=VARCHAR},
       </if>
+      <if test="creator != null" >
+        Creator = #{creator,jdbcType=VARCHAR},
+      </if>
       <if test="owner != null" >
         Owner = #{owner,jdbcType=VARCHAR},
       </if>
@@ -114,6 +124,7 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.anole.infrastructure.model.AnoleProject" >
     update anole_project
     set Name = #{name,jdbcType=VARCHAR},
+      Creator = #{creator,jdbcType=VARCHAR},
       Owner = #{owner,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
@@ -124,6 +135,7 @@
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleProject" >
     update anole_project
     set Name = #{name,jdbcType=VARCHAR},
+      Creator = #{creator,jdbcType=VARCHAR},
       Owner = #{owner,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP},

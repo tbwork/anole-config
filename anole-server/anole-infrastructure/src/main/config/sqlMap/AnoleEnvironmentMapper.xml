@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="org.anole.infrastructure.model.AnoleEnvironment" >
     <id column="Id" property="id" jdbcType="INTEGER" />
     <result column="Name" property="name" jdbcType="VARCHAR" />
-    <result column="EnvId" property="envId" jdbcType="TINYINT" />
     <result column="LastOperator" property="lastOperator" jdbcType="VARCHAR" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
     <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
@@ -14,7 +13,7 @@
     <result column="Description" property="description" jdbcType="LONGVARCHAR" />
   </resultMap>
   <sql id="Base_Column_List" >
-    Id, Name, EnvId, LastOperator, CreateTime, UpdateTime, Status
+    Id, Name, LastOperator, CreateTime, UpdateTime, Status
   </sql>
   <sql id="Blob_Column_List" >
     Description
@@ -35,12 +34,12 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into anole_env (Name, EnvId, LastOperator, 
-      CreateTime, UpdateTime, Status, 
-      Description)
-    values (#{name,jdbcType=VARCHAR}, #{envId,jdbcType=TINYINT}, #{lastOperator,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
-      #{description,jdbcType=LONGVARCHAR})
+    insert into anole_env (Name, LastOperator, CreateTime, 
+      UpdateTime, Status, Description
+      )
+    values (#{name,jdbcType=VARCHAR}, #{lastOperator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{description,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="org.anole.infrastructure.model.AnoleEnvironment" >
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
@@ -50,9 +49,6 @@
     <trim prefix="(" suffix=")" suffixOverrides="," >
       <if test="name != null" >
         Name,
-      </if>
-      <if test="envId != null" >
-        EnvId,
       </if>
       <if test="lastOperator != null" >
         LastOperator,
@@ -73,9 +69,6 @@
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="name != null" >
         #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="envId != null" >
-        #{envId,jdbcType=TINYINT},
       </if>
       <if test="lastOperator != null" >
         #{lastOperator,jdbcType=VARCHAR},
@@ -100,9 +93,6 @@
       <if test="name != null" >
         Name = #{name,jdbcType=VARCHAR},
       </if>
-      <if test="envId != null" >
-        EnvId = #{envId,jdbcType=TINYINT},
-      </if>
       <if test="lastOperator != null" >
         LastOperator = #{lastOperator,jdbcType=VARCHAR},
       </if>
@@ -124,7 +114,6 @@
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.anole.infrastructure.model.AnoleEnvironment" >
     update anole_env
     set Name = #{name,jdbcType=VARCHAR},
-      EnvId = #{envId,jdbcType=TINYINT},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
@@ -135,7 +124,6 @@
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleEnvironment" >
     update anole_env
     set Name = #{name,jdbcType=VARCHAR},
-      EnvId = #{envId,jdbcType=TINYINT},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP},

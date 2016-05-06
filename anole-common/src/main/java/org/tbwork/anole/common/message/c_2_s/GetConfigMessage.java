@@ -9,12 +9,11 @@ import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 public class GetConfigMessage extends Message{
 
 	private String key;
-	public GetConfigMessage(){
-		super(MessageType.C2S_GET_CONFIG);
-	}
-	public GetConfigMessage(String key){
+	private String env; 
+	public GetConfigMessage(String key, String env){
 		super(MessageType.C2S_GET_CONFIG);
 		this.key = key;
+		this.env = env;
 	}
 	
 }
