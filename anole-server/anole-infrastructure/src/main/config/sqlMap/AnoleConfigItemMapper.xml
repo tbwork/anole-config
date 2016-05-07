@@ -31,25 +31,6 @@
     from anole_config_item
     where Id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByKeyAndEnv" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from anole_config_item
-    where Key = #{key,jdbcType=VARCHAR}
-    AND EnvName = #{env,jdbcType=VARCHAR}
-    AND Status = 1
-  </select>
-  <select id="selectByKeyAndEnvWithoutStatus" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from anole_config_item
-    where Key = #{key,jdbcType=VARCHAR}
-    AND EnvName = #{env,jdbcType=VARCHAR} 
-  </select> 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from anole_config_item
     where Id = #{id,jdbcType=INTEGER}
@@ -209,5 +190,59 @@
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
       Status = #{status,jdbcType=TINYINT}
     where Id = #{id,jdbcType=INTEGER}
+  </update>
+  <!-- Custom methods -->
+  <select id="selectByKeyAndEnv" resultMap="ResultMapWithBLOBs" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from anole_config_item
+    where Key = #{key,jdbcType=VARCHAR}
+    AND EnvName = #{env,jdbcType=VARCHAR}
+    AND Status = 1
+  </select>
+  <select id="selectByKeyAndEnvWithoutStatus" resultMap="ResultMapWithBLOBs" parameterType="map" >
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from anole_config_item
+    where Key = #{key,jdbcType=VARCHAR}
+    AND EnvName = #{env,jdbcType=VARCHAR} 
+  </select> 
+  <update id="resetConfigItem" parameterType="org.anole.infrastructure.model.AnoleConfigItemWithBLOBs" >
+    update anole_config_item
+    <set >
+      <if test="type != null" >
+        Type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="creator != null" >
+        Creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="lastOperator != null" >
+        LastOperator = #{lastOperator,jdbcType=VARCHAR},
+      </if>
+      <if test="project != null" >
+        Project = #{project,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        CreateTime = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="status != null" >
+        Status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="value != null" >
+        Value = #{value,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="description != null" >
+        Description = #{description,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where Key = #{key,jdbcType=VARCHAR} 
+    AND EnvName = #{envName,jdbcType=VARCHAR}
   </update>
 </mapper>

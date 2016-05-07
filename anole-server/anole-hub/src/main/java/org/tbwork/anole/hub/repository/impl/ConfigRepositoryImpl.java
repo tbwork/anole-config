@@ -1,5 +1,7 @@
 package org.tbwork.anole.hub.repository.impl;
 
+import java.util.Date;
+
 import org.anole.infrastructure.dao.AnoleConfigItemMapper;
 import org.anole.infrastructure.model.AnoleConfigItemWithBLOBs;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,13 +124,12 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		if(cache.contain(ckey)) // check cache first.
 			return true;
 		else{// then check the database
-			AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(key, firstEnv);
+			AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnv(key, firstEnv);
 			// store to the cache
 			if(aci != null)
 				cache.asynSet(ckey, parseDPO(aci), 1000);
 			return aci != null;
 		}
-		
 	}
 	
 	private String buildConfigCacheKey(String env, String key){
@@ -136,14 +137,23 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	}
 	
 	private void createConfiguration(ConfigDO cdo, String operator){
+		String firstEnv = envRepo.getFirstEnv();
+		//Check whether invalid configuration item exists in the database
+		AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(cdo.getKey(), firstEnv);
+		boolean invalidRecordExisted = aci != null && aci.getStatus().byteValue() == (byte)0;
+		aci = formMutableDPO(cdo); 
 		for(EnvDO item: envRepo.getAllEnvs()){
 			String envName = item.getName();
-			AnoleConfigItemWithBLOBs aci = formMutableDPO(cdo);
 			aci.setEnvName(envName);
+			aci.setCreateTime(new Date());
+			aci.setUpdateTime(new Date());
 			aci.setLastOperator(operator);
 			aci.setCreator(operator); 
 			aci.setStatus((byte)1);
-			anoleConfigItemDao.insert(aci);
+			if(invalidRecordExisted)
+				anoleConfigItemDao.resetConfigItem(aci);
+			else
+			    anoleConfigItemDao.insert(aci);
 		}
 	}
 
