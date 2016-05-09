@@ -2,8 +2,9 @@ package org.tbwork.anole.hub.repository.impl;
 
 import java.util.Date;
 
-import org.anole.infrastructure.dao.AnoleConfigItemMapper;
-import org.anole.infrastructure.model.AnoleConfigItemWithBLOBs;
+import org.anole.infrastructure.dao.AnoleConfigItemMapper; 
+import org.anole.infrastructure.dao.AnoleConfigMapper;
+import org.anole.infrastructure.model.AnoleConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tbwork.anole.common.ConfigType;
@@ -28,6 +29,9 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	
 	@Autowired
 	private AnoleConfigItemMapper anoleConfigItemDao;
+	
+	@Autowired
+	private AnoleConfigMapper anoleConfigDao;
 	
 	@Autowired
 	private EnvironmentRepository envRepo;
@@ -98,14 +102,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		
 	}
 	
-	private ConfigDO parseDPO(AnoleConfigItemWithBLOBs dpo){
-		ConfigDO result = new ConfigDO(); 
-		result.setValue(dpo.getValue());
-		result.setDescription(dpo.getDescription());
-		result.setConfigType(ConfigType.configType(dpo.getType()));
-		result.setKey(dpo.getKey()); 
-		return result;
-	}
+	
 	
 	/**
 	 * Mutable fields of ConfigDO: {@link ConfigDO}
@@ -124,10 +121,10 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		if(cache.contain(ckey)) // check cache first.
 			return true;
 		else{// then check the database
-			AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnv(key, firstEnv);
+			AnoleConfig aci = anoleConfigDao.selectByConfigKey(key);
 			// store to the cache
 			if(aci != null)
-				cache.asynSet(ckey, parseDPO(aci), 1000);
+				cache.asynSet(ckey, dpo2dmo(aci), 1000);
 			return aci != null;
 		}
 	}
@@ -136,26 +133,37 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		return env + key;
 	}
 	
+	/**
+	 * The caller must guarantee that only one thread is 
+	 * running this method at certain moment.
+	 */
 	private void createConfiguration(ConfigDO cdo, String operator){
-		String firstEnv = envRepo.getFirstEnv();
-		//Check whether invalid configuration item exists in the database
-		AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(cdo.getKey(), firstEnv);
-		boolean invalidRecordExisted = aci != null && aci.getStatus().byteValue() == (byte)0;
-		aci = formMutableDPO(cdo); 
-		for(EnvDO item: envRepo.getAllEnvs()){
-			String envName = item.getName();
-			aci.setEnvName(envName);
-			aci.setCreateTime(new Date());
-			aci.setUpdateTime(new Date());
-			aci.setLastOperator(operator);
-			aci.setCreator(operator); 
-			aci.setStatus((byte)1);
-			if(invalidRecordExisted)
-				anoleConfigItemDao.resetConfigItem(aci);
-			else
-			    anoleConfigItemDao.insert(aci);
-		}
+		AnoleConfig config = dmo2dpo(cdo);
 	}
 
+	
+	private ConfigDO dpo2dmo(AnoleConfig dpo){
+		ConfigDO dmo = new ConfigDO();  
+		dmo.setConfigType(ConfigType.configType(dpo.getType()));
+		dmo.setCreator(dpo.getCreator());
+		dmo.setDescription(dpo.getDescription());
+		dmo.setId(dpo.getId());
+		dmo.setKey(dpo.getKey());
+		dmo.setLastOpeartor(dpo.getLastOperator()); 
+		return dmo;
+	}
+	
+	private AnoleConfig dmo2dpo(ConfigDO cdo){
+		AnoleConfig dpo = new AnoleConfig();
+		dpo.setDescription(cdo.getDescription());
+		dpo.setKey(cdo.getKey());
+		dpo.setProject(project);
+	}
+	
+	private String getPorjectName(String key){
+		
+		
+		
+	}
 	
 }

@@ -9,24 +9,8 @@
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
     <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
     <result column="Status" property="status" jdbcType="TINYINT" />
-  </resultMap>
-  <resultMap id="ResultMapWithBLOBs" type="org.anole.infrastructure.model.AnoleProject" extends="BaseResultMap" >
     <result column="Description" property="description" jdbcType="LONGVARCHAR" />
   </resultMap>
-  <sql id="Base_Column_List" >
-    Id, Name, Creator, Owner, CreateTime, UpdateTime, Status
-  </sql>
-  <sql id="Blob_Column_List" >
-    Description
-  </sql>
-  <select id="selectByPrimaryKey" resultMap="ResultMapWithBLOBs" parameterType="java.lang.Integer" >
-    select 
-    <include refid="Base_Column_List" />
-    ,
-    <include refid="Blob_Column_List" />
-    from anole_project
-    where Id = #{id,jdbcType=INTEGER}
-  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from anole_project
     where Id = #{id,jdbcType=INTEGER}
@@ -42,86 +26,7 @@
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
       #{description,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="org.anole.infrastructure.model.AnoleProject" >
-    <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
-      SELECT LAST_INSERT_ID()
-    </selectKey>
-    insert into anole_project
-    <trim prefix="(" suffix=")" suffixOverrides="," >
-      <if test="name != null" >
-        Name,
-      </if>
-      <if test="creator != null" >
-        Creator,
-      </if>
-      <if test="owner != null" >
-        Owner,
-      </if>
-      <if test="createTime != null" >
-        CreateTime,
-      </if>
-      <if test="updateTime != null" >
-        UpdateTime,
-      </if>
-      <if test="status != null" >
-        Status,
-      </if>
-      <if test="description != null" >
-        Description,
-      </if>
-    </trim>
-    <trim prefix="values (" suffix=")" suffixOverrides="," >
-      <if test="name != null" >
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="creator != null" >
-        #{creator,jdbcType=VARCHAR},
-      </if>
-      <if test="owner != null" >
-        #{owner,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null" >
-        #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="status != null" >
-        #{status,jdbcType=TINYINT},
-      </if>
-      <if test="description != null" >
-        #{description,jdbcType=LONGVARCHAR},
-      </if>
-    </trim>
-  </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="org.anole.infrastructure.model.AnoleProject" >
-    update anole_project
-    <set >
-      <if test="name != null" >
-        Name = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="creator != null" >
-        Creator = #{creator,jdbcType=VARCHAR},
-      </if>
-      <if test="owner != null" >
-        Owner = #{owner,jdbcType=VARCHAR},
-      </if>
-      <if test="createTime != null" >
-        CreateTime = #{createTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="updateTime != null" >
-        UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
-      </if>
-      <if test="status != null" >
-        Status = #{status,jdbcType=TINYINT},
-      </if>
-      <if test="description != null" >
-        Description = #{description,jdbcType=LONGVARCHAR},
-      </if>
-    </set>
-    where Id = #{id,jdbcType=INTEGER}
-  </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="org.anole.infrastructure.model.AnoleProject" >
+  <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleProject" >
     update anole_project
     set Name = #{name,jdbcType=VARCHAR},
       Creator = #{creator,jdbcType=VARCHAR},
@@ -132,14 +37,13 @@
       Description = #{description,jdbcType=LONGVARCHAR}
     where Id = #{id,jdbcType=INTEGER}
   </update>
-  <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleProject" >
-    update anole_project
-    set Name = #{name,jdbcType=VARCHAR},
-      Creator = #{creator,jdbcType=VARCHAR},
-      Owner = #{owner,jdbcType=VARCHAR},
-      CreateTime = #{createTime,jdbcType=TIMESTAMP},
-      UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
-      Status = #{status,jdbcType=TINYINT}
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select Id, Name, Creator, Owner, CreateTime, UpdateTime, Status, Description
+    from anole_project
     where Id = #{id,jdbcType=INTEGER}
-  </update>
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select Id, Name, Creator, Owner, CreateTime, UpdateTime, Status, Description
+    from anole_project
+  </select>
 </mapper>

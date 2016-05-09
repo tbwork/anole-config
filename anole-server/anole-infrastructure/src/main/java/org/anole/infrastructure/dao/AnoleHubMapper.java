@@ -1,5 +1,6 @@
 package org.anole.infrastructure.dao;
 
+import java.util.List;
 import org.anole.infrastructure.model.AnoleHub;
 
 public interface AnoleHubMapper {
@@ -7,11 +8,9 @@ public interface AnoleHubMapper {
 
     int insert(AnoleHub record);
 
-    int insertSelective(AnoleHub record);
-
     AnoleHub selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(AnoleHub record);
+    List<AnoleHub> selectAll();
 
     int updateByPrimaryKey(AnoleHub record);
 }

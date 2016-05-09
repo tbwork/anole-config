@@ -2,14 +2,18 @@ package org.anole.infrastructure.model;
 
 import java.util.Date;
 
-public class AnoleConfigItem {
+public class AnoleConfig {
     private Integer id;
 
     private String key;
 
-    private String envName;
+    private Byte type;
+
+    private String creator;
 
     private String lastOperator;
+
+    private String project;
 
     private Date createTime;
 
@@ -17,7 +21,7 @@ public class AnoleConfigItem {
 
     private Byte status;
 
-    private String value;
+    private String description;
 
     public Integer getId() {
         return id;
@@ -35,12 +39,20 @@ public class AnoleConfigItem {
         this.key = key == null ? null : key.trim();
     }
 
-    public String getEnvName() {
-        return envName;
+    public Byte getType() {
+        return type;
     }
 
-    public void setEnvName(String envName) {
-        this.envName = envName == null ? null : envName.trim();
+    public void setType(Byte type) {
+        this.type = type;
+    }
+
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator == null ? null : creator.trim();
     }
 
     public String getLastOperator() {
@@ -49,6 +61,14 @@ public class AnoleConfigItem {
 
     public void setLastOperator(String lastOperator) {
         this.lastOperator = lastOperator == null ? null : lastOperator.trim();
+    }
+
+    public String getProject() {
+        return project;
+    }
+
+    public void setProject(String project) {
+        this.project = project == null ? null : project.trim();
     }
 
     public Date getCreateTime() {
@@ -75,11 +95,11 @@ public class AnoleConfigItem {
         this.status = status;
     }
 
-    public String getValue() {
-        return value;
+    public String getDescription() {
+        return description;
     }
 
-    public void setValue(String value) {
-        this.value = value == null ? null : value.trim();
+    public void setDescription(String description) {
+        this.description = description == null ? null : description.trim();
     }
 }

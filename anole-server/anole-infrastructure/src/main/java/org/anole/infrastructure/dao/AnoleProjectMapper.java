@@ -1,5 +1,6 @@
 package org.anole.infrastructure.dao;
 
+import java.util.List;
 import org.anole.infrastructure.model.AnoleProject;
 
 public interface AnoleProjectMapper {
@@ -7,13 +8,9 @@ public interface AnoleProjectMapper {
 
     int insert(AnoleProject record);
 
-    int insertSelective(AnoleProject record);
-
     AnoleProject selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(AnoleProject record);
-
-    int updateByPrimaryKeyWithBLOBs(AnoleProject record);
+    List<AnoleProject> selectAll();
 
     int updateByPrimaryKey(AnoleProject record);
 }

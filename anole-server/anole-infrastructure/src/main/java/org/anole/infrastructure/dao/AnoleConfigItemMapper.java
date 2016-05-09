@@ -1,29 +1,16 @@
 package org.anole.infrastructure.dao;
 
+import java.util.List;
 import org.anole.infrastructure.model.AnoleConfigItem;
-import org.anole.infrastructure.model.AnoleConfigItemWithBLOBs;
-import org.apache.ibatis.annotations.Param;
 
 public interface AnoleConfigItemMapper {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(AnoleConfigItemWithBLOBs record);
+    int insert(AnoleConfigItem record);
 
-    int insertSelective(AnoleConfigItemWithBLOBs record);
+    AnoleConfigItem selectByPrimaryKey(Integer id);
 
-    AnoleConfigItemWithBLOBs selectByPrimaryKey(Integer id);
-
-    int updateByPrimaryKeySelective(AnoleConfigItemWithBLOBs record);
-
-    int updateByPrimaryKeyWithBLOBs(AnoleConfigItemWithBLOBs record);
+    List<AnoleConfigItem> selectAll();
 
     int updateByPrimaryKey(AnoleConfigItem record);
-    
-    //custom method
-    AnoleConfigItemWithBLOBs selectByKeyAndEnv(@Param("key")String key, @Param("env")String env);
-    
-    AnoleConfigItemWithBLOBs selectByKeyAndEnvWithoutStatus(@Param("key")String key, @Param("env")String env);
-    
-    int resetConfigItem(AnoleConfigItemWithBLOBs record);
-    
 }

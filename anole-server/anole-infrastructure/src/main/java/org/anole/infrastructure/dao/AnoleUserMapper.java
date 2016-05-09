@@ -1,5 +1,6 @@
 package org.anole.infrastructure.dao;
 
+import java.util.List;
 import org.anole.infrastructure.model.AnoleUser;
 
 public interface AnoleUserMapper {
@@ -7,11 +8,9 @@ public interface AnoleUserMapper {
 
     int insert(AnoleUser record);
 
-    int insertSelective(AnoleUser record);
-
     AnoleUser selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(AnoleUser record);
+    List<AnoleUser> selectAll();
 
     int updateByPrimaryKey(AnoleUser record);
 }

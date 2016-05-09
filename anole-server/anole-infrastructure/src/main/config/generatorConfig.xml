@@ -9,7 +9,7 @@
 	<property name="password" value="123456"/>
   </properties> --> 
   <classPathEntry location="D:\mariadb-java-client-1.1.7.jar" />
-  <context id="anole_db" >
+  <context id="anole_db" defaultModelType="flat" targetRuntime="MyBatis3Simple">
     <commentGenerator> 
     	<property name="suppressAllComments" value="true" />
     	<property name="suppressDate" value="true" />
@@ -43,6 +43,10 @@
    	  <property name="useActualColumnNames" value="true"></property> 
       <generatedKey column="Id" sqlStatement="Mysql" identity="true"></generatedKey>  
     </table> 
+    <table tableName="anole_config" domainObjectName="AnoleConfig" enableCountByExample="false" enableUpdateByExample="false"	enableDeleteByExample="false" enableSelectByExample="false"	selectByExampleQueryId="false">
+   	  <property name="useActualColumnNames" value="true"></property> 
+      <generatedKey column="Id" sqlStatement="Mysql" identity="true"></generatedKey>  
+    </table>
     <table tableName="anole_config_item" domainObjectName="AnoleConfigItem" enableCountByExample="false" enableUpdateByExample="false"	enableDeleteByExample="false" enableSelectByExample="false"	selectByExampleQueryId="false">
    	  <property name="useActualColumnNames" value="true"></property> 
       <generatedKey column="Id" sqlStatement="Mysql" identity="true"></generatedKey>  

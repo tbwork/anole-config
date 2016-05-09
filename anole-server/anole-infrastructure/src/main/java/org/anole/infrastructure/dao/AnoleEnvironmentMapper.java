@@ -1,5 +1,6 @@
 package org.anole.infrastructure.dao;
 
+import java.util.List;
 import org.anole.infrastructure.model.AnoleEnvironment;
 
 public interface AnoleEnvironmentMapper {
@@ -7,13 +8,9 @@ public interface AnoleEnvironmentMapper {
 
     int insert(AnoleEnvironment record);
 
-    int insertSelective(AnoleEnvironment record);
-
     AnoleEnvironment selectByPrimaryKey(Integer id);
 
-    int updateByPrimaryKeySelective(AnoleEnvironment record);
-
-    int updateByPrimaryKeyWithBLOBs(AnoleEnvironment record);
+    List<AnoleEnvironment> selectAll();
 
     int updateByPrimaryKey(AnoleEnvironment record);
 }
