@@ -77,7 +77,6 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 				}
 			} 
 			anoleConfigItemDao.updateByPrimaryKey(aci); 
-			
 			//update the cache
 			cache.asynSet(ckey, configValueDo);
 		}

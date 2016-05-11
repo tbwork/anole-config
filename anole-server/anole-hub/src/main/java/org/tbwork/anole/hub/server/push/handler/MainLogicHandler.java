@@ -13,7 +13,8 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType; 
 import org.tbwork.anole.common.message.c_2_s.GetConfigMessage;
 import org.tbwork.anole.common.message.s_2_c.ReturnConfigMessage;
-import org.tbwork.anole.hub.repository.DataService;
+import org.tbwork.anole.hub.model.ConfigValueDO;
+import org.tbwork.anole.hub.repository.ConfigRepository; 
 import org.tbwork.anole.hub.server.client.manager.BaseClientManager;
 import org.tbwork.anole.hub.server.client.manager.impl.SubscriberClientManager;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberUnregisterRequest;
@@ -29,7 +30,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
 	private SubscriberClientManager cm;
 	
 	@Autowired
-	private DataService dataService;
+	private ConfigRepository cr;
 	
 	static final Logger logger = LoggerFactory.getLogger(MainLogicHandler.class);
 	
@@ -61,11 +62,12 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
 		 } 
 	}
  
-	private ReturnConfigMessage processGetConfigMessage(Message msg){
-		
+	private ReturnConfigMessage processGetConfigMessage(Message msg){ 
 		GetConfigMessage gcMsg = (GetConfigMessage) msg;
  		String key = gcMsg.getKey();
- 		String value = dataService.getProperty(key);
+ 		String env = gcMsg.getEnv();
+ 		ConfigValueDO cvdo =   cr.retrieveConfigValueByKey(key, env);
+ 		String value = cvdo == null ? null : cvdo.getValue();
  		return new ReturnConfigMessage(key,value, ConfigType.STRING);  
 	}
 	
