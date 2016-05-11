@@ -6,8 +6,7 @@
     <result column="Name" property="name" jdbcType="VARCHAR" />
     <result column="LastOperator" property="lastOperator" jdbcType="VARCHAR" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
-    <result column="Status" property="status" jdbcType="TINYINT" />
+    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" /> 
     <result column="Description" property="description" jdbcType="LONGVARCHAR" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
@@ -19,10 +18,10 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into anole_env (Name, LastOperator, CreateTime, 
-      UpdateTime, Status, Description
+      UpdateTime, Description
       )
     values (#{name,jdbcType=VARCHAR}, #{lastOperator,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, #{description,jdbcType=LONGVARCHAR}
+      #{updateTime,jdbcType=TIMESTAMP}, #{description,jdbcType=LONGVARCHAR}
       )
   </insert>
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleEnvironment" >
@@ -30,18 +29,17 @@
     set Name = #{name,jdbcType=VARCHAR},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
-      UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
-      Status = #{status,jdbcType=TINYINT},
+      UpdateTime = #{updateTime,jdbcType=TIMESTAMP}, 
       Description = #{description,jdbcType=LONGVARCHAR}
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select Id, Name, LastOperator, CreateTime, UpdateTime, Status, Description
+    select Id, Name, LastOperator, CreateTime, UpdateTime,   Description
     from anole_env
     where Id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select Id, Name, LastOperator, CreateTime, UpdateTime, Status, Description
+    select Id, Name, LastOperator, CreateTime, UpdateTime,  Description
     from anole_env
   </select>
 </mapper>

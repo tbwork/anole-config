@@ -1,20 +1,25 @@
 package org.tbwork.anole.hub.repository.impl;
 
+import java.sql.SQLException;
 import java.util.Date;
 
 import org.anole.infrastructure.dao.AnoleConfigItemMapper; 
 import org.anole.infrastructure.dao.AnoleConfigMapper;
 import org.anole.infrastructure.model.AnoleConfig;
+import org.anole.infrastructure.model.AnoleConfigItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.hub.cache.Cache;
-import org.tbwork.anole.hub.exceptions.ConfigItemAlreadyExistsException;
+import org.tbwork.anole.hub.exceptions.ConfigAlreadyExistsException; 
+import org.tbwork.anole.hub.exceptions.ConfigNotExistsException;
 import org.tbwork.anole.hub.model.ConfigDO;
+import org.tbwork.anole.hub.model.ConfigValueDO;
 import org.tbwork.anole.hub.model.EnvDO;
 import org.tbwork.anole.hub.repository.ConfigRepository; 
 import org.tbwork.anole.hub.repository.EnvironmentRepository;
 import org.tbwork.anole.hub.repository.LockRepository;
+import org.tbwork.anole.hub.util.ProjectUtil;
 
 import com.google.common.base.Preconditions;
 
@@ -37,133 +42,176 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	private EnvironmentRepository envRepo;
 	
 	@Override
-	public ConfigDO retrieveConfigByKey(String key, String env) {
-		String cacheKey = buildConfigCacheKey(env, key);
-		ConfigDO cdo = cache.get(cacheKey);
-		if(cdo != null){
-			return cdo;
+	public ConfigValueDO retrieveConfigValueByKey(String key, String env) {
+		String cacheKey = buildConfigItemCacheKey(key, env);
+		ConfigValueDO cvdo = cache.get(cacheKey);
+		if(cvdo != null){
+			return cvdo;
 		} 
-		AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnv(key, env);
+		AnoleConfigItem aci = anoleConfigItemDao.selectByConfigKeyAndEnv(key, env);
 		if(aci != null)
 		{
-			cdo = parseDPO(aci);
-			cache.set(cacheKey, cdo); // update lc
+			cvdo = dpo2dmo(aci);
+			cache.set(cacheKey, cvdo); // set cache
 		} 
 		return null;
 	}
 	
 	@Override
-	public void addConfig(ConfigDO config, String operator) { 
-		boolean flag = false;
-		if(!checkExistsAndReturn(config.getKey())){
-			synchronized(lr.getInsertLock(config.getKey())){
-				if(!checkExistsAndReturn(config.getKey())){
-					createConfiguration(config, operator); 
-					flag = true;
+	public void setConfigValue(ConfigValueDO configValueDo) {
+		basicCheck(configValueDo);
+		if(checkConfigExists(configValueDo.getKey())){ 
+			//disable cache
+			String ckey = buildConfigItemCacheKey(configValueDo.getKey(), configValueDo.getEnv());
+			cache.asynRemove(ckey);
+			//update the database
+			AnoleConfigItem aci = dmo2dpo(configValueDo);
+			if(!checkConfigValueExists(configValueDo.getKey(), configValueDo.getEnv()))
+			{ 
+				synchronized(lr.getInsertLock(configValueDo.getKey())){
+					if(!checkConfigValueExists(configValueDo.getKey(), configValueDo.getEnv()))
+					{  
+						anoleConfigItemDao.insert(aci);
+						return;
+					}
 				}
 			} 
-		} 
-		if(flag)
-			lr.removeInsertLock(config.getKey());
-		throw new ConfigItemAlreadyExistsException(config.getKey());
+			anoleConfigItemDao.updateByPrimaryKey(aci); 
+			
+			//update the cache
+			cache.asynSet(ckey, configValueDo);
+		}
+		else
+		throw new ConfigNotExistsException(configValueDo.getKey());
+		
 	}
-
+	
+	
 	@Override
-	public void setConfig(ConfigDO config, String env, String operator) {
-		
-		String key = config.getKey();
-		String cacheKey = buildConfigCacheKey(env, key);
-		// Asynchronously remove cache item.
-		cache.asynRemove(cacheKey);
-		
-		// update database
-		AnoleConfigItemWithBLOBs aci = anoleConfigItemDao.selectByKeyAndEnvWithoutStatus(key, env);
-		if(aci == null){
-			aci = formMutableDPO(config);
-			aci.setEnvName(env);
-			aci.setLastOperator(operator);
-			aci.setCreator(operator); 
-			aci.setStatus((byte)1);
-			int id = anoleConfigItemDao.insert(aci);
-			aci.setId(id);
-		}
-		else //already exists
-		{ 
-			AnoleConfigItemWithBLOBs tempAci = new AnoleConfigItemWithBLOBs();
-			tempAci.setId(aci.getId());
-			// fields that need to be updated.
-			tempAci.setEnvName(env);
-			tempAci.setLastOperator(operator);
-			tempAci.setValue(config.getValue());
-			tempAci.setDescription(config.getDescription());
-		}
-		
-		// Asynchronously update cache
-		
-	}
-	
-	
-	
-	/**
-	 * Mutable fields of ConfigDO: {@link ConfigDO}
-	 */
-	private AnoleConfigItemWithBLOBs formMutableDPO(ConfigDO cdo){
-		AnoleConfigItemWithBLOBs result = new AnoleConfigItemWithBLOBs(); 
-		result.setDescription(cdo.getDescription());
-		result.setValue(cdo.getValue());
-		result.setType(cdo.getConfigType().index()); 
-		return result;
+	public void addConfig(ConfigDO config) { 
+		basicCheck(config);
+		addOperationCheck(config);
+		try{  
+			// add to database
+			AnoleConfig ac = dmo2dpo(config);  
+			anoleConfigDao.insert(ac); 
+			
+			// add to cache
+			String ckey = buildConfigCacheKey(config.getKey());
+			cache.asynSet(ckey, config);
+		}catch(Exception e){
+			throw new ConfigAlreadyExistsException(config.getKey());
+		} 
 	}
  
-	private boolean checkExistsAndReturn(String key){
-		String firstEnv = envRepo.getFirstEnv();
-		String ckey = buildConfigCacheKey(key, firstEnv);
-		if(cache.contain(ckey)) // check cache first.
-			return true;
-		else{// then check the database
-			AnoleConfig aci = anoleConfigDao.selectByConfigKey(key);
-			// store to the cache
-			if(aci != null)
-				cache.asynSet(ckey, dpo2dmo(aci), 1000);
-			return aci != null;
-		}
+	@Override
+	public void setConfig(ConfigDO config) {
+		basicCheck(config);  
+		configExistsCheck(config.getKey());
+		// remove the cache
+		String ckey = buildConfigCacheKey(config.getKey());
+		cache.asynRemove(ckey);
+		// update database
+		AnoleConfig ac = dmo2dpo(config); 
+		anoleConfigDao.updateByPrimaryKey(ac);
+		// update the cache 
+		cache.asynSet(ckey, config);  
 	}
 	
-	private String buildConfigCacheKey(String env, String key){
+	//------------privates--------------------------------------------------------
+	
+	private void basicCheck(ConfigValueDO cvdo){
+		Preconditions.checkNotNull (cvdo.getKey(), "You should specify a key first.");
+		Preconditions.checkNotNull (cvdo.getLastOperator(), "Operator should not be null.");
+		Preconditions.checkNotNull (cvdo.getEnv(), "You should sepcify a environment name.");
+		Preconditions.checkArgument(!cvdo.getKey().isEmpty(), "You should specify a key first.");
+		Preconditions.checkArgument(!cvdo.getLastOperator().isEmpty(), "Operator should not be empty.");
+		Preconditions.checkArgument(!cvdo.getEnv().isEmpty(), "You should sepcify a environment name.");
+	}
+	private void addOperationCheck(ConfigValueDO cvdo){
+		 //nothing special
+	}
+	
+	private void basicCheck(ConfigDO config){
+		Preconditions.checkNotNull (config.getKey(), "You should specify a key first.");
+		Preconditions.checkNotNull (config.getLastOpeartor(), "Operator should not be null.");
+		Preconditions.checkArgument(!config.getKey().isEmpty(), "You should specify a key first.");
+		Preconditions.checkArgument(!config.getLastOpeartor().isEmpty(), "Operator should not be empty.");
+	}
+	private void addOperationCheck(ConfigDO config){
+		Preconditions.checkNotNull (config.getCreator(), "You should specify a key first.");
+		Preconditions.checkArgument (!config.getCreator().isEmpty(), "Creator should not be empty.");
+	}
+	private void configExistsCheck(String configKey){
+		if(!checkConfigExists(configKey))
+			throw new ConfigNotExistsException(configKey);
+	}
+    
+	
+	private String buildConfigCacheKey(String key){
+		return key;
+	}
+	
+	private String buildConfigItemCacheKey(String key, String env){
 		return env + key;
+	}  
+	
+	private boolean checkConfigExists(String configKey){
+		String ckey = buildConfigCacheKey(configKey);
+		if(cache.contain(ckey))
+			return true;
+		AnoleConfig ac = anoleConfigDao.selectByConfigKey(configKey);
+		if(ac != null) 
+			return true;
+		return false;
 	}
 	
-	/**
-	 * The caller must guarantee that only one thread is 
-	 * running this method at certain moment.
-	 */
-	private void createConfiguration(ConfigDO cdo, String operator){
-		AnoleConfig config = dmo2dpo(cdo);
+	private boolean checkConfigValueExists(String configKey, String env){
+		String ckey = buildConfigItemCacheKey(configKey, env);
+		if(cache.contain(ckey))
+			return true;
+		AnoleConfigItem ac = anoleConfigItemDao.selectByConfigKeyAndEnv(configKey, env);
+		if(ac != null) 
+			return true;
+		return false;
+	} 
+	 
+	private AnoleConfigItem dmo2dpo(ConfigValueDO dmo){
+		AnoleConfigItem dpo = new AnoleConfigItem();
+		dpo.setEnvName(dmo.getEnv());
+		dpo.setKey(dmo.getKey());
+		dpo.setValue(dmo.getValue());
+		dpo.setLastOperator(dmo.getLastOperator());  
+		return dpo;
 	}
-
+	
+	private ConfigValueDO dpo2dmo(AnoleConfigItem dpo){
+		ConfigValueDO dmo = new ConfigValueDO();
+		dmo.setEnv(dpo.getEnvName());
+		dmo.setKey(dpo.getKey());
+		dmo.setValue(dpo.getValue());
+		dmo.setLastOperator(dpo.getLastOperator()); 
+		return dmo;
+	}
 	
 	private ConfigDO dpo2dmo(AnoleConfig dpo){
 		ConfigDO dmo = new ConfigDO();  
 		dmo.setConfigType(ConfigType.configType(dpo.getType()));
 		dmo.setCreator(dpo.getCreator());
-		dmo.setDescription(dpo.getDescription());
-		dmo.setId(dpo.getId());
+		dmo.setDescription(dpo.getDescription()); 
 		dmo.setKey(dpo.getKey());
 		dmo.setLastOpeartor(dpo.getLastOperator()); 
 		return dmo;
 	}
 	
 	private AnoleConfig dmo2dpo(ConfigDO cdo){
-		AnoleConfig dpo = new AnoleConfig();
+		AnoleConfig dpo = new AnoleConfig(); 
 		dpo.setDescription(cdo.getDescription());
 		dpo.setKey(cdo.getKey());
-		dpo.setProject(project);
-	}
-	
-	private String getPorjectName(String key){
-		
-		
-		
+		dpo.setProject(ProjectUtil.getProjectName(cdo.getKey()));
+		dpo.setType(cdo.getConfigType().index()); 
+		dpo.setLastOperator(cdo.getLastOpeartor()); 
+		return dpo;
 	}
 	
 }

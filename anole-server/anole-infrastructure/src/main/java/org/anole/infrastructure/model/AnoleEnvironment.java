@@ -11,10 +11,8 @@ public class AnoleEnvironment {
 
     private Date createTime;
 
-    private Date updateTime;
-
-    private Byte status;
-
+    private Date updateTime; 
+    
     private String description;
 
     public Integer getId() {
@@ -55,16 +53,7 @@ public class AnoleEnvironment {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    }
-
-    public Byte getStatus() {
-        return status;
-    }
-
-    public void setStatus(Byte status) {
-        this.status = status;
-    }
-
+    } 
     public String getDescription() {
         return description;
     }

@@ -1,6 +1,7 @@
 package org.tbwork.anole.hub.repository;
 
 import org.tbwork.anole.hub.model.ConfigDO;
+import org.tbwork.anole.hub.model.ConfigValueDO;
 
 /**
  * Configuration repository.
@@ -11,21 +12,23 @@ public interface ConfigRepository {
 	/**
 	 * Retrieve configuration by specified key.
 	 */
-	public ConfigDO retrieveConfigByKey(String key, String env);
-	 
-	/**
-	 * Update a configuration item.
-	 * @param config the configuration item
-	 * @param env    the target environment
-	 * @param operator the operator's username
+	public ConfigValueDO retrieveConfigValueByKey(String key, String env);
+	
+	/**Set a value for certain configuration of certain environment.
+	 * @param configValueDo the new configuration value data
 	 */
-	public void setConfig(ConfigDO config, String env, String operator);
-	
-	
+	public void setConfigValue(ConfigValueDO configValueDo); 
 	/** 
 	 * Create a configuration item.
 	 * @param config the configuration item
-	 * @param operator the operator's username
 	 */
-	public void addConfig(ConfigDO config, String operator);
+	public void addConfig(ConfigDO config); 
+	
+	/**
+	 * @param config the new configuration data
+	 */
+	public void setConfig(ConfigDO config);
+	
+
+	
 }

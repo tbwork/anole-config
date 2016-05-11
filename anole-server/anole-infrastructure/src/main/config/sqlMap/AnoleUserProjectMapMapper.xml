@@ -8,8 +8,7 @@
     <result column="Env" property="env" jdbcType="VARCHAR" />
     <result column="Role" property="role" jdbcType="TINYINT" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
-    <result column="Status" property="status" jdbcType="TINYINT" />
+    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" /> 
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from anole_user_project_map
@@ -20,11 +19,9 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into anole_user_project_map (Username, Project, Env, 
-      Role, CreateTime, UpdateTime, 
-      Status)
+      Role, CreateTime, UpdateTime)
     values (#{username,jdbcType=VARCHAR}, #{project,jdbcType=VARCHAR}, #{env,jdbcType=VARCHAR}, 
-      #{role,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{status,jdbcType=TINYINT})
+      #{role,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleUserProjectMap" >
     update anole_user_project_map
@@ -33,17 +30,16 @@
       Env = #{env,jdbcType=VARCHAR},
       Role = #{role,jdbcType=TINYINT},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
-      UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
-      Status = #{status,jdbcType=TINYINT}
+      UpdateTime = #{updateTime,jdbcType=TIMESTAMP} 
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select Id, Username, Project, Env, Role, CreateTime, UpdateTime, Status
+    select Id, Username, Project, Env, Role, CreateTime, UpdateTime
     from anole_user_project_map
     where Id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select Id, Username, Project, Env, Role, CreateTime, UpdateTime, Status
+    select Id, Username, Project, Env, Role, CreateTime, UpdateTime
     from anole_user_project_map
   </select>
 </mapper>

@@ -6,8 +6,7 @@
     <result column="Username" property="username" jdbcType="VARCHAR" />
     <result column="Password" property="password" jdbcType="VARCHAR" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
-    <result column="Status" property="status" jdbcType="TINYINT" />
+    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" /> 
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
     delete from anole_user
@@ -18,26 +17,25 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into anole_user (Username, Password, CreateTime, 
-      UpdateTime, Status)
+      UpdateTime )
     values (#{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT})
+      #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleUser" >
     update anole_user
     set Username = #{username,jdbcType=VARCHAR},
       Password = #{password,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
-      UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
-      Status = #{status,jdbcType=TINYINT}
+      UpdateTime = #{updateTime,jdbcType=TIMESTAMP} 
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select Id, Username, Password, CreateTime, UpdateTime, Status
+    select Id, Username, Password, CreateTime, UpdateTime 
     from anole_user
     where Id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select Id, Username, Password, CreateTime, UpdateTime, Status
+    select Id, Username, Password, CreateTime, UpdateTime 
     from anole_user
   </select>
 </mapper>

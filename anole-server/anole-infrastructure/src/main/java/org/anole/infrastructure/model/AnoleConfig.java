@@ -19,8 +19,6 @@ public class AnoleConfig {
 
     private Date updateTime;
 
-    private Byte status;
-
     private String description;
 
     public Integer getId() {
@@ -85,14 +83,6 @@ public class AnoleConfig {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    }
-
-    public Byte getStatus() {
-        return status;
-    }
-
-    public void setStatus(Byte status) {
-        this.status = status;
     }
 
     public String getDescription() {

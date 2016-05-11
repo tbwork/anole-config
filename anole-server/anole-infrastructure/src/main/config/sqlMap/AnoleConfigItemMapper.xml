@@ -7,8 +7,7 @@
     <result column="EnvName" property="envName" jdbcType="VARCHAR" />
     <result column="LastOperator" property="lastOperator" jdbcType="VARCHAR" />
     <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
-    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" />
-    <result column="Status" property="status" jdbcType="TINYINT" />
+    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" /> 
     <result column="Value" property="value" jdbcType="LONGVARCHAR" />
   </resultMap>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
@@ -20,10 +19,10 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into anole_config_item (Key, EnvName, LastOperator, 
-      CreateTime, UpdateTime, Status, 
+      CreateTime, UpdateTime,
       Value)
     values (#{key,jdbcType=VARCHAR}, #{envName,jdbcType=VARCHAR}, #{lastOperator,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{status,jdbcType=TINYINT}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{value,jdbcType=LONGVARCHAR})
   </insert>
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleConfigItem" >
@@ -32,18 +31,38 @@
       EnvName = #{envName,jdbcType=VARCHAR},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
-      UpdateTime = #{updateTime,jdbcType=TIMESTAMP},
-      Status = #{status,jdbcType=TINYINT},
+      UpdateTime = #{updateTime,jdbcType=TIMESTAMP}, 
       Value = #{value,jdbcType=LONGVARCHAR}
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select Id, Key, EnvName, LastOperator, CreateTime, UpdateTime, Status, Value
+    select Id, Key, EnvName, LastOperator, CreateTime, UpdateTime, Value
     from anole_config_item
-    where Id = #{id,jdbcType=INTEGER}
+    where Id = #{id,jdbcType=INTEGER} 
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select Id, Key, EnvName, LastOperator, CreateTime, UpdateTime, Status, Value
-    from anole_config_item
+    select Id, Key, EnvName, LastOperator, CreateTime, UpdateTime, Value
+    from anole_config_item 
   </select>
+  
+  <!-- Custom methods -->
+  <select id="selectByConfigKeyAndEnv" resultMap="BaseResultMap" parameterType="map" >
+    select Id, Key, EnvName, LastOperator, CreateTime, UpdateTime, Value
+    from anole_config_item
+    where Key = #{key,jdbcType=VARCHAR}
+    AND 
+    Env = #{env, jdbcType=VARCHAR} 
+  </select> 
+  <update id="updateByKeyAndEnv" parameterType="org.anole.infrastructure.model.AnoleConfigItem" >
+    update anole_config_item
+    set
+      LastOperator = #{lastOperator,jdbcType=VARCHAR},  
+      Value = #{value,jdbcType=LONGVARCHAR}
+    where 
+    Key = #{key,jdbcType=VARCHAR}
+    AND
+    Env = #{env,jdbcType=VARCHAR} 
+  </update>
+  
+  
 </mapper>

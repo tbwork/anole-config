@@ -3,11 +3,10 @@ package org.tbwork.anole.hub.model;
 import lombok.Data;
 
 @Data
-public class ConfigValueDO {
-
+public class ConfigValueDO { 
 	private String key;
 	private String env;
 	private String value;
-	private int configId;
+	private String lastOperator; 
 	
 }
