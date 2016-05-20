@@ -16,8 +16,7 @@ public class LockRepositoryImpl implements LockRepository{
 	 */
 	@Autowired
 	private LocalCache lc;
-	
-	@Autowired
+	 
 	private final Object lockOfNewLockOperation = new Object();
 	
 	@Override

@@ -1,14 +1,11 @@
-package org.tbwork.anole.subscriber.core.impl;
+package org.tbwork.anole.loader.core.impl;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException;
-import org.tbwork.anole.subscriber.util.RegexUtil;
+import org.tbwork.anole.loader.util.RegexUtil; 
 
 /**
  * <p> This is for web applications to load anole configurations.
@@ -16,7 +13,7 @@ import org.tbwork.anole.subscriber.util.RegexUtil;
  * mode, anole allows and only allows to load configuration files 
  * within the class path. So make sure you added your configuration
  *  files under the class path directories. Maybe you will ask why?
- * No exact answer, just personal "Best Practice". ^_^
+ * No meaningful answer, just to "make life easier".
  * <p> Usage example:
  * <p> In the <b>web.xml</b>:
  * <pre>
@@ -44,8 +41,7 @@ import org.tbwork.anole.subscriber.util.RegexUtil;
 public class WebAnoleLoaderListener extends ClasspathAnoleLoader implements ServletContextListener{
 
 	private static Logger logger = LoggerFactory.getLogger(WebAnoleLoaderListener.class);
- 
-	private AnoleSubscriberClient asClient = AnoleSubscriberClient.instance(); 
+  
 	
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
@@ -55,8 +51,7 @@ public class WebAnoleLoaderListener extends ClasspathAnoleLoader implements Serv
 			 this.load();
 		 }
 		 else  
-			 this.load(RegexUtil.splitConfigLocations(configLocationString)); 
-		 asClient.connect();
+			 this.load(RegexUtil.splitConfigLocations(configLocationString));  
 	}
 
 	@Override

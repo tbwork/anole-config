@@ -37,10 +37,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 	
 	@Autowired
 	private AnoleConfigMapper anoleConfigDao;
-	
-	@Autowired
-	private EnvironmentRepository envRepo;
-	
+
 	@Override
 	public ConfigValueDO retrieveConfigValueByKey(String key, String env) {
 		String cacheKey = buildConfigItemCacheKey(key, env);

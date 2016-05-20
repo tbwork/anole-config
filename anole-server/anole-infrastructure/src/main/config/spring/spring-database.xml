@@ -68,8 +68,8 @@
 	</aop:config>
 	-->
 	 
-	<!-- 使用Spring 非检查型数据访问异常 -->
- 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+	<!-- 使用Spring 非检查型数据访问异常 
+ 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />-->
  
 
 </beans> 

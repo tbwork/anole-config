@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.core.impl;
+package org.tbwork.anole.loader.core.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -7,12 +7,12 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.ConfigType;
-import org.tbwork.anole.subscriber.core.ConfigManager;
-import org.tbwork.anole.subscriber.exceptions.ConfigFileNotExistException;
-import org.tbwork.anole.subscriber.exceptions.EnvironmentNotSetException;
-import org.tbwork.anole.subscriber.exceptions.ErrorSyntaxException;
-import org.tbwork.anole.subscriber.util.OsUtil;
-import org.tbwork.anole.subscriber.util.RegexUtil;
+import org.tbwork.anole.loader.core.LocalConfigManager;
+import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
+import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
+import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import org.tbwork.anole.loader.util.OsUtil;
+import org.tbwork.anole.loader.util.RegexUtil;
 
 import com.google.common.collect.Lists;
 
@@ -21,6 +21,7 @@ public class AnoleConfigFileParser {
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 	
 	private static Logger logger = LoggerFactory.getLogger(AnoleConfigFileParser.class);
+	private final LocalConfigManager lcm = LocalConfigManager.getInstance();
 	
 	private AnoleConfigFileParser(){
 		setEnv(); 
@@ -91,17 +92,14 @@ public class AnoleConfigFileParser {
 				k = tkArray[1].trim();
 			}
 			switch(t){
-				case "s":{
-					ConfigManager.checkAndInitialConfig(k);// for dynamic load in the future.
-					ConfigManager.setConfigItem(k, v, ConfigType.STRING);
+				case "s":{ 
+					lcm.setConfigItem(k, v, ConfigType.STRING);
 				}break;
-				case "b":{
-					ConfigManager.checkAndInitialConfig(k);
-					ConfigManager.setConfigItem(k, v, ConfigType.BOOL);
+				case "b":{ 
+					lcm.setConfigItem(k, v, ConfigType.BOOL);
 				}break;
-				case "n":{
-					ConfigManager.checkAndInitialConfig(k);
-					ConfigManager.setConfigItem(k, v, ConfigType.NUMBER);
+				case "n":{ 
+					lcm.setConfigItem(k, v, ConfigType.NUMBER);
 				}break;
 				default:{
 					throw new ErrorSyntaxException(lineNumber, currentFileFullPath, "Unknow value type : " + t);

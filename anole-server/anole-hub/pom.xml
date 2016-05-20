@@ -17,7 +17,7 @@
     <junit.version>3.8.1</junit.version>
     <anole.infrastructure.version>0.0.1-SNAPSHOT</anole.infrastructure.version>
   </properties>
-  <dependencies>
+  <dependencies> 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>

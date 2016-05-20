@@ -1,10 +1,9 @@
-package org.tbwork.anole.subscriber.core.impl;
+package org.tbwork.anole.loader.core.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.core.AnoleLoader;
-import org.tbwork.anole.subscriber.util.ProjectUtil;
+import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.util.ProjectUtil; 
 
 public class ClasspathAnoleLoader extends FileSystemAnoleLoader{
 
@@ -21,7 +20,7 @@ public class ClasspathAnoleLoader extends FileSystemAnoleLoader{
 	public void load(String... configLocations) {
 		 for(String ifile : configLocations) 
 			 loadFile(ProjectUtil.classPath+ifile, logger); 
-		 AnoleConfig.initialized = true;
+		 AnoleLocalConfig.initialized = true;
 	}
   
 }

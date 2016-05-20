@@ -15,8 +15,7 @@ import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandl
 import org.tbwork.anole.subscriber.client.handler.OtherLogicHandler;
 import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.core.AnoleLoader;
-import org.tbwork.anole.subscriber.core.impl.ClasspathAnoleLoader;
+import org.tbwork.anole.subscriber.core.AnoleLoader; 
 import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
 

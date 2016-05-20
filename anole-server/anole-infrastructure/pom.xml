@@ -46,5 +46,10 @@
 		<artifactId>commons-dbcp</artifactId>
 		<version>${dbcp.version}</version>
 	</dependency> 
+	<dependency>
+	    <groupId>org.springframework</groupId>
+	    <artifactId>spring-jdbc</artifactId>
+	    <version>${org.springframework.version}</version>
+	</dependency>
   </dependencies>
 </project>

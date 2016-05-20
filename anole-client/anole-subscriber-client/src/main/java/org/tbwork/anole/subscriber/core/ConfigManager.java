@@ -14,9 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.c_2_s.GetConfigMessage;
+import org.tbwork.anole.loader.core.ConfigItem;
+import org.tbwork.anole.loader.core.LocalConfigManager;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.client.GlobalConfig;  
-import org.tbwork.anole.subscriber.core.impl.ConfigItem;
+import org.tbwork.anole.subscriber.client.GlobalConfig;   
 import org.tbwork.anole.subscriber.exceptions.ConfigMapNotReadyToRetrieveRemoteConfigException;
 import org.tbwork.anole.subscriber.exceptions.RetrieveConfigTimeoutException;
  
@@ -27,18 +28,26 @@ import org.tbwork.anole.subscriber.exceptions.RetrieveConfigTimeoutException;
  * to retrieve configuration from the remote server.
  * @author Tommy.Tang
  */
-public class ConfigManager {
+public class ConfigManager{
 
 	static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
 	
-	protected static final Map<String, ConfigItem> configMap = new ConcurrentHashMap<String, ConfigItem>();
+	private static final ConfigManager cm = new ConfigManager();
 	
 	private static ExecutorService executorService = Executors.newFixedThreadPool(GlobalConfig.RETRIEVING_THREAD_POOL_SIZE);
 
 	private static AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
 	
-	public static ConfigItem retrieveRemoteConfig(final String key){ 
-		final ConfigItem  cItem= configMap.get(key);
+	private final LocalConfigManager lcm = LocalConfigManager.getInstance();
+	
+	private ConfigManager(){}
+	
+	public static ConfigManager getInstance(){
+		return cm;
+	}
+	
+	public ConfigItem retrieveRemoteConfig(final String key){ 
+		final ConfigItem cItem= lcm.getConfigITem(key);
 		try { 
 			if(cItem == null) 
 				throw new ConfigMapNotReadyToRetrieveRemoteConfigException(key); 
@@ -80,7 +89,7 @@ public class ConfigManager {
 	
 	
 	
-	public static void setConfigItem(String key, String value, ConfigType type){ 
+	public void setConfigItem(String key, String value, ConfigType type){ 
 		if(logger.isDebugEnabled())
 			logger.debug("Set config: key = {}, value = {}, type = {}", key, value, type);
 		ConfigItem cItem = configMap.get(key);
@@ -92,7 +101,7 @@ public class ConfigManager {
 	}
 	
 	
-    public static ConfigItem checkAndInitialConfig(String key){
+    public ConfigItem checkAndInitialConfig(String key){
 		
 		if(configMap.containsKey(key))
 		{

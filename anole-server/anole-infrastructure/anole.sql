@@ -2,8 +2,6 @@
 # Date: 2016-05-11 21:37:48
 # Generator: MySQL-Front 5.3  (Build 4.205)
 
-/*!40101 SET NAMES utf8 */;
-
 #
 # Structure for table "anole_config"
 #

@@ -15,7 +15,8 @@ public class ServerStarter
     public static void main( String[] args )
     {
         ApplicationContext context = new ClassPathXmlApplicationContext(
-        		"spring/spring-context.xml"
+        		"spring/spring-context.xml",
+        		"classpath*:spring/spring-database.xml"
         		);
         AnolePushServer apServer = (AnolePushServer) context.getBean("anolePushServer");
         if(apServer!=null)

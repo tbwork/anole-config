@@ -1,33 +1,29 @@
-package org.tbwork.anole.subscriber.core.impl;
+package org.tbwork.anole.loader.core.impl;
 
 import java.io.File;
+ 
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.core.AnoleLoader;
-import org.tbwork.anole.subscriber.exceptions.ConfigFileNotExistException;
-import org.tbwork.anole.subscriber.exceptions.ConfigFileDirectoryNotExistException;
-import org.tbwork.anole.subscriber.exceptions.EnvironmentNotSetException;
-import org.tbwork.anole.subscriber.exceptions.ErrorSyntaxException;
-import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException;
-import org.tbwork.anole.subscriber.util.RegexUtil;
+import org.tbwork.anole.loader.core.AnoleLoader;
+import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
+import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
+import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
+import org.tbwork.anole.loader.util.RegexUtil; 
 
 public class FileSystemAnoleLoader implements AnoleLoader{
 
 	private static final Logger logger = LoggerFactory.getLogger(FileSystemAnoleLoader.class);
 	
 	private AnoleConfigFileParser acfParser = AnoleConfigFileParser.instance();
-	
-	private AnoleSubscriberClient client = AnoleSubscriberClient.instance(); 
+	 
 	@Override
 	public void load(String... configLocations) {
 		 for(String ifile : configLocations) 
 			 loadFile(ifile, logger); 
-		 AnoleConfig.initialized = true; 
-		 logger.info("[:)] Anole configurations is loaded succesfully.");
-		 client.connect();
+		 AnoleLocalConfig.initialized = true; 
+		 logger.info("[:)] Local anole configurations are loaded succesfully.");
 	} 
 
 	@Override
