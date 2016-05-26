@@ -15,6 +15,7 @@ import org.tbwork.anole.common.UnixTime;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.AuthenticationBodyMessage;
+import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
 
@@ -51,9 +52,9 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		      	ReferenceCountUtil.release(msg);
 			} break;
 		 	case S2C_AUTH_PASS:{ 
-		 		logger.info ("[:)] Login successfully.");
-		 		anoleSubscriberClient.setClientId(msg.getClientId());
-		 		anoleSubscriberClient.setToken(msg.getToken());
+		 		logger.info ("[:)] Login successfully."); 
+		 		anoleSubscriberClient.setClientId(((AuthPassWithTokenMessage)msg).getClientId());
+		 		anoleSubscriberClient.setToken(((AuthPassWithTokenMessage)msg).getToken());
 		 		ReferenceCountUtil.release(msg);
 		 	} break;
 		 	case S2C_MATCH_FAIL:{

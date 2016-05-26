@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service; 
 import org.tbwork.anole.common.message.c_2_s.PingMessage;
+import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.hub.StaticConfiguration;
 import org.tbwork.anole.hub.server.client.manager.BaseClientManager; 
 import org.tbwork.anole.hub.server.client.manager.model.BaseOperationRequest;
@@ -22,6 +23,7 @@ import org.tbwork.anole.hub.server.client.manager.model.SubscriberClient;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberRegisterRequest;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberUnregisterRequest;
 import org.tbwork.anole.hub.server.client.manager.model.SubscriberValidateRequest;
+import org.tbwork.anole.hub.server.util.ChannelHelper;
 
 /**
  * SubscriberClientManager is all-in-one management tool
@@ -73,8 +75,12 @@ public class SubscriberClientManager implements BaseClientManager{
 
 	public void ackPing(int clientId){
 		SubscriberClient client = subscriberMap.get(clientId);
-		if(client != null)
+		if(client != null){
 			client.achievePingPromise();
+			PingAckMessage pam = new PingAckMessage(); 
+			pam.setIntervalTime(StaticConfiguration.PROMISE_PING_INTERVAL); 
+			ChannelHelper.sendMessage(client, pam);
+		} 
 	}
 	
 	public void promisePingAndScavenge(){ 

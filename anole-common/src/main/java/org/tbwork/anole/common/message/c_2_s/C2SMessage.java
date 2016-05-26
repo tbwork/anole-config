@@ -1,12 +1,12 @@
-package org.tbwork.anole.common.message.s_2_c;
-
-import lombok.Data;
+package org.tbwork.anole.common.message.c_2_s;
 
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 
+import lombok.Data;
+
 @Data
-public class AuthPassWithTokenMessage extends Message {
+public abstract class C2SMessage extends Message{
 
 	/**
 	 * Global Id of Subscriber Client.
@@ -19,8 +19,10 @@ public class AuthPassWithTokenMessage extends Message {
 	 */
 	private int token;
 	
-	public AuthPassWithTokenMessage()
-	{
-		super(MessageType.S2C_AUTH_PASS);
-	} 
+    public C2SMessage(){};
+	
+	public C2SMessage(MessageType msgType){
+		 super(msgType);
+	}
+	
 }

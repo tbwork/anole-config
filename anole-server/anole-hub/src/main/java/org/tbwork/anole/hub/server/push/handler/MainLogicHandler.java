@@ -10,7 +10,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
-import org.tbwork.anole.common.message.MessageType; 
+import org.tbwork.anole.common.message.MessageType;
+import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.common.message.c_2_s.GetConfigMessage;
 import org.tbwork.anole.common.message.s_2_c.ReturnConfigMessage;
 import org.tbwork.anole.hub.model.ConfigValueDO;
@@ -23,7 +24,7 @@ import org.tbwork.anole.hub.server.util.ChannelHelper;
 import io.netty.channel.ChannelHandler.Sharable;
 @Component
 @Sharable
-public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
+public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 
 	@Autowired
 	@Qualifier("subscriberClientManager")
@@ -39,7 +40,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<Message> {
 	}
 	
 	@Override
-	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
+	protected void messageReceived(ChannelHandlerContext ctx, C2SMessage msg)
 			throws Exception { 
 		 MessageType msgType = msg.getType();
 		 int clientId = msg.getClientId();

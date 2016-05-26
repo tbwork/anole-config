@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.loader.exceptions.BadTransformValueFormatException;
 import org.tbwork.anole.loader.exceptions.ConfigTypeNotMatchedException;
+import org.tbwork.anole.loader.util.StringUtil;
 
 import com.alibaba.fastjson.JSON;
 
@@ -22,7 +23,7 @@ public class ConfigItem {
 
 	private String key;
 	private ConfigType type; 
-	
+	private boolean atFinal;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private String strValue; 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
@@ -37,6 +38,7 @@ public class ConfigItem {
 	private long longValue;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private short shortValue; 
+
 	/**
 	 * True empty means user does not set value 
 	 * (or set an empty value) for the configuration.
@@ -56,12 +58,20 @@ public class ConfigItem {
 		setSystemDefault();
 	}
 	
+	public ConfigItem(String key , String value, ConfigType type){
+		this.key = key;
+		this.setValue(value, type);
+	}
+	
 	public void setValue(String value, ConfigType type)
 	{
 		synchronized(key){  
 			this.type = type;
-			this.strValue = value;
 			value = value.trim();
+			this.strValue = value;
+			checkFinal();
+			if(!atFinal)
+				return;
 			if(value == null || value.isEmpty())
 				return;
 			empty = false;
@@ -160,6 +170,10 @@ public class ConfigItem {
 	}
 	
 	
+	private void checkFinal(){ 
+		this.atFinal = !StringUtil.checkContainVariable(this.strValue, this.key);
+	}
+	
 	
 	/**
 	 * If you want to get POJO object from the configuration
@@ -184,6 +198,7 @@ public class ConfigItem {
 		this.longValue   = 0l;
 		this.shortValue  = 0;
 		this.strValue    = null;
+		this.atFinal = true;
 	}
 	 
 	

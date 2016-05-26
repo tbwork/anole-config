@@ -8,10 +8,11 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.ConfigChangeNotifyMessage;
-import org.tbwork.anole.common.model.ConfigChangeDTO;
-import org.tbwork.anole.subscriber.core.ConfigManager; 
+import org.tbwork.anole.common.model.ConfigChangeDTO; 
 import org.tbwork.anole.subscriber.core.ConfigObserver;
 import org.tbwork.anole.subscriber.core.ObserverManager;
+import org.tbwork.anole.subscriber.core.SubscriberConfigManager;
+
 import com.google.common.base.Preconditions;
 
 import io.netty.channel.ChannelHandler.Sharable;
@@ -24,6 +25,8 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 	private static final Logger logger = LoggerFactory.getLogger(ConfigChangeNotifyMessageHandler.class);
 	
 	private ObserverManager om = ObserverManager.instance();  
+	
+	private SubscriberConfigManager cm = SubscriberConfigManager.getInstance();
 	
 	private ConfigChangeNotifyMessageHandler(){
 		super(MessageType.S2C_CHANGE_NOTIFY);
@@ -46,7 +49,7 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 		if(stopAfterProcess)
 			return ;
 		// Refresh local configuration.
-		ConfigManager.setConfigItem(ccnMsg.getConfigChangeDTO().getKey(), 
+		cm.setConfigItem(ccnMsg.getConfigChangeDTO().getKey(), 
 									ccnMsg.getConfigChangeDTO().getDestValue(), 
 									ccnMsg.getConfigChangeDTO().getDestConfigType()); 
 		// Post Observers

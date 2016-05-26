@@ -16,6 +16,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.tbwork.anole.hub.TimeEncoder;
 import org.tbwork.anole.hub.TimeServerHandler;  
@@ -44,7 +45,14 @@ public class AnolePushServer {
 	Channel channel = null;
 	EventLoopGroup bossGroup = null;
 	EventLoopGroup workerGroup = null;
+	@Value("${name}")
+	private String name;
 	
+	
+	public String getName() {
+		return name;
+	}
+
 	@Autowired
 	AuthenticationHandler authenticationHandler;
 	
@@ -133,15 +141,6 @@ public class AnolePushServer {
 				started = false;
 			}
 		} 
-	}
-	
-	/**
-	 * Ping and clean bad connections.
-	 */
-	private void startMonitor(){
-		
-		
-		
-	}
+	} 
 	
 }

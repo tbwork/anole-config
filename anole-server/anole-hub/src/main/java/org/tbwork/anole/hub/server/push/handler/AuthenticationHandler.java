@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.AuthenticationBodyMessage;
+import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.common.message.s_2_c.MatchFailAndCloseMessage;
@@ -35,7 +36,7 @@ import io.netty.channel.ChannelHandler.Sharable;
 
 @Component
 @Sharable
-public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> {
+public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessage> {
 
 	@Autowired
 	@Qualifier("subscriberClientManager")
@@ -54,11 +55,11 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<Message> 
     } 
 
 	@Override
-	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
+	protected void messageReceived(ChannelHandlerContext ctx, C2SMessage msg)
 			throws Exception { 
 		 if(logger.isDebugEnabled())
 		     logger.debug("New message received (type = {}, clientId = {})", msg.getType(), msg.getClientId());
-    	 Message message = msg;
+		 C2SMessage message = msg;
     	 MessageType msgType = message.getType(); 
 		 if(MessageType.C2S_AUTH_BODY.equals(msgType)) // authentification information from client
 		 {

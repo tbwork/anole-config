@@ -17,8 +17,7 @@ import org.tbwork.anole.common.message.s_2_c.ConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.ReturnConfigMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.client.GlobalConfig;
-import org.tbwork.anole.subscriber.core.ConfigManager;
+import org.tbwork.anole.subscriber.client.GlobalConfig; 
 
 public abstract class SpecifiedMessageHandler extends SimpleChannelInboundHandler<Message>{
 
@@ -36,8 +35,9 @@ public abstract class SpecifiedMessageHandler extends SimpleChannelInboundHandle
 			process(msg);
 			// Because this is a specified MessageHandler, so it should be useless after processed.
 			ReferenceCountUtil.release(msg);
+			return;
 		}
-		 
+		ctx.fireChannelRead(msg);
 	}
  
 	public abstract void process(Message message) ;

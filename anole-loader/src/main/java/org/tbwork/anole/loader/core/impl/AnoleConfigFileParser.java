@@ -7,12 +7,12 @@ import java.util.Scanner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.ConfigType;
-import org.tbwork.anole.loader.core.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.util.OsUtil;
-import org.tbwork.anole.loader.util.RegexUtil;
+import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.SingletonFactory;
 
 import com.google.common.collect.Lists;
 
@@ -21,7 +21,7 @@ public class AnoleConfigFileParser {
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 	
 	private static Logger logger = LoggerFactory.getLogger(AnoleConfigFileParser.class);
-	private final LocalConfigManager lcm = LocalConfigManager.getInstance();
+	private final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 	
 	private AnoleConfigFileParser(){
 		setEnv(); 
@@ -55,7 +55,7 @@ public class AnoleConfigFileParser {
 			Scanner s = new Scanner(file);  
 			while(s.hasNextLine()){
 				lineNumber++;
-				parseLine(s.nextLine());
+				parseLine(StringUtil.trim(s.nextLine()));
 			}
 		}
 		catch(FileNotFoundException e)
@@ -106,8 +106,7 @@ public class AnoleConfigFileParser {
 				} 
 			} 
 		}   
-		
-		if(logger.isDebugEnabled())
+		else if(logger.isDebugEnabled())
 			logger.debug("Configuration ignored! Current system environtment is {}, and env-scope of current configuration lines is {}", sysEnv, configEnv);
 				
 	}
@@ -134,7 +133,7 @@ public class AnoleConfigFileParser {
 		File [] fileList = file.listFiles();
 		for(File ifile : fileList){
 			String ifname = ifile.getName();
-			if(RegexUtil.asteriskMatch("*.env", ifname)){
+			if(StringUtil.asteriskMatch("*.env", ifname)){
 				sysEnv = ifname.replace(".env", "");
 				return;
 			}

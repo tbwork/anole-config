@@ -6,10 +6,10 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.impl.WebAnoleLoaderListener;
+import org.tbwork.anole.loader.util.StringUtil;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException;
-import org.tbwork.anole.subscriber.util.RegexUtil;
+import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException; 
 
 /**
  * <p> This is for web applications to load anole configurations.
@@ -56,7 +56,7 @@ public class WebAnoleStartListener extends WebAnoleLoaderListener{
 			 this.load();
 		 }
 		 else  
-			 this.load(RegexUtil.splitConfigLocations(configLocationString)); 
+			 this.load(StringUtil.splitConfigLocations(configLocationString)); 
 		 asClient.connect();
 	}
 

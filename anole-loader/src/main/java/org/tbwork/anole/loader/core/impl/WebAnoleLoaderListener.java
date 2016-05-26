@@ -5,7 +5,7 @@ import javax.servlet.ServletContextListener;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbwork.anole.loader.util.RegexUtil; 
+import org.tbwork.anole.loader.util.StringUtil; 
 
 /**
  * <p> This is for web applications to load anole configurations.
@@ -38,7 +38,7 @@ import org.tbwork.anole.loader.util.RegexUtil;
  * class-path folder if you do not set the <b>context-param</b>.
  *  @author Tommy.Tang
  */ 
-public class WebAnoleLoaderListener extends ClasspathAnoleLoader implements ServletContextListener{
+public class WebAnoleLoaderListener extends AnoleClasspathLoader implements ServletContextListener{
 
 	private static Logger logger = LoggerFactory.getLogger(WebAnoleLoaderListener.class);
   
@@ -47,11 +47,11 @@ public class WebAnoleLoaderListener extends ClasspathAnoleLoader implements Serv
 	public void contextInitialized(ServletContextEvent sce) {
 		 String configLocationString =  sce.getServletContext().getInitParameter("anoleConfigLocation");
 		 if(configLocationString==null || configLocationString.isEmpty()){
-			 logger.warn("[!] There is no anole configuration file specified in this web application. Anole will load *.anole from the classpath.");
+			 logger.warn("[!] There is no anole configuration file specified in this web application. Anole will load all *.anole files from the classpath directory.");
 			 this.load();
 		 }
 		 else  
-			 this.load(RegexUtil.splitConfigLocations(configLocationString));  
+			 this.load(StringUtil.splitConfigLocations(configLocationString));  
 	}
 
 	@Override

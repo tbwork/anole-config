@@ -19,4 +19,6 @@ public class GlobalConfig {
 	 
 	
 	public static int PING_INTERVAL = 5000 ; // millisecond
+	
+	public static int PING_DELAY = 5000; // millisecond
 }

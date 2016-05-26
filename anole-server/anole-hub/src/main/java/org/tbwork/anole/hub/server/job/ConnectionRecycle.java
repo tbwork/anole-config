@@ -12,7 +12,7 @@ public class ConnectionRecycle {
 	@Autowired
 	private SubscriberClientManager scm;
 	
-	@Scheduled(fixedDelay = StaticConfiguration.PING_PERIOD_SECOND)
+	@Scheduled(fixedDelay = StaticConfiguration.PROMISE_PING_INTERVAL)
 	public void run(){
 		scm.promisePingAndScavenge();
 	}

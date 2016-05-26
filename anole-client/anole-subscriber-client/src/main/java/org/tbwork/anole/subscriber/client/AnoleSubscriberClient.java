@@ -8,14 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
+import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
 import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
 import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler; 
 import org.tbwork.anole.subscriber.client.handler.OtherLogicHandler;
 import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.core.AnoleLoader; 
+import org.tbwork.anole.subscriber.core.AnoleConfig;  
 import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
 
@@ -48,17 +48,16 @@ public class AnoleSubscriberClient {
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	SocketChannel socketChannel = null;
     @Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-    private static AnoleSubscriberClient anoleSubscriberClient = new AnoleSubscriberClient();
+    private static final AnoleSubscriberClient anoleSubscriberClient = new AnoleSubscriberClient();
 
-    private static final LongConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
+    private static final ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
     
     int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server
-    
+     
     private AnoleSubscriberClient(){}
     
-    public static AnoleSubscriberClient instance()
-    {
+    public static AnoleSubscriberClient instance(){
     	return anoleSubscriberClient;
     } 
     
@@ -68,7 +67,7 @@ public class AnoleSubscriberClient {
 			synchronized(AnoleSubscriberClient.class)
 			{
 				if(!started)//DCL-2
-				{
+				{ 
 					executeConnect(AnoleConfig.getProperty("remoteAddress"), AnoleConfig.getIntProperty("remotePort")); 
 					lcMonitor.start();
 				}
@@ -92,12 +91,12 @@ public class AnoleSubscriberClient {
 	}
 	
 	
-	public void sendMessage(Message msg)
+	public void sendMessage(C2SMessage msg)
 	{
 		sendMessageWithFuture(msg);
 	}
 	
-	public void sendMessageWithListeners(Message msg, ChannelFutureListener ... listeners)
+	public void sendMessageWithListeners(C2SMessage msg, ChannelFutureListener ... listeners)
 	{
 		ChannelFuture f = sendMessageWithFuture(msg);
 		for(ChannelFutureListener item : listeners)
@@ -105,7 +104,7 @@ public class AnoleSubscriberClient {
 	} 
 	
 	
-	private ChannelFuture sendMessageWithFuture(Message msg){ 
+	private ChannelFuture sendMessageWithFuture(C2SMessage msg){ 
 		if(socketChannel != null)
 		{
 			if(!MessageType.C2S_AUTH_BODY.equals(msg.getType()))
@@ -118,7 +117,7 @@ public class AnoleSubscriberClient {
 	/**
 	 * Tag each message with current clientId and token before sending.
 	 */
-	private void tagMessage(Message msg){
+	private void tagMessage(C2SMessage msg){
 		if(clientId == 0 && token == 0)
 			throw new AuthenticationNotReadyException();
 		msg.setClientId(clientId);

@@ -15,4 +15,6 @@
      <!-- <task:annotation-driven />  -->
      <task:annotation-driven scheduler="qbScheduler" mode="proxy"/>  
      <task:scheduler id="qbScheduler" pool-size="10"/>  
+     
+     <bean class="org.tbwork.anole.hub.InitSequenceBean" init-method="initMethod"></bean>
 </beans>

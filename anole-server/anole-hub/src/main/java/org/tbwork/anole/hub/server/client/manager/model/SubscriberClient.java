@@ -11,6 +11,10 @@ import io.netty.channel.socket.SocketChannel;
 @Data
 public class SubscriberClient {
 
+	/**
+	 * token is the unique identity  of one 
+	 * subscriber client.
+	 */
 	int token;
 	SocketChannel socketChannel;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)  

@@ -28,7 +28,7 @@ public class LongConnectionMonitor implements ConnectionMonitor{
 	@Override
 	public void start() { 
 		timer = new Timer();
-		timer.schedule(new PingTask(), 5000, GlobalConfig.PING_INTERVAL);
+		timer.schedule(new PingTask(), GlobalConfig.PING_DELAY, GlobalConfig.PING_INTERVAL);
 	}
 
 	@Override
@@ -36,5 +36,12 @@ public class LongConnectionMonitor implements ConnectionMonitor{
 		timer.cancel();
 		timer = null;
 	}
+
+	@Override
+	public void restart() {
+		stop();
+		start();
+	}
 	 
+	
 }

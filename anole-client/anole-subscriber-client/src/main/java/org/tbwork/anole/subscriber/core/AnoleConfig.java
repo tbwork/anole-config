@@ -1,10 +1,15 @@
 package org.tbwork.anole.subscriber.core;
  
 
+import java.security.NoSuchAlgorithmException;
+import java.security.Provider;
+import java.security.Security;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap; 
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.crypto.KeyGenerator;
 
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.model.ConfigChangeDTO;
@@ -25,7 +30,10 @@ import sun.misc.Unsafe;
  */ 
 public class AnoleConfig extends AnoleLocalConfig{ 
 	  
-	private static ObserverManager om =ObserverManager.instance();
+	private static ObserverManager om = ObserverManager.instance(); 
+	static{
+		AnoleLocalConfig.cm = SubscriberConfigManager.getInstance(); 
+	}
 	
 	/**
 	 * <p> Used to register observers who will be notified once
@@ -73,18 +81,5 @@ public class AnoleConfig extends AnoleLocalConfig{
 	 */
 	public static void registerPostObserver(String key, ChainedConfigObserver observer){
 		om.addPostObservers(key, observer);
-	} 
-	
-	private static ConfigItem getRemoteConfig(String key)
-	{ 
-		 if(!initialized)
-			 throw new AnoleNotReadyException();
-		 ConfigItem cItem = ConfigManager.checkAndInitialConfig(key); 
-		 if(!cItem.isLoaded())
-		 {  
-			 // retrieve from the remote server
-			 cItem = ConfigManager.retrieveRemoteConfig(key);  
-		 }
-		 return cItem;
 	} 
 }

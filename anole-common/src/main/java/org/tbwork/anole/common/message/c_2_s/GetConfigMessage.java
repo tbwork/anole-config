@@ -6,7 +6,7 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 @Data
-public class GetConfigMessage extends Message{
+public class GetConfigMessage extends C2SMessage {
 
 	private String key;
 	private String env; 

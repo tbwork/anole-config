@@ -7,7 +7,7 @@ import org.tbwork.anole.common.message.MessageType;
 @Data
 public class PingAckMessage  extends Message{
 	
-	private int delayTime;
+	private int intervalTime;
 	public PingAckMessage(){
 		super(MessageType.S2C_PING_ACK);
 	}
