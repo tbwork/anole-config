@@ -10,6 +10,7 @@
   </properties> --> 
   <classPathEntry location="D:\mariadb-java-client-1.1.7.jar" />
   <context id="anole_db" defaultModelType="flat" targetRuntime="MyBatis3Simple">
+    <property name="autoDelimitKeywords" value="true"/>
     <commentGenerator> 
     	<property name="suppressAllComments" value="true" />
     	<property name="suppressDate" value="true" />

@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 import org.tbwork.anole.hub.TimeEncoder;
 import org.tbwork.anole.hub.TimeServerHandler;  
 import org.tbwork.anole.hub.server.push.handler.AuthenticationHandler;
+import org.tbwork.anole.hub.server.push.handler.ExceptionHandler;
 import org.tbwork.anole.hub.server.push.handler.MainLogicHandler;
 import org.tbwork.anole.hub.server.push.handler.NewConnectionHandler;
 
@@ -44,15 +45,8 @@ public class AnolePushServer {
 	static final Logger logger = LoggerFactory.getLogger(AnolePushServer.class);
 	Channel channel = null;
 	EventLoopGroup bossGroup = null;
-	EventLoopGroup workerGroup = null;
-	@Value("${name}")
-	private String name;
+	EventLoopGroup workerGroup = null; 
 	
-	
-	public String getName() {
-		return name;
-	}
-
 	@Autowired
 	AuthenticationHandler authenticationHandler;
 	
@@ -61,6 +55,9 @@ public class AnolePushServer {
 	
 	@Autowired
 	NewConnectionHandler newConnectionHandler;
+	
+	@Autowired
+	ExceptionHandler lowLevelExceptionHandler;
 	
 	public void start(int port){
 		if(!started) //DCL-1
@@ -99,7 +96,8 @@ public class AnolePushServer {
              .childHandler(new ChannelInitializer<SocketChannel>() {
                  @Override
                  public void initChannel(SocketChannel ch) throws Exception {
-                     ch.pipeline().addLast( 
+                     ch.pipeline().addLast(  
+                    		 lowLevelExceptionHandler,
                     		 new ObjectEncoder(),
                     		 newConnectionHandler, 
                     		 new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 

@@ -17,7 +17,8 @@ import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.loader.core.ConfigItem;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient; 
 import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler;
-import org.tbwork.anole.subscriber.core.impl.ChainedConfigObserver; 
+import org.tbwork.anole.subscriber.core.impl.ChainedConfigObserver;
+import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
 import org.tbwork.anole.subscriber.exceptions.AnoleNotReadyException;
 
 import sun.misc.Unsafe;
@@ -30,9 +31,10 @@ import sun.misc.Unsafe;
  */ 
 public class AnoleConfig extends AnoleLocalConfig{ 
 	  
-	private static ObserverManager om = ObserverManager.instance(); 
+	private static ObserverManager om = ObserverManager.instance();  
+	
 	static{
-		AnoleLocalConfig.cm = SubscriberConfigManager.getInstance(); 
+		cm = SubscriberConfigManager.getInstance();
 	}
 	
 	/**
@@ -82,4 +84,5 @@ public class AnoleConfig extends AnoleLocalConfig{
 	public static void registerPostObserver(String key, ChainedConfigObserver observer){
 		om.addPostObservers(key, observer);
 	} 
+	 
 }

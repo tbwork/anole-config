@@ -11,7 +11,7 @@ import org.tbwork.anole.common.message.s_2_c.ConfigChangeNotifyMessage;
 import org.tbwork.anole.common.model.ConfigChangeDTO; 
 import org.tbwork.anole.subscriber.core.ConfigObserver;
 import org.tbwork.anole.subscriber.core.ObserverManager;
-import org.tbwork.anole.subscriber.core.SubscriberConfigManager;
+import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
 
 import com.google.common.base.Preconditions;
 

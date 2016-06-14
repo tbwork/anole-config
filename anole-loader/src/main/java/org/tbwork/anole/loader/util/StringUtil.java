@@ -11,7 +11,7 @@ import com.google.common.collect.Lists;
 
 public class StringUtil {
 
-	
+	 private final static char [] escapeChars = {'~','!','@','#','$'};
 	 /**
 	  * 
 	  * @param asteriskString the fuzzy match string using '*' as the match char.
@@ -127,9 +127,14 @@ public class StringUtil {
 		 return a == '~' || a == '!' || a == '@' || a == '#' || a == '$'; 
 	 }
 	 
+	 public static String replaceEscapeChars(String input){
+		return input.replace("\\~", "~").replace("\\!", "!").replace("\\@", "@").replace("\\#", "#").replace("\\$", "$").replace("\\{", "{").replace("\\}", "}");
+	 }
+	 
 	 public static void main(String[] args) { 
-		 for(String item : getVariables("#{ip}:!{port}", "key")){
-			 System.out.println(item);
-		 } 
+//		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){
+//			 System.out.println(item);
+//		 } 
+		 System.out.println(replaceEscapeChars("\\@\\{\\}"));
 	 }
 }

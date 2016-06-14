@@ -69,7 +69,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
  		String env = gcMsg.getEnv();
  		ConfigValueDO cvdo =   cr.retrieveConfigValueByKey(key, env);
  		String value = cvdo == null ? null : cvdo.getValue();
- 		return new ReturnConfigMessage(key,value, ConfigType.STRING);  
+ 		return new ReturnConfigMessage(key, value, ConfigType.STRING);  
 	}
 	
 	

@@ -20,7 +20,7 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into anole_config (Key, Type, Creator, 
+    insert into anole_config (`Key`, `Type`, Creator, 
       LastOperator, Project, CreateTime, 
       UpdateTime, Description
       )
@@ -31,8 +31,8 @@
   </insert>
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleConfig" >
     update anole_config
-    set Key = #{key,jdbcType=VARCHAR},
-      Type = #{type,jdbcType=TINYINT},
+    set `Key` = #{key,jdbcType=VARCHAR},
+      `Type` = #{type,jdbcType=TINYINT},
       Creator = #{creator,jdbcType=VARCHAR},
       LastOperator = #{lastOperator,jdbcType=VARCHAR},
       Project = #{project,jdbcType=VARCHAR},
@@ -42,13 +42,13 @@
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select Id, Key, Type, Creator, LastOperator, Project, CreateTime, UpdateTime, 
+    select Id, `Key`, `Type`, Creator, LastOperator, Project, CreateTime, UpdateTime, 
     Description
     from anole_config
     where Id = #{id,jdbcType=INTEGER} 
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select Id, Key, Type, Creator, LastOperator, Project, CreateTime, UpdateTime,
+    select Id, `Key`, `Type`, Creator, LastOperator, Project, CreateTime, UpdateTime,
     Description
     from anole_config 
   </select>
@@ -57,18 +57,18 @@
   
   <!-- Custom methods-->
   <select id="selectByConfigKey" resultMap="BaseResultMap" parameterType="map" >
-    select Id, Key, Type, Creator, LastOperator, Project, CreateTime, UpdateTime,
+    select Id, `Key`, `Type`, Creator, LastOperator, Project, CreateTime, UpdateTime,
     Description
     from anole_config
-    where Key = #{key,jdbcType=VARCHAR} 
+    where `Key` = #{key,jdbcType=VARCHAR} 
   </select>
   
   <update id="updateByKey" parameterType="org.anole.infrastructure.model.AnoleConfig" >
     update anole_config
-    set  Type = #{type,jdbcType=TINYINT}, 
+    set  `Type` = #{type,jdbcType=TINYINT}, 
       LastOperator = #{lastOperator,jdbcType=VARCHAR},  
       Description = #{description,jdbcType=LONGVARCHAR}
-    where  Key = #{key,jdbcType=VARCHAR} 
+    where  `Key` = #{key,jdbcType=VARCHAR} 
   </update>
   
 </mapper>

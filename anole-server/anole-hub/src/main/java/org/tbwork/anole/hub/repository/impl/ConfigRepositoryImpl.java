@@ -23,7 +23,7 @@ import org.tbwork.anole.hub.util.ProjectUtil;
 
 import com.google.common.base.Preconditions;
 
-@Service
+@Service("configRepository")
 public class ConfigRepositoryImpl implements ConfigRepository{
 
 	@Autowired
@@ -51,7 +51,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 			cvdo = dpo2dmo(aci);
 			cache.set(cacheKey, cvdo); // set cache
 		} 
-		return null;
+		return cvdo;
 	}
 	
 	@Override

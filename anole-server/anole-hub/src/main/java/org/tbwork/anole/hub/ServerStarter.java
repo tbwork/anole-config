@@ -1,21 +1,29 @@
 package org.tbwork.anole.hub;
 
+import org.anole.infrastructure.dao.AnoleConfigItemMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.tbwork.anole.hub.repository.ConfigRepository;
 import org.tbwork.anole.hub.server.push.AnolePushServer;
 import org.tbwork.anole.loader.core.AnoleLoader;
+import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
 
 /**
- * Hello world!
- *
+ * Yes, Anole goes here.
  */ 
 public class ServerStarter
-{ 
-    public static void main( String[] args )
+{  
+	private final static Logger logger = LoggerFactory.getLogger(ServerStarter.class);
+	
+    @SuppressWarnings("resource")
+	public static void main( String[] args )
     { 
+    	logger.info("[:)] Anole server is starting...");
     	AnoleLoader al = new AnoleClasspathLoader();
-    	al.load(); 
+    	al.load();  
     	
     	ApplicationContext context = new ClassPathXmlApplicationContext(
         		"spring/spring-context.xml",
@@ -25,9 +33,8 @@ public class ServerStarter
         AnolePushServer apServer = (AnolePushServer) context.getBean("anolePushServer");
         if(apServer!=null)
         {
-        	//apServer.start(8080);
-        	System.out.println(apServer.getName());
-        } 
-        
+        	apServer.start(AnoleLocalConfig.getIntProperty("anole.server.port", 54321)); 
+        }   
+        logger.info("[:)] Anole server started successfully.");
     }
 }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.AnoleLoader;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.ConfigManager;
 import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
@@ -19,14 +20,24 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 	
 	private AnoleConfigFileParser acfParser = AnoleConfigFileParser.instance();
 	
-	private final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
+	private ConfigManager cm;
+	
+	public AnoleFileSystemLoader(){
+		cm = SingletonFactory.getLocalConfigManager();
+	}
+	
+	public AnoleFileSystemLoader(ConfigManager cm){
+		this.cm = cm ;
+	}
 	
 	@Override
 	public void load(String... configLocations) {
+		
 		 for(String ifile : configLocations) 
 			 loadFile(ifile, logger); 
 		 AnoleLocalConfig.initialized = true; 
-		 logger.info("[:)] Local anole configurations are loaded succesfully.");
+		 cm.postProcess();
+		 logger.info("[:)] Anole configurations are loaded succesfully.");
 	} 
 
 	@Override

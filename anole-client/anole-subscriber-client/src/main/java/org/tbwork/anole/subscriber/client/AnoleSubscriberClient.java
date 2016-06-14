@@ -68,7 +68,7 @@ public class AnoleSubscriberClient {
 			{
 				if(!started)//DCL-2
 				{ 
-					executeConnect(AnoleConfig.getProperty("remoteAddress"), AnoleConfig.getIntProperty("remotePort")); 
+					executeConnect(AnoleConfig.getProperty("anole.client.remoteAddress", "localhost"), AnoleConfig.getIntProperty("anole.client.remotePort", 54321)); 
 					lcMonitor.start();
 				}
 			}

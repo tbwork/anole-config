@@ -20,8 +20,7 @@ import sun.misc.Unsafe;
  * @author Tommy.Tang
  */ 
 public class AnoleLocalConfig { 
-	
-	
+	 
 	protected static volatile ConfigManager cm = SingletonFactory.getLocalConfigManager();
 	
 	/**

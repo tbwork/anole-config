@@ -16,26 +16,26 @@
     <selectKey resultType="java.lang.Integer" keyProperty="id" order="AFTER" >
       SELECT LAST_INSERT_ID()
     </selectKey>
-    insert into anole_hub (Type, Address, CreateTime, 
+    insert into anole_hub (`Type`, Address, CreateTime, 
       UpdateTime)
     values (#{type,jdbcType=TINYINT}, #{address,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP})
   </insert>
   <update id="updateByPrimaryKey" parameterType="org.anole.infrastructure.model.AnoleHub" >
     update anole_hub
-    set Type = #{type,jdbcType=TINYINT},
+    set `Type` = #{type,jdbcType=TINYINT},
       Address = #{address,jdbcType=VARCHAR},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP} 
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
-    select Id, Type, Address, CreateTime, UpdateTime
+    select Id, `Type`, Address, CreateTime, UpdateTime
     from anole_hub
     where Id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap" >
-    select Id, Type, Address, CreateTime, UpdateTime 
+    select Id, `Type`, Address, CreateTime, UpdateTime 
     from anole_hub
   </select>
 </mapper>

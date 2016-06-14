@@ -14,24 +14,5 @@ import javax.crypto.KeyGenerator;
 
 public class TestHI {
    
-   public static class A{
-	    
-	   public static A a  = new A();
-	   public A(){
-		   new B();
-	   }
-	   public void print(){
-		   System.out.println("HHH");
-	   }
-   } 
-	
-   public static class B{
-	  
-   }
-	
-   public static void main(String[] args) {
-	    
-	   A.a.print();
-   }
-    
+ 
 }

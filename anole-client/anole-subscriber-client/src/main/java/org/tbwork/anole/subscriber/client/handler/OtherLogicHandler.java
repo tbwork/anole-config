@@ -19,7 +19,7 @@ import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.ConnectionMonitor;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
 import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
-import org.tbwork.anole.subscriber.core.SubscriberConfigManager;
+import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
 
 public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
@@ -49,13 +49,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 		ReturnConfigMessage rvMsg = (ReturnConfigMessage) msg;
 		 		processConfigResponse(rvMsg);
 		 	} break;
-		 	case S2C_CHANGE_NOTIFY:{
-		 		ConfigChangeNotifyMessage ccnMsg = (ConfigChangeNotifyMessage) msg;
-		 		processConfigChangeNotifyMessage(ccnMsg);
-		 	} break;
-		 	default:{
-		 		
-		 		
+		 	default:{ 
 		 	} break; 
 		 }  
 	}
@@ -69,17 +63,15 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 			logger.info("Synchronize PING_INTERVAL with the server, new interval is set as {} ms", GlobalConfig.PING_INTERVAL);
 		}   
 	}
-
-	
+ 
 	private void processConfigResponse(ReturnConfigMessage rvMsg){ 
 		String key   = rvMsg.getKey(); 
 		String value = rvMsg.getValue();
-		logger.info("[:)] Retrieved config (key = {}) from remote server successfully! value = {}", key, value); 
-		ConfigType type  = rvMsg.getValueType();
-		cm.setConfigItem(key, value, type);  
+		ConfigType type  = rvMsg.getValueType(); 
+		if(value!=null) 
+			logger.info("[:)] Retrieved config (key = {}) from remote server successfully! value = {}", key, value);   
+		else
+			logger.warn("[:)] Remote config (key = {}) is not existed.", key); 
+		cm.setConfigItem(key, value, type);
 	}
-	
-	private void processConfigChangeNotifyMessage(ConfigChangeNotifyMessage ccnMsg){
-		
-	} 
 }

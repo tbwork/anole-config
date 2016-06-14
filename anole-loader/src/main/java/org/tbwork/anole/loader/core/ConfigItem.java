@@ -23,7 +23,6 @@ public class ConfigItem {
 
 	private String key;
 	private ConfigType type; 
-	private boolean atFinal;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private String strValue; 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
@@ -45,7 +44,12 @@ public class ConfigItem {
 	 */
 	private boolean empty; 
 	
-	private volatile boolean loaded;
+	/**
+	 * Indicates that at least the setValue() was called 
+	 * once after it was created.
+	 */
+	private volatile boolean loaded; 
+	private boolean atFinal;
 	
 	private ConfigItem(){
 		this.key = new String();
@@ -66,48 +70,52 @@ public class ConfigItem {
 	public void setValue(String value, ConfigType type)
 	{
 		synchronized(key){  
-			this.type = type;
-			value = value.trim();
-			this.strValue = value;
-			checkFinal();
-			if(!atFinal)
-				return;
-			if(value == null || value.isEmpty())
-				return;
-			empty = false;
-			loaded = true;
-			switch(type){
-				case BOOL:{ //set boolValue
-					if(!"true".equals(value) && !"false".equals(value)) 
-						throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
-					if("true".equals(value)) 
-						boolValue = true;
-					else
-						boolValue = false; 
-				}break;
-				case JSON: {// set strValue
-					 strValue = value; 
-				}break;
-				case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
-					 try{
-						 BigDecimal a = new BigDecimal(value);
-						 intValue = a.toBigInteger().intValue();
-						 shortValue = (short) intValue;
-						 longValue = a.toBigInteger().longValue();
-						 floatValue = a.floatValue();
-						 doubleValue = a.doubleValue();
-					 }
-					 catch(NumberFormatException e)
-					 {
-						 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
-					 }  
-				}break;
-				case STRING:{
-					 strValue = value;
-				}break;
-				default:break;
+			try{
+				this.type = type;
+				loaded = true;
+				if(value == null || value.isEmpty())
+					return; 
+				value = value.trim();
+				this.strValue = value;
+				checkFinal();
+				if(!atFinal)
+					return; 
+				empty = false;
+				switch(type){
+					case BOOL:{ //set boolValue
+						if(!"true".equals(value) && !"false".equals(value)) 
+							throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
+						if("true".equals(value)) 
+							boolValue = true;
+						else
+							boolValue = false; 
+					}break;
+					case JSON: {// set strValue
+						 strValue = value; 
+					}break;
+					case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
+						 try{
+							 BigDecimal a = new BigDecimal(value);
+							 intValue = a.toBigInteger().intValue();
+							 shortValue = (short) intValue;
+							 longValue = a.toBigInteger().longValue();
+							 floatValue = a.floatValue();
+							 doubleValue = a.doubleValue();
+						 }
+						 catch(NumberFormatException e)
+						 {
+							 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
+						 }  
+					}break;
+					case STRING:{
+						 strValue = value;
+					}break;
+					default:break;
+				} 
+			}
+			finally{
+				key.notify();   
 			} 
-			key.notify(); 
 		} 
 	}
 	
