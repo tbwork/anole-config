@@ -16,11 +16,18 @@ public class PingTask extends TimerTask {
 	
 	@Override
 	public void run() { 
-		 ping();  
+		try{ 
+			 ping(); 
+		}
+		catch(Exception e){
+			logger.error("Ping failed. Details: {}", e.getMessage());
+		} 
 	}
 
 
 	private void ping(){  
+		if(!client.isConnected())
+			client.connect();
 		if(logger.isInfoEnabled()){
 			client.sendMessageWithListeners(new PingMessage(), 
 				new ChannelFutureListener(){

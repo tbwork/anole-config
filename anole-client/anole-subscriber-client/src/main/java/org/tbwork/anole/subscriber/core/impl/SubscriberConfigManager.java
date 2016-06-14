@@ -156,14 +156,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 	@Override
 	protected void initializeContext(){
 		anoleSubscriberClient.connect();   // start the anole subscriber client  
-		new AnoleConfig(); // call the codes in the static block.
-		try {
-			TimeUnit.SECONDS.sleep(AnoleConfig.getIntProperty("anole.client.connect.delay", 2));
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+		new AnoleConfig(); // call the codes in the static block. 
     }
-    
-	
+     
 }

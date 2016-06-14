@@ -4,6 +4,8 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.message.Message;
@@ -12,7 +14,8 @@ import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
 import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
-import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler; 
+import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler;
+import org.tbwork.anole.subscriber.client.handler.ExceptionHandler;
 import org.tbwork.anole.subscriber.client.handler.OtherLogicHandler;
 import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.AnoleConfig;  
@@ -42,7 +45,8 @@ import com.google.common.base.Preconditions;
 public class AnoleSubscriberClient {
 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
-	private volatile boolean started;
+	private volatile boolean started; 
+	private volatile boolean connected;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private static final Logger logger = LoggerFactory.getLogger(AnoleSubscriberClient.class);
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
@@ -53,8 +57,7 @@ public class AnoleSubscriberClient {
     private static final ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
     
     int clientId = 0; // assigned by the server
-    int token = 0;    // assigned by the server
-     
+    int token = 0;    // assigned by the server 
     private AnoleSubscriberClient(){}
     
     public static AnoleSubscriberClient instance(){
@@ -62,14 +65,22 @@ public class AnoleSubscriberClient {
     } 
     
 	public void connect() {
-		if(!started) //DCL-1
+		if(!started || !connected) //DCL-1
 		{
 			synchronized(AnoleSubscriberClient.class)
 			{
-				if(!started)//DCL-2
+				if(!started || !connected)//DCL-2
 				{ 
+					boolean flag = started; 
 					executeConnect(AnoleConfig.getProperty("anole.client.remoteAddress", "localhost"), AnoleConfig.getIntProperty("anole.client.remotePort", 54321)); 
-					lcMonitor.start();
+					try {
+						TimeUnit.SECONDS.sleep(AnoleConfig.getIntProperty("anole.client.connect.delay", 2));
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} 
+					if(!flag )
+						lcMonitor.start();
 				}
 			}
 		} 
@@ -92,7 +103,7 @@ public class AnoleSubscriberClient {
 	
 	
 	public void sendMessage(C2SMessage msg)
-	{
+	{ 
 		sendMessageWithFuture(msg);
 	}
 	
@@ -138,6 +149,7 @@ public class AnoleSubscriberClient {
                 @Override
                 public void initChannel(SocketChannel ch) throws Exception {
                     ch.pipeline().addLast(
+                    		new ExceptionHandler(),
                     		new ObjectEncoder(),
                    		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
                     		new AuthenticationHandler(), 
@@ -151,6 +163,7 @@ public class AnoleSubscriberClient {
             if (f.isSuccess()) {
             	socketChannel = (SocketChannel)f.channel(); 
             	started = true;
+            	connected = true;
             	logger.info("[:)] Anole client successfully connected to the remote Anolo hub server with remote host = '{}' and port = {}", host, port);			            	
             } 
         }
@@ -175,6 +188,7 @@ public class AnoleSubscriberClient {
 			{
 				logger.info("[:)] Anole client (clientId = {}) closed successfully !", clientId);			            	
 				started = false;
+				connected = false;
 			}
 		}
 	}
