@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.UnixTime;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
-import org.tbwork.anole.common.message.c_2_s.AuthenticationBodyMessage;
+import org.tbwork.anole.common.message.c_2_s.CustomerAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
@@ -28,8 +28,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	public AuthenticationHandler(){
 		super(false);
 	} 
-	private AuthenticationBodyMessage getAuthInfo(){
-		AuthenticationBodyMessage authBody=new AuthenticationBodyMessage();
+	private CustomerAuthenticationMessage getAuthInfo(){
+		CustomerAuthenticationMessage authBody=new CustomerAuthenticationMessage();
     	authBody.setUsername("tommy.tang");
     	authBody.setPassword("123456"); 
     	return authBody;

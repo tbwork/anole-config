@@ -60,7 +60,9 @@ DROP TABLE IF EXISTS `anole_hub`;
 CREATE TABLE `anole_hub` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `Type` tinyint(1) unsigned zerofill NOT NULL DEFAULT '0' COMMENT 'hub类型：1-boss； 2-worker',
-  `Address` varchar(20) NOT NULL DEFAULT '',
+  `Address` varchar(20) NOT NULL DEFAULT '' COMMENT 'worker的IP地址',
+  `Identity` varchar(50) NOT NULL DEFAULT '' COMMENT 'worker的身份标识',
+  `Status` tinyint(1) unsigned zerofill NOT NULL DEFAULT '0' COMMENT '0-无效，1-有效',
   `CreateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`)

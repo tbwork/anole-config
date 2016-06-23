@@ -118,7 +118,7 @@ public class AnoleSubscriberClient {
 	private ChannelFuture sendMessageWithFuture(C2SMessage msg){ 
 		if(socketChannel != null)
 		{
-			if(!MessageType.C2S_AUTH_BODY.equals(msg.getType()))
+			if(!MessageType.C2S_CUSTOMER_AUTH.equals(msg.getType()))
 				tagMessage(msg);
 			return socketChannel.writeAndFlush(msg);
 		}

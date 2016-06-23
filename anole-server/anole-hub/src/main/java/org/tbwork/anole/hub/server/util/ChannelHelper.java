@@ -3,7 +3,7 @@ package org.tbwork.anole.hub.server.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
-import org.tbwork.anole.hub.server.client.manager.model.SubscriberClient;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -38,9 +38,9 @@ public class ChannelHelper {
 	}
 	 
 	
-	public static void sendMessageSync(final SubscriberClient sc, Message msg)
+	public static void sendMessageSync(final LongConnectionClient lcc, Message msg)
 	{ 
-			final ChannelFuture f =  writeAndFlush(sc, msg); 
+			final ChannelFuture f =  writeAndFlush(lcc, msg); 
 			f.addListener(new ChannelFutureListener() {
 				public void operationComplete(ChannelFuture future) {
 	                assert future.isSuccess();
@@ -48,7 +48,7 @@ public class ChannelHelper {
 			}); 
 	}
 	
-	public static void sendMessage(final SubscriberClient ctx, Message msg){ 
+	public static void sendMessage(final LongConnectionClient ctx, Message msg){ 
 		writeAndFlush(ctx, msg);
 	}
 
@@ -58,7 +58,7 @@ public class ChannelHelper {
 	}
 	
 	
-	private static ChannelFuture writeAndFlush(final SubscriberClient sc, Message msg){
+	private static ChannelFuture writeAndFlush(final LongConnectionClient sc, Message msg){
 		try{
 			if(sc != null && !sc.maxPromiseCount() && sc.getSocketChannel()!=null){ 
 				ChannelFuture result =  sc.getSocketChannel().writeAndFlush(msg);

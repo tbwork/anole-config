@@ -5,7 +5,19 @@ import lombok.Data;
 
 public class ClientInfoGenerator {
 
-	 public static volatile int clientId = 0 ;
+	 public static volatile int workerClientId = 0 ;
+	 public static volatile int publisherClientId = 0 ;
+	 public static volatile int subscriberClientId = 0 ;
+	 public static final Object workerLock = new Object();
+	 public static final Object publisherLock = new Object();
+	 public static final Object subscriberLock = new Object();
+	 public static enum ClientType{
+		 WORKER,
+		 PUBLISHER,
+		 SUBSCRIBER
+	 }
+	 
+	 
 	 
 	 @Data
      public static class ClientInfo{
@@ -13,19 +25,35 @@ public class ClientInfoGenerator {
 		 private int token;
      }
 	 
-	 public static ClientInfo generate()
+	 public static ClientInfo generate(ClientType clientType)
 	 {
 		 ClientInfo result = new ClientInfo();
 		 
-		 synchronized(ClientInfoGenerator.class)
+		 synchronized(getLock(clientType))
 		 {
-			 result.setClientId( ++ clientId);
+			 result.setClientId( increaseClientId(clientType) );
 			 result.setToken(generateToken());
 		 }
-		 
 		 return result;
 	 }
 	 
+	 private static int increaseClientId(ClientType clientType){
+		 switch(clientType){
+			 case PUBLISHER: ++publisherClientId; return publisherClientId;
+			 case SUBSCRIBER: ++subscriberClientId; return subscriberClientId;
+			 case WORKER: ++ workerClientId; return workerClientId;
+			 default : return -1;
+		 } 
+	 }
+	 
+	 private static Object getLock(ClientType clientType){
+		 switch(clientType){
+		 case PUBLISHER:  return publisherLock;
+		 case SUBSCRIBER: return subscriberLock;
+		 case WORKER: return workerLock;
+		 default : return null;
+	 } 
+	 }
 	 
 	 private static int generateToken()
 	 {

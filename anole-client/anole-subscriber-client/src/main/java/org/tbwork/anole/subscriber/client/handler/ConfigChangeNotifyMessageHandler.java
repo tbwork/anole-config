@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
-import org.tbwork.anole.common.message.s_2_c.ConfigChangeNotifyMessage;
+import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ConfigChangeNotifyMessage;
 import org.tbwork.anole.common.model.ConfigChangeDTO; 
 import org.tbwork.anole.subscriber.core.ConfigObserver;
 import org.tbwork.anole.subscriber.core.ObserverManager;

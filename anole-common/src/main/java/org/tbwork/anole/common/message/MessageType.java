@@ -11,7 +11,14 @@ public enum MessageType {
 	S2C_CHANGE_NOTIFY,
 	
 	
-	C2S_AUTH_BODY, // 客户端发送身份信息给服务端
+	//customer to boss
+	C2S_CUSTOMER_AUTH, // 客户端发送身份信息给服务端
+	
+	// worker to boss
+	C2S_WORKER_REGISTER, // worker服务器像注册自身
+	
+	
+	//common
 	C2S_EXIT_CLOSE, //客户端应用程序关闭时，通知服务器自己将主动关闭链接
 	C2S_PING,  
 	C2S_GET_CONFIG,
