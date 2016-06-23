@@ -53,9 +53,6 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 		logger.info("[:)] The client (address = {}) is closing...", ctx.channel().remoteAddress());
 		 		wcm.unregisterClient(new UnregisterRequest(clientId)); // remove from the registry
 		 	} break;
-		 	case C2S_GET_CONFIG:{
-		 		ChannelHelper.sendMessage(ctx, processGetConfigMessage(msg)); 
-		 	} break;
 		 	case C2S_PING:{ 
 		 		logger.info("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
 		 		wcm.ackPing(clientId);

@@ -1,4 +1,4 @@
-package org.tbwork.anole.hub.server.worker.subscriber.handler;
+package org.tbwork.anole.hub.server.boss.authenticator.handler;
 
 import java.lang.reflect.Constructor;
 
@@ -15,6 +15,7 @@ import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.common.message.s_2_c.MatchFailAndCloseMessage;
+import org.tbwork.anole.hub.server.boss.authenticator.validator.IClientUserValidateService;
 import org.tbwork.anole.hub.server.lccmanager.ILongConnectionClientManager;
 import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManager;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest; 
@@ -40,12 +41,11 @@ import io.netty.channel.ChannelHandler.Sharable;
 @Component
 @Sharable
 public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessage> {
-
-	@Autowired
-	@Qualifier("subscriberClientManager")
-	private SubscriberClientManager scm;
-
+ 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
+	
+	@Autowired
+	private IClientUserValidateService clientUserValidateService;
 	
 	public AuthenticationHandler(){
 		super(false);
@@ -64,13 +64,28 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		     logger.debug("New message received (type = {}, clientId = {})", msg.getType(), msg.getClientId());
 		 C2SMessage message = msg;
     	 MessageType msgType = message.getType(); 
-	     // message must need be validated (identification) before further process.
-	     if(!scm.validate(new ValidateRequest(message.getClientId(), message.getToken())))
-	     {
-			   MatchFailAndCloseMessage mfcMsg = new MatchFailAndCloseMessage(); 
-			   ChannelHelper.sendAndClose(ctx, mfcMsg);
-	     }
-		 // Passed the identification validation, go on processing logical staff.
+    	 
+    	 // authentification information from client
+		 if(MessageType.C2S_CUSTOMER_AUTH.equals(msgType))
+		 {
+			    CustomerAuthenticationMessage bodyMessage = (CustomerAuthenticationMessage) msg;
+			    
+			    if(clientUserValidateService.validateUser(bodyMessage.getUsername(), bodyMessage.getPassword())){
+			    	
+			    	//Choose a valid worker
+			    	
+			    	//Get login pair from the worker
+			    	
+			    	//return to the client.
+			    	
+			    } 
+		 		else  
+		 		{   
+		 			// invalid connection trial, send AuthFailAndCloseMessage message and then close the connection immediately.
+		 			AuthFailAndCloseMessage afcMsg = new AuthFailAndCloseMessage(); 
+		 			ChannelHelper.sendAndClose(ctx, afcMsg);
+		 		}
+		 }
          ctx.fireChannelRead(msg);  
 	}
  
