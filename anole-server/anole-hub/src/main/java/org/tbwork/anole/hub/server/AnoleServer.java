@@ -14,4 +14,9 @@ public interface AnoleServer {
 	 */
 	public void close();
 	
+	/**
+	 * Return the port which is binded by the server.
+	 */
+	public int getPort();
+	
 }

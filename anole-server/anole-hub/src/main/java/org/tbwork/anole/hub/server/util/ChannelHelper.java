@@ -23,6 +23,10 @@ public class ChannelHelper {
 			}); 
 	}
 	
+	public static String getIp(final LongConnectionClient client){
+		return client.getSocketChannel().remoteAddress().getAddress().getHostAddress();
+	}
+	
 	public static void sendMessageSync(final ChannelHandlerContext ctx, Message msg)
 	{ 
 			final ChannelFuture f =  writeAndFlush(ctx, msg); 

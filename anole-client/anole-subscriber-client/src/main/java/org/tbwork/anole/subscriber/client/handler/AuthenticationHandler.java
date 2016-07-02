@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.UnixTime;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
-import org.tbwork.anole.common.message.c_2_s.CustomerAuthenticationMessage;
+import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
 
 public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
 
@@ -28,8 +28,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	public AuthenticationHandler(){
 		super(false);
 	} 
-	private CustomerAuthenticationMessage getAuthInfo(){
-		CustomerAuthenticationMessage authBody=new CustomerAuthenticationMessage();
+	private CommonAuthenticationMessage getAuthInfo(){
+		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
     	authBody.setUsername("tommy.tang");
     	authBody.setPassword("123456"); 
     	return authBody;
@@ -53,8 +53,7 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 			} break;
 		 	case S2C_AUTH_PASS:{ 
 		 		logger.info ("[:)] Login successfully."); 
-		 		anoleSubscriberClient.setClientId(((AuthPassWithTokenMessage)msg).getClientId());
-		 		anoleSubscriberClient.setToken(((AuthPassWithTokenMessage)msg).getToken());
+		 		anoleSubscriberClient.saveToken(((AuthPassWithTokenMessage)msg).getClientId(), ((AuthPassWithTokenMessage)msg).getToken()); 
 		 		ReferenceCountUtil.release(msg);
 		 	} break;
 		 	case S2C_MATCH_FAIL:{

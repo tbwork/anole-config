@@ -19,4 +19,11 @@ public class StaticConfiguration {
 	public static final int EXPIRE_TIME = 60*60*1000 ;// ms  :  1 hour
 	public static final int CACHE_RECYCLE_INTERVAL = 60*1000; //ms  : 1min
 	public static final int ESTIMATED_INSERT_KEY_LIFETIME = 10*1000; //ms : 10s
+	
+	/**
+	 * Use by server to manage workers 
+	 */
+	public static final int WORKER_CLIENT_OPS_THREAD_POOL_SIZE = 5; 
+	
+	public static final int WORKER_RESPONSE_TIMEOUT = 5;// 5s
 }

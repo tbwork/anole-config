@@ -51,6 +51,12 @@ public class ConfigItem {
 	private volatile boolean loaded; 
 	private boolean atFinal;
 	
+	/**
+	 * In case of that the key is always in wait status,
+	 *  and no value-setter any more.
+	 */
+	private volatile boolean giveup;
+	
 	private ConfigItem(){
 		this.key = new String();
 		setSystemDefault();

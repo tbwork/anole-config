@@ -8,19 +8,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.tbwork.anole.common.enums.ClientType;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.hub.StaticConfiguration;
 import org.tbwork.anole.hub.server.lccmanager.ILongConnectionClientManager;
 import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
 import org.tbwork.anole.hub.server.lccmanager.model.clients.SubscriberClient;
+import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterParameter;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.UnregisterRequest;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.ValidateRequest;
-import org.tbwork.anole.hub.server.lccmanager.model.requests.params.IRegisterParameter;
 import org.tbwork.anole.hub.server.lccmanager.model.response.RegisterResult;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
-import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo;
+import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo; 
 
 /**
  * LongConnectionClientManager provides basic implementations of 
@@ -40,11 +42,8 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 
 	private static final Logger logger = LoggerFactory.getLogger(LongConnectionClientManager.class);
 	
-	public Map<Integer, LongConnectionClient> lcMap = new ConcurrentHashMap<Integer, LongConnectionClient>();
-	
-	private int totalCnt;
-	
-	private int aliveCnt;
+	public Map<Integer, LongConnectionClient> lcMap = new ConcurrentHashMap<Integer, LongConnectionClient>(); 
+	 
 	
 	@Override
 	public boolean validate(ValidateRequest request) { 
@@ -54,20 +53,18 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 		return false;
 	}
  
+	/**
+	 * Create a client using input registerRequest.
+	 */
 	protected abstract LongConnectionClient createClient(int token, RegisterRequest registerRequest);
-	
-	protected abstract boolean validate(SocketChannel socketChannel, IRegisterParameter registerParameter);
 	 
 	@Override
 	public RegisterResult registerClient(RegisterRequest request) {  
-		if(validate(request.getSocketChannel(), request.getRegisterParameter())){ 
-			  ClientInfo clientInfo =  ClientInfoGenerator.generate(request.getClientType());  
-			  LongConnectionClient client = createClient(clientInfo.getToken(), request);
-			  lcMap.put(clientInfo.getClientId(), client); 
-			  return new RegisterResult(clientInfo.getToken(), clientInfo.getClientId(), true);
-		}
-		else
-			return new RegisterResult(0, 0, false);  
+		RegisterParameter rp = request.getRegisterParameter();  
+		ClientInfo clientInfo =  ClientInfoGenerator.generate(request.getClientType());  
+		LongConnectionClient client = createClient(clientInfo.getToken(), request);
+		lcMap.put(clientInfo.getClientId(), client); 
+		return new RegisterResult(clientInfo.getToken(), clientInfo.getClientId(), true);  
 	}
 	
 	
@@ -108,4 +105,9 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 		} 
 	}
 	
+	
+	private boolean validate(String username, String password, ClientType clientType){
+		
+		return false;
+	}
 }

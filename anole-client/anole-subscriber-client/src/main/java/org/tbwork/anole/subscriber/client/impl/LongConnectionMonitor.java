@@ -8,7 +8,6 @@ import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.c_2_s.PingMessage;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.ConnectionMonitor;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
 import org.tbwork.anole.subscriber.client.PingTask;

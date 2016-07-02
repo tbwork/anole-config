@@ -3,8 +3,10 @@ package org.tbwork.anole.hub.server.lccmanager.model.clients;
 import org.tbwork.anole.hub.StaticConfiguration;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import io.netty.channel.socket.SocketChannel;
 
@@ -37,11 +39,28 @@ public class WorkerClient extends LongConnectionClient{
 	 */
 	private String identity;
 	
-	public WorkerClient(int token, SocketChannel socketChannel, String identity){
-		super(token, socketChannel);
-		this.identity = identity;
+	private volatile boolean processing;
+	
+	private volatile boolean giveup;
+	
+	private volatile CustomerClient publisher;
+	
+	private volatile CustomerClient subscriber;
+	
+	@Data
+	@NoArgsConstructor
+	@AllArgsConstructor
+	public static class CustomerClient{
+		private int clientId;
+		private int token; 
+		private int port;
+	}
+	
+	public WorkerClient(int token, SocketChannel socketChannel){
+		super(token, socketChannel); 
 		this.publisherClientCount = 0 ;
 		this.subscriberClientCount = 0;
 		this.weight = 10;
+		processing = false;
 	}
 }

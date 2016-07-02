@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.impl.WebAnoleLoaderListener;
 import org.tbwork.anole.loader.util.StringUtil;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
 import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException; 
 

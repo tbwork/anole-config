@@ -4,7 +4,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.tbwork.anole.loader.core.AnoleLoader;
 import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.core.AnoleConfig; 
 import org.tbwork.anole.subscriber.core.impl.AnoleSubscriberClasspathLoader; 
 

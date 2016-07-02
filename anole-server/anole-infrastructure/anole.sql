@@ -1,6 +1,6 @@
-# Host: 127.0.0.1  (Version: 5.5.5-10.1.13-MariaDB)
-# Date: 2016-05-11 21:37:48
-# Generator: MySQL-Front 5.3  (Build 4.205)
+# Host: 127.0.0.1  (Version 5.5.5-10.1.14-MariaDB)
+# Date: 2016-06-29 21:04:29
+# Generator: MySQL-Front 5.3  (Build 5.39) 
 
 #
 # Structure for table "anole_config"
@@ -18,7 +18,13 @@ CREATE TABLE `anole_config` (
   `CreateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='配置信息表';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='配置信息表';
+
+#
+# Data for table "anole_config"
+#
+
+INSERT INTO `anole_config` VALUES (1,'ip',003,'tangbo','tangbo',NULL,'test','2016-06-13 15:06:24','2016-06-13 15:06:24'),(2,'port',001,'tangbo','tangbo',NULL,'test','2016-06-13 15:06:36','2016-06-13 15:06:36'),(3,'cs',003,'tangbo','tangbo',NULL,'','2016-06-13 19:37:48','2016-06-13 19:37:48');
 
 #
 # Structure for table "anole_config_item"
@@ -29,13 +35,19 @@ CREATE TABLE `anole_config_item` (
   `Id` int(11) NOT NULL AUTO_INCREMENT,
   `Key` varchar(255) NOT NULL DEFAULT '' COMMENT '配置值名',
   `EnvName` varchar(10) NOT NULL DEFAULT '' COMMENT '配置所属环境',
-  `Value` text COMMENT '配置值',
+  `Value` text NOT NULL COMMENT '配置值',
   `LastOperator` varchar(255) NOT NULL DEFAULT '' COMMENT '最后的修改者用户名',
   `CreateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `UpdateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Index_Key_Env` (`Key`,`EnvName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='配置分环境值表';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='配置分环境值表';
+
+#
+# Data for table "anole_config_item"
+#
+
+INSERT INTO `anole_config_item` VALUES (1,'ip','dev','192.168.0.1','tangbo','2016-06-13 15:05:28','2016-06-13 15:05:28'),(2,'port','dev','8080','tangbo','2016-06-14 12:46:13','2016-06-14 12:46:13');
 
 #
 # Structure for table "anole_env"
@@ -53,20 +65,9 @@ CREATE TABLE `anole_env` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 #
-# Structure for table "anole_hub"
+# Data for table "anole_env"
 #
 
-DROP TABLE IF EXISTS `anole_hub`;
-CREATE TABLE `anole_hub` (
-  `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `Type` tinyint(1) unsigned zerofill NOT NULL DEFAULT '0' COMMENT 'hub类型：1-boss； 2-worker',
-  `Address` varchar(20) NOT NULL DEFAULT '' COMMENT 'worker的IP地址',
-  `Identity` varchar(50) NOT NULL DEFAULT '' COMMENT 'worker的身份标识',
-  `Status` tinyint(1) unsigned zerofill NOT NULL DEFAULT '0' COMMENT '0-无效，1-有效',
-  `CreateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `UpdateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 #
 # Structure for table "anole_project"
@@ -86,6 +87,31 @@ CREATE TABLE `anole_project` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 #
+# Data for table "anole_project"
+#
+
+
+#
+# Structure for table "anole_sys_user"
+#
+
+DROP TABLE IF EXISTS `anole_sys_user`;
+CREATE TABLE `anole_sys_user` (
+  `Id` int(11) NOT NULL AUTO_INCREMENT,
+  `SysUserName` varchar(50) DEFAULT NULL,
+  `Password` varchar(60) DEFAULT NULL,
+  `UserType` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-subscriber, 2-worker, 3-publisher',
+  `CreateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `UpdateTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#
+# Data for table "anole_sys_user"
+#
+
+
+#
 # Structure for table "anole_user"
 #
 
@@ -99,6 +125,11 @@ CREATE TABLE `anole_user` (
   PRIMARY KEY (`Id`),
   UNIQUE KEY `Index_Username` (`Username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#
+# Data for table "anole_user"
+#
+
 
 #
 # Structure for table "anole_user_project_map"
@@ -115,3 +146,8 @@ CREATE TABLE `anole_user_project_map` (
   `UpdateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`Id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+#
+# Data for table "anole_user_project_map"
+#
+

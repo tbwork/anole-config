@@ -16,8 +16,7 @@ import org.tbwork.anole.hub.exceptions.ConfigNotExistsException;
 import org.tbwork.anole.hub.model.ConfigDO;
 import org.tbwork.anole.hub.model.ConfigValueDO;
 import org.tbwork.anole.hub.model.EnvDO;
-import org.tbwork.anole.hub.repository.ConfigRepository; 
-import org.tbwork.anole.hub.repository.EnvironmentRepository;
+import org.tbwork.anole.hub.repository.ConfigRepository;  
 import org.tbwork.anole.hub.repository.LockRepository;
 import org.tbwork.anole.hub.util.ProjectUtil;
 

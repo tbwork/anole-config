@@ -25,8 +25,8 @@ import org.tbwork.anole.loader.core.ConfigItem;
 import org.tbwork.anole.loader.core.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.util.StringUtil;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client.GlobalConfig;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.core.AnoleConfig;
 import org.tbwork.anole.subscriber.exceptions.RetrieveConfigTimeoutException;
 
@@ -97,7 +97,8 @@ public class SubscriberConfigManager extends LocalConfigManager{
 	
 	private ConfigItem retrieveRemoteConfig(final ConfigItem cItem){ 
 		Preconditions.checkNotNull(cItem, "Config item is null! Please check it and try again.");
-		try {      
+		Preconditions.checkArgument(cItem.getKey()!=null &&  !(cItem.getKey().isEmpty()), "Config key is null! Please check it and try again.");
+		try {       
 			Future<Void> getConfigResult = executorService.submit( new Callable<Void>(){ 
 				public Void call() throws Exception { 
 				  if(!cItem.isLoaded()){
@@ -109,8 +110,8 @@ public class SubscriberConfigManager extends LocalConfigManager{
 							  if(logger.isDebugEnabled())  
 								  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
 							  synchronized(cItem.getKey())  {
-								  while(!cItem.isLoaded())
-								      cItem.getKey().wait(); 
+								  while(!cItem.isLoaded() && !cItem.isGiveup())
+								     cItem.getKey().wait(); 
 							  }
 							  if(logger.isDebugEnabled())  
 								  logger.debug("Wait() of {} is over!", cItem.getKey());
@@ -122,6 +123,8 @@ public class SubscriberConfigManager extends LocalConfigManager{
 			});  
 			@SuppressWarnings("unused")
 			Void innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, TimeUnit.MILLISECONDS); 
+			cItem.setGiveup(true);
+			cItem.getKey().notify();
 		} catch (TimeoutException e) {
 			logger.error("[:(] Timeout (tolerent limit is {}) when anole tried to retrieving config (key = {}) from the remote. Anole will use the default value until the server responses successfully.", GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, cItem.getKey());
 			e.printStackTrace(); 

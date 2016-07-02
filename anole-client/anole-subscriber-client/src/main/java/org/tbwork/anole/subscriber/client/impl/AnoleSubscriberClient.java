@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.client;
+package org.tbwork.anole.subscriber.client.impl;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -13,11 +13,12 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.subscriber.TimeClientHandler;
 import org.tbwork.anole.subscriber.TimeDecoder;
+import org.tbwork.anole.subscriber.client.AnoleClient;
+import org.tbwork.anole.subscriber.client.ConnectionMonitor;
 import org.tbwork.anole.subscriber.client.handler.AuthenticationHandler;
 import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler;
 import org.tbwork.anole.subscriber.client.handler.ExceptionHandler;
 import org.tbwork.anole.subscriber.client.handler.OtherLogicHandler;
-import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.AnoleConfig;  
 import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
@@ -42,7 +43,7 @@ import com.google.common.base.Preconditions;
  * @author Tommy.Tang
  */ 
 @Data
-public class AnoleSubscriberClient {
+public class AnoleSubscriberClient implements AnoleClient{
 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private volatile boolean started; 
@@ -64,6 +65,7 @@ public class AnoleSubscriberClient {
     	return anoleSubscriberClient;
     } 
     
+    @Override
 	public void connect() {
 		if(!started || !connected) //DCL-1
 		{
@@ -86,6 +88,8 @@ public class AnoleSubscriberClient {
 		} 
     }
 	
+    
+    @Override
 	public void close(){
 		if(!started) //DCL-1
 		{
@@ -101,12 +105,13 @@ public class AnoleSubscriberClient {
 		
 	}
 	
-	
+    @Override
 	public void sendMessage(C2SMessage msg)
 	{ 
 		sendMessageWithFuture(msg);
 	}
 	
+    @Override
 	public void sendMessageWithListeners(C2SMessage msg, ChannelFutureListener ... listeners)
 	{
 		ChannelFuture f = sendMessageWithFuture(msg);
@@ -114,11 +119,11 @@ public class AnoleSubscriberClient {
 		    f.addListener(item);  
 	} 
 	
-	
+	 
 	private ChannelFuture sendMessageWithFuture(C2SMessage msg){ 
 		if(socketChannel != null)
 		{
-			if(!MessageType.C2S_CUSTOMER_AUTH.equals(msg.getType()))
+			if(!MessageType.C2S_COMMON_AUTH.equals(msg.getType()))
 				tagMessage(msg);
 			return socketChannel.writeAndFlush(msg);
 		}
@@ -191,6 +196,18 @@ public class AnoleSubscriberClient {
 				connected = false;
 			}
 		}
+	}
+
+	@Override
+	public void reconnect() {
+		 this.close();
+		 this.connect();
+	}
+
+	@Override
+	public void saveToken(int clientId, int token) {
+		 this.clientId = clientId;
+		 this.token = token;
 	}
 	
 }

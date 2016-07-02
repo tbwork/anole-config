@@ -16,8 +16,8 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.client.GlobalConfig; 
+import org.tbwork.anole.subscriber.client.GlobalConfig;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient; 
 
 public abstract class SpecifiedMessageHandler extends SimpleChannelInboundHandler<Message>{
 

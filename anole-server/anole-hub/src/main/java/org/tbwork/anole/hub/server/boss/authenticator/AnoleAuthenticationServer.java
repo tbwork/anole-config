@@ -23,6 +23,12 @@ public class AnoleAuthenticationServer implements AnoleServer{
 	public void close() {
 		// TODO Auto-generated method stub
 		
+	}
+
+	@Override
+	public int getPort() {
+		// TODO Auto-generated method stub
+		return 0;
 	} 
 	
 }

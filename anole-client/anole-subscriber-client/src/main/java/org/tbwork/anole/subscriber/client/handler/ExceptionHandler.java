@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthenticationFirstMessage;
-import org.tbwork.anole.subscriber.client.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;

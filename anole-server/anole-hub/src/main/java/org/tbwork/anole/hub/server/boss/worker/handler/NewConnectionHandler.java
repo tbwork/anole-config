@@ -24,7 +24,6 @@ public class NewConnectionHandler extends ChannelHandlerAdapter {
         ChannelHelper.sendMessageSync(ctx, afMsg); 
     }
     
-    
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();

@@ -8,6 +8,7 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.c_2_s.PingMessage;
+import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
 
 public class PingTask extends TimerTask {
 

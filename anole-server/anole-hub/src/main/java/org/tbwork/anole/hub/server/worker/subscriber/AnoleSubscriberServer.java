@@ -12,12 +12,14 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
+import lombok.Data;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.tbwork.anole.hub.TimeEncoder;
 import org.tbwork.anole.hub.TimeServerHandler;
 import org.tbwork.anole.hub.server.AnoleServer;
@@ -38,8 +40,8 @@ import com.google.common.base.Preconditions;
  * worry about the waste of connection caused by the network
  * problem or omitting to call "close()" method.
  * @author Tommy.Tang
- */
-@Component
+ */ 
+@Service
 public class AnoleSubscriberServer implements AnoleServer{
 
 	volatile boolean started;
@@ -47,6 +49,9 @@ public class AnoleSubscriberServer implements AnoleServer{
 	Channel channel = null;
 	EventLoopGroup bossGroup = null;
 	EventLoopGroup workerGroup = null; 
+	
+	private int port;
+	
 	
 	@Autowired
 	AuthenticationHandler authenticationHandler;
@@ -143,6 +148,12 @@ public class AnoleSubscriberServer implements AnoleServer{
 				started = false;
 			}
 		} 
+	}
+
+	@Override
+	public int getPort() {
+		// TODO Auto-generated method stub
+		return 0;
 	} 
 	
 }

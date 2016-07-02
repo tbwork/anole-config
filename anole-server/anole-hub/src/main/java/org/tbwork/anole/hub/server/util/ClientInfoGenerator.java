@@ -1,6 +1,8 @@
 package org.tbwork.anole.hub.server.util;
 import java.util.Random;
 
+import org.tbwork.anole.common.enums.ClientType;
+
 import lombok.Data;
 
 public class ClientInfoGenerator {
@@ -11,14 +13,7 @@ public class ClientInfoGenerator {
 	 public static final Object workerLock = new Object();
 	 public static final Object publisherLock = new Object();
 	 public static final Object subscriberLock = new Object();
-	 public static enum ClientType{
-		 WORKER,
-		 PUBLISHER,
-		 SUBSCRIBER
-	 }
-	 
-	 
-	 
+ 
 	 @Data
      public static class ClientInfo{
 		 private int clientId;
