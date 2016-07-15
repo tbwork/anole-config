@@ -1,6 +1,15 @@
 package org.tbwork.anole.hub.server.lccmanager.model.clients;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
+import org.tbwork.anole.common.message.s_2_c.boss._2_worker.B2WConfigChangeNotifyMessage;
+import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
+import org.tbwork.anole.common.model.ConfigChangeDTO;
 import org.tbwork.anole.hub.StaticConfiguration;
+import org.tbwork.anole.hub.server.util.ChannelHelper;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -41,11 +50,11 @@ public class WorkerClient extends LongConnectionClient{
 	
 	private volatile boolean processing;
 	
-	private volatile boolean giveup;
-	
-	private volatile CustomerClient publisher;
+	private volatile boolean giveup; 
 	
 	private volatile CustomerClient subscriber;
+	 
+	private Map<String,ConfigChangeDTO> unNotifiedChangeMap = new HashMap<String,ConfigChangeDTO>(); 
 	
 	@Data
 	@NoArgsConstructor
@@ -62,5 +71,27 @@ public class WorkerClient extends LongConnectionClient{
 		this.subscriberClientCount = 0;
 		this.weight = 10;
 		processing = false;
+	}
+	
+	public void addNewChangeNotification(ConfigChangeDTO ccd){
+		ConfigChangeDTO old = unNotifiedChangeMap.get(ccd.getKey());
+		if(old != null && old.getTimestamp() >= ccd.getTimestamp())
+			return;
+		unNotifiedChangeMap.put(ccd.getKey(), ccd);
+	}
+	
+	public void sendAllChangeNotifications(){
+		Set<Entry<String,ConfigChangeDTO>> entrySet = unNotifiedChangeMap.entrySet();
+		for(Entry<String,ConfigChangeDTO> item : entrySet){
+			B2WConfigChangeNotifyMessage message = new B2WConfigChangeNotifyMessage(item.getValue());
+			ChannelHelper.sendMessage(this, message);
+		}
+	}
+	
+	public void ackChangeNotification(String key, long timestamp){ 
+		ConfigChangeDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
+		if(changeNotificationItem!=null || changeNotificationItem.getTimestamp() == timestamp){
+			unNotifiedChangeMap.remove(key);
+		} 
 	}
 }

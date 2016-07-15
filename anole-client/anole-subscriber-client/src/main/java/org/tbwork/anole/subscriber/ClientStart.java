@@ -31,7 +31,6 @@ public class ClientStart
     	
     	AnoleLoader anoleLoader = new AnoleClasspathLoader();
     	anoleLoader.load();
-    	System.out.println(AnoleConfig.getProperty("cs"));
-    	
+    	System.out.println(AnoleConfig.getProperty("cs")); 
     }
 }

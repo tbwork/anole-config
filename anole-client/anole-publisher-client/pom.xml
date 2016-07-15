@@ -13,14 +13,26 @@
   <name>anole-publisher-client</name>
   <url>http://maven.apache.org</url>
   <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+     <fastjson.version>1.1.15</fastjson.version> 
+     <anole.loader.version>0.0.1-SNAPSHOT</anole.loader.version>
   </properties>
   <dependencies>
-    <dependency>
+     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
-    </dependency>
+    </dependency> 
+	<dependency>
+		<groupId>com.alibaba</groupId>
+		<artifactId>fastjson</artifactId>
+		<version>${fastjson.version}</version>
+	</dependency>  
+	<dependency>
+		<groupId>org.tbwork.anole</groupId>
+		<artifactId>anole-loader</artifactId>
+		<version>${anole.loader.version}</version>
+	</dependency> 
   </dependencies>
 </project>

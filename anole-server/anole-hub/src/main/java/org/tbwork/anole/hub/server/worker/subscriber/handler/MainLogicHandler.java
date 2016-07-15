@@ -12,12 +12,14 @@ import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
+import org.tbwork.anole.common.message.c_2_s.subscriber._2_worker.C2WChangeNotifyAckMessage;
 import org.tbwork.anole.common.message.c_2_s.subscriber._2_worker.GetConfigMessage;
+import org.tbwork.anole.common.message.c_2_s.worker_2_boss.W2BChangeNotifyAckMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
 import org.tbwork.anole.hub.model.ConfigValueDO;
 import org.tbwork.anole.hub.repository.ConfigRepository;
 import org.tbwork.anole.hub.server.lccmanager.ILongConnectionClientManager;
-import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManager; 
+import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWorker; 
 import org.tbwork.anole.hub.server.lccmanager.model.requests.UnregisterRequest;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 
@@ -28,7 +30,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 
 	@Autowired
 	@Qualifier("subscriberClientManager")
-	private SubscriberClientManager cm;
+	private SubscriberClientManagerForWorker scm;
 	
 	@Autowired
 	private ConfigRepository cr;
@@ -44,20 +46,23 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 			throws Exception { 
 		 MessageType msgType = msg.getType();
 		 int clientId = msg.getClientId();
-		 int token = msg.getToken();
-		 
+		 int token = msg.getToken(); 
 		 switch(msgType)
 		 {
 		 	case C2S_EXIT_CLOSE:{ 
 		 		logger.info("[:)] The client (address = {}) is closing...", ctx.channel().remoteAddress());
-		 		cm.unregisterClient(new UnregisterRequest(clientId)); // remove from the registry
+		 		scm.unregisterClient(new UnregisterRequest(clientId)); // remove from the registry
 		 	} break;
 		 	case C2S_GET_CONFIG:{
 		 		ChannelHelper.sendMessage(ctx, processGetConfigMessage(msg)); 
 		 	} break;
+		 	case C2S_CONFIG_CHANGE_NOTIFY_ACK_C_2_W:{
+		 		C2WChangeNotifyAckMessage cnam = (C2WChangeNotifyAckMessage) msg;
+		 		scm.ackChangeNotify(cnam.getClientId(), cnam.getKey(), cnam.getTimestamp());
+		 	} break;
 		 	case C2S_PING:{ 
 		 		logger.info("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
-		 		cm.ackPing(clientId);
+		 		scm.ackPing(clientId);
 		 	} break;
 		 	default:break; 
 		 } 

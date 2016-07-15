@@ -13,5 +13,8 @@ public class ConfigChangeDTO {
 	private String destValue;
 	private ConfigType oriConfigType;
 	private ConfigType destConfigType;
+	private String project;
+	private String env;
+	private long timestamp;
 	
 }

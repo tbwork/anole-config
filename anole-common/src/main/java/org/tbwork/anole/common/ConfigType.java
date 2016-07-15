@@ -3,8 +3,8 @@ package org.tbwork.anole.common;
 public enum ConfigType {
 
 	NUMBER((byte)1),
-	STRING((byte)2),
-	BOOL((byte)3),
+	BOOL((byte)2),
+	STRING((byte)3),
 	JSON((byte)4);
 	
 	private Byte code;

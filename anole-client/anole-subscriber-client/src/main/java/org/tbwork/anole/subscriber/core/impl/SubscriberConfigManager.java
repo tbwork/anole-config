@@ -43,7 +43,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 	
 	private static final SubscriberConfigManager cm = new SubscriberConfigManager();
 	
-	private static ExecutorService executorService = Executors.newFixedThreadPool(GlobalConfig.RETRIEVING_THREAD_POOL_SIZE);
+	private static ExecutorService executorService = Executors.newFixedThreadPool(ClientConfig.RETRIEVING_THREAD_POOL_SIZE);
 
 	private static AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance(); 
 	
@@ -122,11 +122,11 @@ public class SubscriberConfigManager extends LocalConfigManager{
 				} 
 			});  
 			@SuppressWarnings("unused")
-			Void innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, TimeUnit.MILLISECONDS); 
+			Void innerResult = getConfigResult.get(ClientConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, TimeUnit.MILLISECONDS); 
 			cItem.setGiveup(true);
 			cItem.getKey().notify();
 		} catch (TimeoutException e) {
-			logger.error("[:(] Timeout (tolerent limit is {}) when anole tried to retrieving config (key = {}) from the remote. Anole will use the default value until the server responses successfully.", GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, cItem.getKey());
+			logger.error("[:(] Timeout (tolerent limit is {}) when anole tried to retrieving config (key = {}) from the remote. Anole will use the default value until the server responses successfully.", ClientConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, cItem.getKey());
 			e.printStackTrace(); 
 		} catch (InterruptedException e) {
 			logger.error("[:(] Retrieving config thread is interrupted.");

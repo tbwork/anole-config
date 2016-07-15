@@ -16,7 +16,7 @@ import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.common.message.s_2_c.MatchFailAndCloseMessage;
 import org.tbwork.anole.hub.server.lccmanager.ILongConnectionClientManager;
-import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManager;
+import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWorker;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterParameter;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest; 
 import org.tbwork.anole.hub.server.lccmanager.model.requests.ValidateRequest;
@@ -24,7 +24,7 @@ import org.tbwork.anole.hub.server.lccmanager.model.response.RegisterResult;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo; 
-import org.tbwork.anole.hub.server.worker.subscriber.AnoleSubscriberServer;
+import org.tbwork.anole.hub.server.worker.subscriber.AnoleSubscriberManagerWorkerServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
@@ -42,7 +42,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 
 	@Autowired
 	@Qualifier("subscriberClientManager")
-	private SubscriberClientManager scm;
+	private SubscriberClientManagerForWorker scm;
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 	

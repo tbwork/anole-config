@@ -19,9 +19,8 @@ public class NewConnectionHandler extends ChannelHandlerAdapter {
     @Override
     public void channelActive(final ChannelHandlerContext ctx) {
         if(logger.isDebugEnabled())
-        	logger.debug("[:)] A new connection is established, remote address : '{}'", ctx.channel().remoteAddress());
-        AuthenticationFirstMessage afMsg = new AuthenticationFirstMessage();
-        ChannelHelper.sendMessageSync(ctx, afMsg); 
+	        	logger.debug("[:)] A new connection is established, remote address : '{}'", ctx.channel().remoteAddress());
+        ctx.fireChannelActive();
     }
     
     
