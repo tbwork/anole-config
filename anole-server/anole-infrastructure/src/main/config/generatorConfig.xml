@@ -30,14 +30,14 @@
     </javaModelGenerator>
     
     <!-- XML Files -->
-    <sqlMapGenerator targetPackage="sqlMap"  targetProject="anole-infrastructure\src\main\config">
+    <sqlMapGenerator targetPackage="sqlMap.auto"  targetProject="anole-infrastructure\src\main\config">
       <property name="enableSubPackages" value="false" />
     </sqlMapGenerator>
     
-	<!-- DAO -->
+	<!-- DAO  manually
     <javaClientGenerator type="XMLMAPPER" targetPackage="org.anole.infrastructure.dao"  targetProject="anole-infrastructure\src\main\java">
       <property name="enableSubPackages" value="false" />
-    </javaClientGenerator> 
+    </javaClientGenerator>  -->
     
     <!-- Tables -->
     <table tableName="anole_user" domainObjectName="AnoleUser" enableCountByExample="false" enableUpdateByExample="false"	enableDeleteByExample="false" enableSelectByExample="false"	selectByExampleQueryId="false">
@@ -53,10 +53,6 @@
       <generatedKey column="Id" sqlStatement="Mysql" identity="true"></generatedKey>  
     </table> 
     <table tableName="anole_env" domainObjectName="AnoleEnvironment" enableCountByExample="false" enableUpdateByExample="false"	enableDeleteByExample="false" enableSelectByExample="false"	selectByExampleQueryId="false">
-   	  <property name="useActualColumnNames" value="true"></property> 
-      <generatedKey column="Id" sqlStatement="Mysql" identity="true"></generatedKey>  
-    </table> 
-    <table tableName="anole_hub" domainObjectName="AnoleHub" enableCountByExample="false" enableUpdateByExample="false"	enableDeleteByExample="false" enableSelectByExample="false"	selectByExampleQueryId="false">
    	  <property name="useActualColumnNames" value="true"></property> 
       <generatedKey column="Id" sqlStatement="Mysql" identity="true"></generatedKey>  
     </table> 

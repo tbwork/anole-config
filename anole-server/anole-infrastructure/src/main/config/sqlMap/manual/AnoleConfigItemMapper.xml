@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.anole.infrastructure.dao.AnoleConfigItemMapper" >
+  <resultMap id="BaseResultMap" type="org.anole.infrastructure.model.AnoleConfigItem" >
+    <id column="Id" property="id" jdbcType="INTEGER" />
+    <result column="Key" property="key" jdbcType="VARCHAR" />
+    <result column="EnvName" property="envName" jdbcType="VARCHAR" />
+    <result column="LastOperator" property="lastOperator" jdbcType="VARCHAR" />
+    <result column="CreateTime" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="UpdateTime" property="updateTime" jdbcType="TIMESTAMP" /> 
+    <result column="Value" property="value" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  
+  <!-- Custom methods -->
+  <select id="selectByConfigKeyAndEnv" resultMap="BaseResultMap" parameterType="map" >
+    select Id, `Key`, EnvName, LastOperator, CreateTime, UpdateTime, `Value`
+    from anole_config_item
+    where `Key` = #{key,jdbcType=VARCHAR}
+    AND 
+    EnvName = #{env, jdbcType=VARCHAR} 
+  </select> 
+  <update id="updateByKeyAndEnv" parameterType="org.anole.infrastructure.model.AnoleConfigItem" >
+    update anole_config_item
+    set
+      LastOperator = #{lastOperator,jdbcType=VARCHAR},  
+      `Value` = #{value,jdbcType=LONGVARCHAR}
+    where 
+    `Key` = #{key,jdbcType=VARCHAR}
+    AND
+    EnvName = #{env,jdbcType=VARCHAR} 
+  </update>
+  
+  
+</mapper>

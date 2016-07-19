@@ -2,11 +2,20 @@
 <!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd" >
 <configuration>
     <mappers >
-        <mapper resource= "sqlMap/AnoleConfigItemMapper.xml" /> 
-        <mapper resource= "sqlMap/AnoleEnvironmentMapper.xml" /> 
-        <mapper resource= "sqlMap/AnoleHubMapper.xml" /> 
-        <mapper resource= "sqlMap/AnoleProjectMapper.xml" /> 
-        <mapper resource= "sqlMap/AnoleUserMapper.xml" /> 
-        <mapper resource= "sqlMap/AnoleUserProjectMapMapper.xml" /> 
+    	<!-- Auto generated -->
+        <mapper resource= "sqlMap/auto/AnoleConfigItemMapper.xml" /> 
+        <mapper resource= "sqlMap/auto/AnoleEnvironmentMapper.xml" /> 
+        <mapper resource= "sqlMap/auto/AnoleHubMapper.xml" /> 
+        <mapper resource= "sqlMap/auto/AnoleProjectMapper.xml" /> 
+        <mapper resource= "sqlMap/auto/AnoleUserMapper.xml" /> 
+        <mapper resource= "sqlMap/auto/AnoleUserProjectMapMapper.xml" /> 
+        
+        <!-- Manually -->
+        <mapper resource= "sqlMap/manual/AnoleConfigItemMapper.xml" /> 
+        <mapper resource= "sqlMap/manual/AnoleEnvironmentMapper.xml" /> 
+        <mapper resource= "sqlMap/manual/AnoleHubMapper.xml" /> 
+        <mapper resource= "sqlMap/manual/AnoleProjectMapper.xml" /> 
+        <mapper resource= "sqlMap/manual/AnoleUserMapper.xml" /> 
+        <mapper resource= "sqlMap/manual/AnoleUserProjectMapMapper.xml" /> 
     </mappers >
 </configuration>

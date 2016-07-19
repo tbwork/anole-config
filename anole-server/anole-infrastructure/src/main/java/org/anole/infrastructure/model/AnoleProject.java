@@ -5,6 +5,8 @@ import java.util.Date;
 public class AnoleProject {
     private Integer id;
 
+    private String productLine;
+
     private String name;
 
     private String creator;
@@ -13,8 +15,8 @@ public class AnoleProject {
 
     private Date createTime;
 
-    private Date updateTime; 
-    
+    private Date updateTime;
+
     private String description;
 
     public Integer getId() {
@@ -23,6 +25,14 @@ public class AnoleProject {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getProductLine() {
+        return productLine;
+    }
+
+    public void setProductLine(String productLine) {
+        this.productLine = productLine == null ? null : productLine.trim();
     }
 
     public String getName() {
@@ -63,7 +73,7 @@ public class AnoleProject {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    } 
+    }
 
     public String getDescription() {
         return description;

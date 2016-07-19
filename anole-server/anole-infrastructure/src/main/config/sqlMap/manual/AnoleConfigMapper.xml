@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.anole.infrastructure.dao.AnoleConfigMapper">
+  <resultMap id="BaseResultMap" type="org.anole.infrastructure.model.AnoleConfig">
+    <id column="Id" jdbcType="INTEGER" property="id" />
+    <result column="Key" jdbcType="VARCHAR" property="key" />
+    <result column="Type" jdbcType="TINYINT" property="type" />
+    <result column="Creator" jdbcType="VARCHAR" property="creator" />
+    <result column="LastOperator" jdbcType="VARCHAR" property="lastOperator" />
+    <result column="Project" jdbcType="VARCHAR" property="project" />
+    <result column="CreateTime" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="UpdateTime" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="Description" jdbcType="LONGVARCHAR" property="description" />
+  </resultMap>
+  
+  <!-- Custom methods-->
+  <select id="selectByConfigKey" parameterType="map" resultMap="BaseResultMap">
+    select Id, `Key`, `Type`, Creator, LastOperator, Project, CreateTime, UpdateTime,
+    Description
+    from anole_config
+    where `Key` = #{key,jdbcType=VARCHAR} 
+  </select>
+  
+  <update id="updateByKey" parameterType="org.anole.infrastructure.model.AnoleConfig">
+    update anole_config
+    set  `Type` = #{type,jdbcType=TINYINT}, 
+      LastOperator = #{lastOperator,jdbcType=VARCHAR},  
+      Description = #{description,jdbcType=LONGVARCHAR}
+    where  `Key` = #{key,jdbcType=VARCHAR} 
+  </update>
+  
+</mapper>

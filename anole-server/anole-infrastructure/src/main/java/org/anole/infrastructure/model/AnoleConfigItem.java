@@ -13,7 +13,7 @@ public class AnoleConfigItem {
 
     private Date createTime;
 
-    private Date updateTime; 
+    private Date updateTime;
 
     private String value;
 
@@ -63,7 +63,7 @@ public class AnoleConfigItem {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    } 
+    }
 
     public String getValue() {
         return value;

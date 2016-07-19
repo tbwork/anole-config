@@ -15,8 +15,8 @@ public class AnoleUserProjectMap {
 
     private Date createTime;
 
-    private Date updateTime; 
-    
+    private Date updateTime;
+
     public Integer getId() {
         return id;
     }
@@ -71,5 +71,5 @@ public class AnoleUserProjectMap {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    } 
+    }
 }

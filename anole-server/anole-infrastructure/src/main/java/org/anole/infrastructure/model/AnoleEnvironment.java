@@ -11,8 +11,8 @@ public class AnoleEnvironment {
 
     private Date createTime;
 
-    private Date updateTime; 
-    
+    private Date updateTime;
+
     private String description;
 
     public Integer getId() {
@@ -53,7 +53,8 @@ public class AnoleEnvironment {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
-    } 
+    }
+
     public String getDescription() {
         return description;
     }

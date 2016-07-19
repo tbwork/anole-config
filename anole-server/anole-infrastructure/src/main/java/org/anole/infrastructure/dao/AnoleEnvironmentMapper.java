@@ -1,16 +1,11 @@
 package org.anole.infrastructure.dao;
 
 import java.util.List;
-import org.anole.infrastructure.model.AnoleEnvironment;
 
-public interface AnoleEnvironmentMapper {
-    int deleteByPrimaryKey(Integer id);
+import org.anole.infrastructure.model.AnoleConfig;
+import org.anole.infrastructure.model.AnoleEnvironment; 
 
-    int insert(AnoleEnvironment record);
-
-    AnoleEnvironment selectByPrimaryKey(Integer id);
-
-    List<AnoleEnvironment> selectAll();
-
-    int updateByPrimaryKey(AnoleEnvironment record);
+public interface AnoleEnvironmentMapper extends MybatisBaseMapper<AnoleEnvironment, Integer> {
+	 
+	
 }
