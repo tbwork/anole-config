@@ -12,11 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.crypto.KeyGenerator;
 
 import org.tbwork.anole.common.ConfigType;
-import org.tbwork.anole.common.model.ConfigChangeDTO;
+import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
-import org.tbwork.anole.loader.core.ConfigItem;
-import org.tbwork.anole.subscriber.client.handler.ConfigChangeNotifyMessageHandler;
-import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
+import org.tbwork.anole.loader.core.ConfigItem; 
 import org.tbwork.anole.subscriber.core.impl.ChainedConfigObserver;
 import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
 import org.tbwork.anole.subscriber.exceptions.AnoleNotReadyException;

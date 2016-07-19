@@ -1,25 +1,15 @@
-package org.tbwork.anole.subscriber.client._2_worker;
+package org.tbwork.anole.subscriber.client._2_boss;
 
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 
 import io.netty.channel.ChannelFutureListener;
 
-public interface AnoleClient {
+public interface IAnoleAuthenticationClient {
 
 	/**
 	 * Connect to the server.
 	 */
-	public void connect();
-	
-	/**
-	 * Disconnect with the server and close application.
-	 */
-	public void close();
-
-	/**
-	 * Close and reconnect.
-	 */
-	public void reconnect();
+	public void authenticate(); 
 	
 	/**
 	 * Send a message to the server.

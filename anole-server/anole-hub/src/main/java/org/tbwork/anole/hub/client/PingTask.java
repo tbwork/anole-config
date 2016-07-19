@@ -8,14 +8,15 @@ import java.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.tbwork.anole.common.message.c_2_s.PingMessage; 
+import org.tbwork.anole.common.message.c_2_s.PingMessage;
+import org.tbwork.anole.hub.client.worker.AnoleWorkerClient; 
 
 
 public class PingTask extends TimerTask {
 
 	private static final Logger logger = LoggerFactory.getLogger(PingTask.class);
 	@Autowired
-	private AnoleClient client;
+	private IAnoleWorkerClient client;
 	
 	@Override
 	public void run() { 
@@ -27,24 +28,24 @@ public class PingTask extends TimerTask {
 		} 
 	}
 
-
 	private void ping(){   
-	    client.connect();
+		if(!client.canPing())
+		    client.setConnected(false); 
+		if(!client.isConnected())
+			client.connect();
 		if(logger.isInfoEnabled()){
 			client.sendMessageWithListeners(new PingMessage(), 
 				new ChannelFutureListener(){
-
 					@Override
 					public void operationComplete(ChannelFuture future)
 							throws Exception {
 						logger.info("[:)] Ping message is sent successfully.");
 					}
-		
 				}
 			);
 		}
 		else
-			client.sendMessage(new PingMessage());
-		
+			client.sendMessage(new PingMessage()); 
+		client.addPingCount();
 	}
 }

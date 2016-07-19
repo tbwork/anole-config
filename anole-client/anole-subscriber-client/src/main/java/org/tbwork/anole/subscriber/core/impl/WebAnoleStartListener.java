@@ -1,15 +1,11 @@
 package org.tbwork.anole.subscriber.core.impl;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-
+import javax.servlet.ServletContextEvent; 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.impl.WebAnoleLoaderListener;
 import org.tbwork.anole.loader.util.StringUtil;
-import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.exceptions.OperationNotSupportedException; 
+import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient; 
 
 /**
  * <p> This is for web applications to load anole configurations.

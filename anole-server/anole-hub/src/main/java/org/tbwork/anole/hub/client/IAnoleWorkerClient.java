@@ -1,10 +1,10 @@
-package org.tbwork.anole.subscriber.client._2_boss;
+package org.tbwork.anole.hub.client;
 
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 
 import io.netty.channel.ChannelFutureListener;
 
-public interface AuthenticationClient {
+public interface IAnoleWorkerClient {
 
 	/**
 	 * Connect to the server.
@@ -35,4 +35,24 @@ public interface AuthenticationClient {
 	 * Save authentication information.
 	 */
 	public void saveToken(int clientId, int token);
+	
+    /**
+     * Assume the ping is not received.
+     */
+    public void addPingCount();
+    
+    /**
+     * Ack of Ping, indicate that the ping is received.
+     */
+    public void ackPing();
+    
+    /**
+     * Whether the connection is valid.
+     */
+    public boolean canPing();
+    
+    
+    public void setConnected(boolean connected);
+    
+    public boolean isConnected();
 }

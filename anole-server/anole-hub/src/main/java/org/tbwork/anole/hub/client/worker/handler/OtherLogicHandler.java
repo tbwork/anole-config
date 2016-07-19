@@ -14,7 +14,11 @@ import org.tbwork.anole.common.message.c_2_s.worker_2_boss.RegisterResultMessage
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.boss._2_worker.RegisterClientMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
-import org.tbwork.anole.hub.client.AnoleClient;
+import org.tbwork.anole.hub.StaticConfiguration;
+import org.tbwork.anole.hub.client.ConnectionMonitor;
+import org.tbwork.anole.hub.client.IAnoleWorkerClient;
+import org.tbwork.anole.hub.client.WorkerClientConfig;
+import org.tbwork.anole.hub.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.hub.server.AnoleServer;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo; 
@@ -27,8 +31,9 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 	
 	static Logger logger = LoggerFactory.getLogger(OtherLogicHandler.class);
 	 
+	private ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
 	@Autowired
-	private AnoleClient worker; 
+	private IAnoleWorkerClient worker; 
 	
 	@Autowired
 	@Qualifier("publishServer")
@@ -46,6 +51,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 {  
 		 	case S2C_PING_ACK:{ 
 		 		PingAckMessage paMsg = (PingAckMessage) msg; 
+		 		processPingAckResponse(paMsg);
 		 	} break;
 		 	case S2C_REGISTER_CLIENT:{
 		 		RegisterClientMessage rcm = (RegisterClientMessage) msg;
@@ -67,6 +73,17 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		result.setResultClientType(clientType); 
 		return result; 
 	}
+	
+	private void processPingAckResponse(PingAckMessage paMsg){
+		int interval = paMsg.getIntervalTime();
+		if(interval > 0 && interval != WorkerClientConfig.PING_INTERVAL){
+			WorkerClientConfig.PING_INTERVAL = interval ;
+			WorkerClientConfig.PING_DELAY = interval;
+			lcMonitor.restart();
+			logger.info("Synchronize PING_INTERVAL with the server, new interval is set as {} ms", WorkerClientConfig.PING_INTERVAL);
+		} 
+		worker.ackPing();
+	} 
 	
 
 }

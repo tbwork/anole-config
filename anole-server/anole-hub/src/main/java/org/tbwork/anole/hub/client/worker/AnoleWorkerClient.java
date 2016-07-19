@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
-import org.tbwork.anole.hub.client.AnoleClient;
+import org.tbwork.anole.hub.client.IAnoleWorkerClient;
 import org.tbwork.anole.hub.client.ConnectionMonitor;
 import org.tbwork.anole.hub.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.hub.client.worker.handler.AuthenticationHandler;
@@ -42,9 +42,10 @@ import lombok.Setter;
 
 @Data
 @Service("worker")
-public class AnoleWorkerClient implements AnoleClient{ 
+public class AnoleWorkerClient implements IAnoleWorkerClient{ 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private volatile boolean started; 
+	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private volatile boolean connected;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private static final Logger logger = LoggerFactory.getLogger(AnoleWorkerClient.class);
@@ -56,7 +57,16 @@ public class AnoleWorkerClient implements AnoleClient{
 	int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
 	
-    Servers servers;
+    private Servers servers;
+    
+    /**
+     * Used to detect disconnection
+     */
+    private int ping_count = 0;
+    /**
+     * Used to detect disconnection
+     */
+    private int MAX_PING_COUNT = 5;
     
     @PostConstruct
     private void initialize(){
@@ -96,9 +106,8 @@ public class AnoleWorkerClient implements AnoleClient{
   					boolean flag = started; 
   					executeConnect(); 
   					try {
-  						TimeUnit.SECONDS.sleep(AnoleLocalConfig.getIntProperty("anole.client.connect.delay", 2));
-  					} catch (InterruptedException e) {
-  						// TODO Auto-generated catch block
+  						TimeUnit.SECONDS.sleep(2);
+  					} catch (InterruptedException e) { 
   						e.printStackTrace();
   					} 
   					if(!flag )
@@ -106,10 +115,10 @@ public class AnoleWorkerClient implements AnoleClient{
   				}
   			}
   		} 
-      }
+    }
   	
       
-      @Override
+    @Override
   	public void close(){
   		if(!started) //DCL-1
   		{
@@ -158,7 +167,7 @@ public class AnoleWorkerClient implements AnoleClient{
   			if(executeConnect(serverString))
   				return ;
   		} 
-  		throw new RuntimeException("No available boss server! Please make sure al least one boss is running and reachable!"); 
+  		throw new RuntimeException("No available boss server! Please make sure at least one boss is running and reachable!"); 
   	}
   	
   	/** 
@@ -264,4 +273,32 @@ public class AnoleWorkerClient implements AnoleClient{
     	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
     }
 	
+    
+    
+    public void addPingCount(){
+    	ping_count ++;
+    }
+    
+    public void ackPing(){
+    	ping_count --;
+    }
+    
+    public boolean canPing(){
+    	return ping_count <= MAX_PING_COUNT;
+    }
+
+
+	@Override
+	public void setConnected(boolean connected) {
+		this.connected = connected;
+	}
+
+
+	@Override
+	public boolean isConnected() {
+		return connected;
+	}
+    
+    
+    
 }

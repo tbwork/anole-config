@@ -3,14 +3,12 @@ package org.tbwork.anole.subscriber.client._2_boss.handler;
 import java.io.IOException;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory; 
-import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
-import org.tbwork.anole.common.message.s_2_c.AuthenticationFirstMessage; 
+import org.slf4j.LoggerFactory;  
+import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelPromise; 
 /**
  * Deal with all exceptions.
  * @author tommy.tang

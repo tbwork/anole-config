@@ -1,24 +1,36 @@
 package org.tbwork.anole.subscriber;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.tbwork.anole.loader.core.AnoleLoader;
 import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
-import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client._2_boss.IAnoleAuthenticationClient;
+import org.tbwork.anole.subscriber.client._2_boss.impl.AnoleAuthenticationClient;
+import org.tbwork.anole.subscriber.client._2_worker.IAnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
 import org.tbwork.anole.subscriber.core.AnoleConfig; 
 import org.tbwork.anole.subscriber.core.impl.AnoleSubscriberClasspathLoader; 
 
-/**
- * Hello world!
- *
- */
+
 public class ClientStart 
 {
+	
+	public static final Object connectLock = new Object();
+	 
+	
     public static void main( String[] args )
     { 
-    	testAnole();
+    	 
     }
     
+    public static void startUp(){
+    	 
+    	IAnoleSubscriberClient asc = AnoleSubscriberClient.instance(); 
+    	asc.connect();
+    	
+    }
     
     public static void testAnole(){
     	 

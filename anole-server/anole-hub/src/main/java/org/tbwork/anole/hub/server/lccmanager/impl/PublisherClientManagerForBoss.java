@@ -7,8 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.enums.ClientType;
-import org.tbwork.anole.common.model.ChangeResultDTO;
-import org.tbwork.anole.common.model.ConfigChangeDTO;
+import org.tbwork.anole.common.model.ConfigModifyResultDTO;
+import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
 import org.tbwork.anole.hub.server.lccmanager.model.clients.PublisherClient;
 import org.tbwork.anole.hub.server.lccmanager.model.clients.WorkerClient;
@@ -46,8 +46,8 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 	
 	
  
-	public ChangeResultDTO motifyConfig(String operator, ConfigChangeDTO ccd){
-		ChangeResultDTO result  = new ChangeResultDTO();
+	public ConfigModifyResultDTO motifyConfig(String operator, ConfigModifyDTO ccd){
+		ConfigModifyResultDTO result  = new ConfigModifyResultDTO();
 		Preconditions.checkArgument(operator!=null && !operator.isEmpty(), "The operator should not be null or empty.");
 		Preconditions.checkNotNull(ccd, "Config change content should not be null.");
 		Preconditions.checkArgument(ccd.getProject()!=null && !ccd.getProject().isEmpty(), "A project should be specified before you changing its configurations.");		

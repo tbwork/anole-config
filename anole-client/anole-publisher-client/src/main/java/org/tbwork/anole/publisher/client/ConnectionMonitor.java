@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.client._2_worker;
+package org.tbwork.anole.publisher.client;
 
 public interface ConnectionMonitor {
 
@@ -7,5 +7,4 @@ public interface ConnectionMonitor {
 	public void stop();
 	
 	public void restart();
-	 
 }

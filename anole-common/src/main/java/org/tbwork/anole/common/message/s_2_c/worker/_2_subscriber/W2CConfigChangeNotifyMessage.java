@@ -6,11 +6,11 @@ import lombok.Data;
 import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
-import org.tbwork.anole.common.model.ConfigChangeDTO;
+import org.tbwork.anole.common.model.ConfigModifyDTO;
 @Data
 @AllArgsConstructor
 public class W2CConfigChangeNotifyMessage  extends Message{
-	private ConfigChangeDTO configChangeDTO;
+	private ConfigModifyDTO configChangeDTO;
 	public W2CConfigChangeNotifyMessage(){
 		super(MessageType.S2C_CONFIG_CHANGE_NOTIFY_W_2_C);
 	} 

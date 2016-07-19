@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
-import org.tbwork.anole.common.model.ConfigChangeDTO; 
+import org.tbwork.anole.common.model.ConfigModifyDTO; 
 import org.tbwork.anole.subscriber.core.ConfigObserver;
 import org.tbwork.anole.subscriber.core.ObserverManager;
 import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
@@ -29,7 +29,7 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 	private SubscriberConfigManager cm = SubscriberConfigManager.getInstance();
 	
 	private ConfigChangeNotifyMessageHandler(){
-		super(MessageType.S2C_CHANGE_NOTIFY);
+		super(MessageType.S2C_CONFIG_CHANGE_NOTIFY_W_2_C);
 	}
 	
 	public static ConfigChangeNotifyMessageHandler instance(){
@@ -42,8 +42,8 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 		Preconditions.checkNotNull(ccnMsg.getConfigChangeDTO(), "Config change details should not be null.");
 		Preconditions.checkNotNull(ccnMsg.getConfigChangeDTO().getKey(),"Config key should not be null.");
 		Preconditions.checkArgument(!ccnMsg.getConfigChangeDTO().getKey().isEmpty(), "Config key should not be empty.");
-		 
-		ConfigChangeDTO ccDto = ccnMsg.getConfigChangeDTO();
+		
+		ConfigModifyDTO ccDto = ccnMsg.getConfigChangeDTO();
 		// Pre Observers
 		boolean stopAfterProcess = preProcess(ccDto);
 		if(stopAfterProcess)
@@ -57,7 +57,7 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 	}
  
 	
-	private boolean preProcess(ConfigChangeDTO ccDto){
+	private boolean preProcess(ConfigModifyDTO ccDto){
 		for(ConfigObserver item : om.getPreObservers(ccDto.getKey())){
 			 item.process(ccDto);
 			 if(item.stopAfterProcess())  
@@ -66,7 +66,7 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 		return false;
 	}
 	
-	private void postProcess(ConfigChangeDTO ccDto){
+	private void postProcess(ConfigModifyDTO ccDto){
 		for(ConfigObserver item : om.getPostObservers(ccDto.getKey())){
 			 item.process(ccDto); 
 			 if(item.stopAfterProcess())

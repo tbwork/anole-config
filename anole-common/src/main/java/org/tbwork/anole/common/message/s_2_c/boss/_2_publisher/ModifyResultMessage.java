@@ -4,7 +4,7 @@ import org.tbwork.anole.common.enums.ClientType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.boss._2_worker.RegisterClientMessage;
-import org.tbwork.anole.common.model.ChangeResultDTO;
+import org.tbwork.anole.common.model.ConfigModifyResultDTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import lombok.Data;
 @AllArgsConstructor
 public class ModifyResultMessage extends Message{
 
-	 private ChangeResultDTO changeResult;
+	 private ConfigModifyResultDTO changeResult;
 	 
 	 public ModifyResultMessage()
 	 {

@@ -3,7 +3,7 @@ package org.tbwork.anole.common.model;
 import lombok.Data;
 
 @Data
-public class ChangeResultDTO {
+public class ConfigModifyResultDTO {
 	private boolean success;
 	private String errorMsg;
 	

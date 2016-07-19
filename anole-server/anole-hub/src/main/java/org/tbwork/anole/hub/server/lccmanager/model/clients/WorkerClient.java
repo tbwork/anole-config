@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.tbwork.anole.common.message.s_2_c.boss._2_worker.B2WConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
-import org.tbwork.anole.common.model.ConfigChangeDTO;
+import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.hub.StaticConfiguration;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 
@@ -54,7 +54,7 @@ public class WorkerClient extends LongConnectionClient{
 	
 	private volatile CustomerClient subscriber;
 	 
-	private Map<String,ConfigChangeDTO> unNotifiedChangeMap = new HashMap<String,ConfigChangeDTO>(); 
+	private Map<String,ConfigModifyDTO> unNotifiedChangeMap = new HashMap<String,ConfigModifyDTO>(); 
 	
 	@Data
 	@NoArgsConstructor
@@ -73,23 +73,23 @@ public class WorkerClient extends LongConnectionClient{
 		processing = false;
 	}
 	
-	public void addNewChangeNotification(ConfigChangeDTO ccd){
-		ConfigChangeDTO old = unNotifiedChangeMap.get(ccd.getKey());
+	public void addNewChangeNotification(ConfigModifyDTO ccd){
+		ConfigModifyDTO old = unNotifiedChangeMap.get(ccd.getKey());
 		if(old != null && old.getTimestamp() >= ccd.getTimestamp())
 			return;
 		unNotifiedChangeMap.put(ccd.getKey(), ccd);
 	}
 	
 	public void sendAllChangeNotifications(){
-		Set<Entry<String,ConfigChangeDTO>> entrySet = unNotifiedChangeMap.entrySet();
-		for(Entry<String,ConfigChangeDTO> item : entrySet){
+		Set<Entry<String,ConfigModifyDTO>> entrySet = unNotifiedChangeMap.entrySet();
+		for(Entry<String,ConfigModifyDTO> item : entrySet){
 			B2WConfigChangeNotifyMessage message = new B2WConfigChangeNotifyMessage(item.getValue());
 			ChannelHelper.sendMessage(this, message);
 		}
 	}
 	
 	public void ackChangeNotification(String key, long timestamp){ 
-		ConfigChangeDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
+		ConfigModifyDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
 		if(changeNotificationItem!=null || changeNotificationItem.getTimestamp() == timestamp){
 			unNotifiedChangeMap.remove(key);
 		} 

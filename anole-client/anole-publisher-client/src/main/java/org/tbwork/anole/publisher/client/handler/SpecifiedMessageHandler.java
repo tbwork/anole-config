@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.client._2_worker.handler;
+package org.tbwork.anole.publisher.client.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

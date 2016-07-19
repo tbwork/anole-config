@@ -16,7 +16,7 @@ import org.tbwork.anole.common.message.c_2_s.publisher_2_boss.ModifyConfigMessag
 import org.tbwork.anole.common.message.c_2_s.subscriber._2_worker.GetConfigMessage;
 import org.tbwork.anole.common.message.s_2_c.boss._2_publisher.ModifyResultMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
-import org.tbwork.anole.common.model.ConfigChangeDTO;
+import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.hub.model.ConfigValueDO;
 import org.tbwork.anole.hub.repository.ConfigRepository;
 import org.tbwork.anole.hub.server.lccmanager.ILongConnectionClientManager;
@@ -71,7 +71,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		ModifyResultMessage result = new ModifyResultMessage();
 		ModifyConfigMessage mcMsg = (ModifyConfigMessage) msg;
  		String operator = mcMsg.getOperator(); 
- 		ConfigChangeDTO changeRule = mcMsg.getChangeRule();  
+ 		ConfigModifyDTO changeRule = mcMsg.getChangeRule();  
  		return new ModifyResultMessage(pcm.motifyConfig(operator, changeRule));  
 	}
 	

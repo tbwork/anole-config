@@ -4,19 +4,26 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException; 
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory; 
-import org.tbwork.anole.common.message.Message;
+import org.slf4j.LoggerFactory;  
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage; 
-import org.tbwork.anole.subscriber.client._2_boss.AuthenticationClient;
+import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.subscriber.client._2_boss.IAnoleAuthenticationClient;
+import org.tbwork.anole.subscriber.client._2_boss.handler.AuthenticationHandler;
 import org.tbwork.anole.subscriber.client._2_boss.handler.ExceptionHandler;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
-import org.tbwork.anole.subscriber.enums.AuthenClientConfig;
+import org.tbwork.anole.subscriber.client._2_boss.handler.OtherLogicHandler; 
 import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
+import org.tbwork.anole.subscriber.util.GlobalConfig;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -29,17 +36,16 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
-import io.netty.handler.codec.serialization.ObjectEncoder;
-import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory; 
+import io.netty.handler.codec.serialization.ObjectEncoder; 
 
-import com.google.common.base.Preconditions; 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists; 
 /** 
  * @author Tommy.Tang
  */ 
 @Data
-public class AnoleAuthenticationClient implements AuthenticationClient{
-
+public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
+ 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private volatile boolean started; 
 	private volatile boolean connected;
@@ -53,51 +59,98 @@ public class AnoleAuthenticationClient implements AuthenticationClient{
     
     int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
-    private AnoleAuthenticationClient(){}
+    
+    
+    @Data
+    public static class Servers{ 
+    	private List<String> addresses;  
+    }
+    
+    private Servers servers;
+
+    public static final Object lock = new Object();
+    public static volatile boolean executing = false;
+    private AnoleAuthenticationClient(){
+    	String serversString = getProperty(ClientProperties.BOSS_2_WOKRER_SERVER_ADDRESS);
+    	String [] _servers = serversString.split(",");
+    	if(_servers.length < 2)
+    		throw new RuntimeException("At least two boss server were specified for sake of robustness! If you obstinately want to use only one, just specify two same addresses.");
+    	servers.setAddresses(Lists.newArrayList(_servers));  
+    }
     
     public static AnoleAuthenticationClient instance(){
     	return anoleAuthenticationClient;
     } 
+     
     
-    @Override
-	public void connect() {
-		if(!started || !connected) //DCL-1
-		{
-			synchronized(AnoleAuthenticationClient.class)
-			{
-				if(!started || !connected)//DCL-2
-				{ 
-					boolean flag = started; 
-					executeConnect(AnoleConfig.getProperty(AuthenClientConfig.BOSS_SERVER_ADDRESS.configName(), (String) AuthenClientConfig.BOSS_SERVER_ADDRESS.defaultValue()), 
-							AnoleConfig.getIntProperty(AuthenClientConfig.BOSS_SERVER_PORT.configName(), (Integer) AuthenClientConfig.BOSS_SERVER_PORT.defaultValue())); 
-					try {
-						TimeUnit.SECONDS.sleep(AnoleConfig.getIntProperty("anole.client.connect.delay", 2));
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}  
-				}
-			}
-		} 
+    private ExecutorService es = Executors.newSingleThreadExecutor();
+    
+    
+    //Properties
+    public static enum ClientProperties{ 
+    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.subscriber.boss.address", "localhost:54321,localhost:54322"),  
+    	;
+    	private String name;
+    	private String defaultValue;
+    	
+    	private ClientProperties(String name, String defaultValue){
+    		this.name = name;
+    		this.defaultValue = defaultValue;
+    	}
+    	
     }
-	
-    
     
     @Override
-	public void close(){
-		if(!started) //DCL-1
-		{
-			synchronized(AnoleSubscriberClient.class)
-			{
-				if(!started)//DCL-2
-				{
-					lcMonitor.stop();
-					executeClose(); 
-				}
-			}
-		} 
-		
-	}
+	public void authenticate() {
+		try{
+			Future<Void> future = es.submit(new Callable<Void>() { 
+				@Override
+				public Void call() throws Exception { 
+					if(!executing){
+			    		synchronized(lock){
+			    			if(!executing){ 
+			    				executing = true;
+			    				connect();
+			    				while(executing)
+			    					lock.wait(); 
+			    			}
+			    		} 	
+			    	} 
+					return null; 
+				} 
+	    	});
+	    	
+	    	future.get(GlobalConfig.AUTHENTICATION_TIMEOUT_LIMIT, TimeUnit.MILLISECONDS);
+		}
+		catch(TimeoutException e){
+			logger.error("Authentication is timeout. Please try latter.", e.getMessage());
+		}
+		catch(Exception e){
+			logger.error("Authentication failed due to a an inner exception. Details: {}", e.getMessage());
+		}
+		finally{
+			lock.notifyAll();
+		}
+    } 
+    
+    
+    private void connect(){
+    	if(!started || !connected) //DCL-1
+  		{
+  			synchronized(AnoleAuthenticationClient.class)
+  			{
+  				if(!started || !connected)//DCL-2
+  				{  
+  					executeConnect(); 
+  					try {
+  						TimeUnit.SECONDS.sleep(2);
+  					} catch (InterruptedException e) { 
+  						e.printStackTrace();
+  					}  
+  				}
+  			}
+  		} 
+    }
 	
     @Override
 	public void sendMessage(C2SMessage msg)
@@ -113,7 +166,6 @@ public class AnoleAuthenticationClient implements AuthenticationClient{
 		    f.addListener(item);  
 	} 
 	
-	 
 	private ChannelFuture sendMessageWithFuture(C2SMessage msg){ 
 		if(socketChannel != null)
 		{
@@ -134,6 +186,33 @@ public class AnoleAuthenticationClient implements AuthenticationClient{
 	    msg.setToken(token);
 	}
 	
+	
+  	private void executeConnect(){
+  		if(servers == null)
+  			throw new RuntimeException("Boss servers are not ready!");  
+  		for(String serverString : servers.getAddresses()){
+  			if(executeConnect(serverString))
+  				return ;
+  		} 
+  		throw new RuntimeException("No available boss server! Please make sure at least one boss is running and reachable!"); 
+  	}
+  	
+ 	/** 
+  	 * @param address in the form of "ip:port"
+  	 */
+  	private boolean executeConnect(String address)
+  	{ 
+  		Preconditions.checkNotNull (address, "address should be null.");
+  		Preconditions.checkArgument(address.contains(":"), "address should be in form of: ip:port.");
+  		String [] ip_port = address.split(":");
+  		boolean result  = executeConnect(ip_port[0], Integer.valueOf(ip_port[1]));
+  		if(result)
+  			logger.info("[:)] Connect to server ({}) successfully!", address);
+  		else
+  			logger.warn("[:(] Connect to server ({}) failed!", address);
+  		return result;
+  	}
+	
 	private boolean executeConnect(String host, int port)
 	{ 
 		Preconditions.checkNotNull (host  , "host should be null.");
@@ -151,8 +230,7 @@ public class AnoleAuthenticationClient implements AuthenticationClient{
                     		new ExceptionHandler(),
                     		new ObjectEncoder(),
                    		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
-                    		new AuthenticationHandler(),
-                    		ConfigChangeNotifyMessageHandler.instance(),
+                    		new AuthenticationHandler(), 
                     		new OtherLogicHandler()
                     		);
                 }
@@ -163,14 +241,14 @@ public class AnoleAuthenticationClient implements AuthenticationClient{
             	socketChannel = (SocketChannel)f.channel(); 
             	started = true;
             	connected = true;
-            	logger.info("[:)] Anole client successfully connected to the remote Anolo hub server with remote host = '{}' and port = {}", host, port);			            	
+            	logger.info("[:)] Anole client successfully connected to the Boss with remote host = '{}' and port = {}", host, port);			            	
             	return true;
             } 
             else
             	return false;
         }
         catch (InterruptedException e) {
-        	logger.error("[:(] Anole client failed to connect to the remote Anolo hub server with remote host = '{}' and port = ", host, port);
+        	logger.error("[:(] AuthenFailed Boss with remote host = '{}' and port = ", host, port);
 			e.printStackTrace();
 			return false;
 		} 
@@ -195,17 +273,21 @@ public class AnoleAuthenticationClient implements AuthenticationClient{
 			}
 		}
 	}
-
-	@Override
-	public void reconnect() {
-		 this.close();
-		 this.connect();
-	}
+ 
 
 	@Override
 	public void saveToken(int clientId, int token) {
 		 this.clientId = clientId;
 		 this.token = token;
 	}
+	
+	
+	private String getProperty(ClientProperties clientProperties){
+    	return AnoleLocalConfig.getProperty(clientProperties.name, clientProperties.defaultValue);
+	}
+	    
+    private int getIntProerty(ClientProperties clientProperties){
+    	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
+    }
 	
 }

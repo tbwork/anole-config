@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.Map.Entry;
  
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
-import org.tbwork.anole.common.model.ConfigChangeDTO; 
+import org.tbwork.anole.common.model.ConfigModifyDTO; 
 import org.tbwork.anole.hub.server.util.ChannelHelper;
  
 import lombok.Data; 
@@ -16,32 +16,32 @@ import io.netty.channel.socket.SocketChannel;
 @Data
 public class SubscriberClient extends LongConnectionClient{ 
 	
-	private Map<String,ConfigChangeDTO> unNotifiedChangeMap = new HashMap<String,ConfigChangeDTO>(); 
+	private Map<String,ConfigModifyDTO> unNotifiedChangeMap = new HashMap<String,ConfigModifyDTO>(); 
 	private Set<String> caredKeySet = new HashSet<String>();
 	
 	public SubscriberClient(int token, SocketChannel socketChannel){
 		super(token, socketChannel);
 	}
 
-	public void addNewChangeNotification(ConfigChangeDTO ccd){
+	public void addNewChangeNotification(ConfigModifyDTO ccd){
 		if(!caredKeySet.contains(ccd.getKey())) // this client is not care about this key
 			return;
-		ConfigChangeDTO old = unNotifiedChangeMap.get(ccd.getKey());
+		ConfigModifyDTO old = unNotifiedChangeMap.get(ccd.getKey());
 		if( old != null && old.getTimestamp() >= ccd.getTimestamp())
 			return;
 		unNotifiedChangeMap.put(ccd.getKey(), ccd);
 	}
 	
 	public void sendAllChangeNotifications(){
-		Set<Entry<String,ConfigChangeDTO>> entrySet = unNotifiedChangeMap.entrySet();
-		for(Entry<String,ConfigChangeDTO> item : entrySet){
+		Set<Entry<String,ConfigModifyDTO>> entrySet = unNotifiedChangeMap.entrySet();
+		for(Entry<String,ConfigModifyDTO> item : entrySet){
 			W2CConfigChangeNotifyMessage message = new W2CConfigChangeNotifyMessage(item.getValue());
 			ChannelHelper.sendMessage(this, message);
 		}
 	}
 	
 	public void ackChangeNotification(String key, long timestamp){ 
-		ConfigChangeDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
+		ConfigModifyDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
 		if(changeNotificationItem!=null || changeNotificationItem.getTimestamp() == timestamp){
 			unNotifiedChangeMap.remove(key);
 		} 

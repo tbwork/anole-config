@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.client._2_worker.handler;
+package org.tbwork.anole.publisher.client.handler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -16,14 +16,15 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
-import org.tbwork.anole.subscriber.client.GlobalConfig;
-import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
+import org.tbwork.anole.publisher.client.IAnolePublisherClient;
+import org.tbwork.anole.publisher.client.StaticClientConfig;
+import org.tbwork.anole.publisher.client.impl.AnolePublisherClient; 
 
 public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 
-	private AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
+	private IAnolePublisherClient anolePublisher = AnolePublisherClient.instance();
 	
 	public AuthenticationHandler(){
 		super(false);
@@ -43,24 +44,24 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		MessageType msgType=  msg.getType(); 
         switch (msgType){
 	        case S2C_AUTH_FIRST:{ //Please login first. 
-	        	anoleSubscriberClient.sendMessage(getAuthInfo()); 
+	        	anolePublisher.sendMessage(getAuthInfo()); 
 		      	ReferenceCountUtil.release(msg);
 	        } break;
 	        case S2C_AUTH_FAIL_CLOSE:{
 		      	logger.error("[:(] Username or password is invalid, please check them and try again."); 
-		      	anoleSubscriberClient.close(); // close the connection and wait for next trial
+		      	anolePublisher.close(); // close the connection and wait for next trial
 		      	ReferenceCountUtil.release(msg);
 			} break;
 		 	case S2C_AUTH_PASS:{ 
 		 		logger.info ("[:)] Login successfully."); 
-		 		anoleSubscriberClient.saveToken(((AuthPassWithTokenMessage)msg).getClientId(), ((AuthPassWithTokenMessage)msg).getToken()); 
+		 		anolePublisher.saveToken(((AuthPassWithTokenMessage)msg).getClientId(), ((AuthPassWithTokenMessage)msg).getToken()); 
 		 		ReferenceCountUtil.release(msg);
 		 	} break;
 		 	case S2C_MATCH_FAIL:{
 		 		logger.error("[:(] Connection is disabled by the server or becasuse of the network problem, automatically connect immediately.");
-		 		anoleSubscriberClient.close();
-		 		TimeUnit.SECONDS.sleep(ClientConfig.RECONNECT_INTERVAL);
-		 		anoleSubscriberClient.connect();
+		 		anolePublisher.close();
+		 		TimeUnit.SECONDS.sleep(StaticClientConfig.RECONNECT_INTERVAL);
+		 		anolePublisher.connect();
 		 	} break;
 	        default:{ 
 	        } break;

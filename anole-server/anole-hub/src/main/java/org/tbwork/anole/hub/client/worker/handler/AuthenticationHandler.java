@@ -17,7 +17,7 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
-import org.tbwork.anole.hub.client.AnoleClient;
+import org.tbwork.anole.hub.client.IAnoleWorkerClient;
 import org.tbwork.anole.loader.core.AnoleLocalConfig; 
 
 public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
@@ -25,7 +25,7 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class); 
 	
 	@Autowired
-	private AnoleClient workerClient; 
+	private IAnoleWorkerClient workerClient; 
 	
 	public AuthenticationHandler(){
 		super(false);

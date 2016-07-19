@@ -6,7 +6,7 @@ import org.tbwork.anole.common.ConfigType;
 
 
 @Data
-public class ConfigChangeDTO {
+public class ConfigModifyDTO {
 
 	private String key;
 	private String origValue;

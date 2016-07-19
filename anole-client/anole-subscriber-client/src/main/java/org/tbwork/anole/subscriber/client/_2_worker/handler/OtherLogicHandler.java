@@ -15,11 +15,11 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
-import org.tbwork.anole.subscriber.client.ConnectionMonitor;
-import org.tbwork.anole.subscriber.client.GlobalConfig;
-import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
+import org.tbwork.anole.subscriber.client._2_worker.ConnectionMonitor;
+import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client._2_worker.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
+import org.tbwork.anole.subscriber.util.GlobalConfig;
 
 public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
@@ -56,12 +56,14 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 	
 	private void processPingAckResponse(PingAckMessage paMsg){
 		int interval = paMsg.getIntervalTime();
-		if(interval > 0 && interval != ClientConfig.PING_INTERVAL){
-			ClientConfig.PING_INTERVAL = interval ;
-			ClientConfig.PING_DELAY = interval;
+		
+		if(interval > 0 && interval != GlobalConfig.PING_INTERVAL){
+			GlobalConfig.PING_INTERVAL = interval ;
+			GlobalConfig.PING_DELAY = interval;
 			lcMonitor.restart();
-			logger.info("Synchronize PING_INTERVAL with the server, new interval is set as {} ms", ClientConfig.PING_INTERVAL);
-		}   
+			logger.info("Synchronize PING_INTERVAL with the server, new interval is set as {} ms", GlobalConfig.PING_INTERVAL);
+		}    
+		anoleSubscriberClient.ackPing();
 	}
  
 	private void processConfigResponse(ReturnConfigMessage rvMsg){ 

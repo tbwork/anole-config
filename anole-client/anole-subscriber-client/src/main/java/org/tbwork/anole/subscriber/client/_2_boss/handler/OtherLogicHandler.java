@@ -15,11 +15,11 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
-import org.tbwork.anole.subscriber.client.ConnectionMonitor;
-import org.tbwork.anole.subscriber.client.GlobalConfig;
-import org.tbwork.anole.subscriber.client.impl.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.client.impl.LongConnectionMonitor;
+import org.tbwork.anole.subscriber.client._2_worker.ConnectionMonitor;
+import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
+import org.tbwork.anole.subscriber.client._2_worker.impl.LongConnectionMonitor;
 import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
+import org.tbwork.anole.subscriber.util.GlobalConfig;
 
 public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
@@ -29,7 +29,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 	
 	static Logger logger = LoggerFactory.getLogger(OtherLogicHandler.class);
 	 
-	private  AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
+	private AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
 	
 	private SubscriberConfigManager cm = SubscriberConfigManager.getInstance();
 	
@@ -40,11 +40,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 			throws Exception { 
 		 MessageType msgType = msg.getType(); 
 		 switch(msgType)
-		 {  
-		 	case S2C_PING_ACK:{ 
-		 		PingAckMessage paMsg = (PingAckMessage) msg;
-		 		processPingAckResponse(paMsg);
-		 	} break;
+		 {   
 		 	case S2C_RETURN_CONFIG:{ 
 		 		ReturnConfigMessage rvMsg = (ReturnConfigMessage) msg;
 		 		processConfigResponse(rvMsg);
@@ -53,16 +49,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 	} break; 
 		 }  
 	}
-	
-	private void processPingAckResponse(PingAckMessage paMsg){
-		int interval = paMsg.getIntervalTime();
-		if(interval > 0 && interval != ClientConfig.PING_INTERVAL){
-			ClientConfig.PING_INTERVAL = interval ;
-			ClientConfig.PING_DELAY = interval;
-			lcMonitor.restart();
-			logger.info("Synchronize PING_INTERVAL with the server, new interval is set as {} ms", ClientConfig.PING_INTERVAL);
-		}   
-	}
+	 
  
 	private void processConfigResponse(ReturnConfigMessage rvMsg){ 
 		String key   = rvMsg.getKey(); 

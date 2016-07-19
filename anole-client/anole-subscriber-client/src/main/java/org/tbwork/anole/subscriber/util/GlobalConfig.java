@@ -1,4 +1,4 @@
-package org.tbwork.anole.subscriber.client._2_worker;
+package org.tbwork.anole.subscriber.util;
 
 public class GlobalConfig {
 
@@ -15,10 +15,11 @@ public class GlobalConfig {
 	
 	public static final int RETRIEVING_CONFIG_TIMEOUT_TIME = 2000; // millisecond
 	
-	public static final int RECONNECT_INTERVAL = 3; //second
-	 
+	public static final int RECONNECT_INTERVAL = 3; //second 
 	
 	public static int PING_INTERVAL = 5000 ; // millisecond
 	
 	public static int PING_DELAY = 5000; // millisecond
+	
+	public static int AUTHENTICATION_TIMEOUT_LIMIT = 5000 ;
 }

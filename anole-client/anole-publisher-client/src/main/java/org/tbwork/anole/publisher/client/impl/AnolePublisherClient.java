@@ -1,25 +1,26 @@
-package org.tbwork.anole.subscriber.client._2_worker.impl;
+package org.tbwork.anole.publisher.client.impl;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;  
+import org.slf4j.LoggerFactory; 
+import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
-import org.tbwork.anole.common.message.c_2_s.C2SMessage;
-import org.tbwork.anole.subscriber.client._2_worker.IAnoleSubscriberClient;
-import org.tbwork.anole.subscriber.client._2_boss.IAnoleAuthenticationClient;
-import org.tbwork.anole.subscriber.client._2_boss.impl.AnoleAuthenticationClient;
-import org.tbwork.anole.subscriber.client._2_worker.ConnectionMonitor; 
-import org.tbwork.anole.subscriber.client._2_worker.handler.ConfigChangeNotifyMessageHandler;
-import org.tbwork.anole.subscriber.client._2_worker.handler.ExceptionHandler;
-import org.tbwork.anole.subscriber.client._2_worker.handler.OtherLogicHandler;
-import org.tbwork.anole.subscriber.core.AnoleConfig;  
-import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
-import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
+import org.tbwork.anole.common.message.c_2_s.C2SMessage; 
+import org.tbwork.anole.publisher.client.AnoleClientConfig;
+import org.tbwork.anole.publisher.client.ConnectionMonitor;
+import org.tbwork.anole.publisher.client.IAnolePublisherClient;
+import org.tbwork.anole.publisher.client.handler.AuthenticationHandler;
+import org.tbwork.anole.publisher.client.handler.ExceptionHandler;
+import org.tbwork.anole.publisher.client.handler.OtherLogicHandler;
+import org.tbwork.anole.publisher.core.AnolePublisher;
+import org.tbwork.anole.publisher.exceptions.AuthenticationNotReadyException;
+import org.tbwork.anole.publisher.exceptions.SocketChannelNotReadyException;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -41,85 +42,92 @@ import com.google.common.base.Preconditions;
  * @author Tommy.Tang
  */ 
 @Data
-public class AnoleSubscriberClient implements IAnoleSubscriberClient{
+public class AnolePublisherClient implements IAnolePublisherClient{
 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private volatile boolean started; 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private volatile boolean connected;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
-	private static final Logger logger = LoggerFactory.getLogger(AnoleSubscriberClient.class);
+	private static final Logger logger = LoggerFactory.getLogger(AnolePublisherClient.class);
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	SocketChannel socketChannel = null;
     @Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-    private static final AnoleSubscriberClient anoleSubscriberClient = new AnoleSubscriberClient();
-
-    private static final ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
+    private static final AnolePublisherClient publisher = new AnolePublisherClient();
+ 
     
-    String ip = null; // assigned by the server
-    int port = 0; // assigned by the server
     int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
+    
+    private ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
+    
+    private Servers servers;
+    
+    /**
+     * Used to detect disconnection
+     */
     private int ping_count = 0;
+    /**
+     * Used to detect disconnection
+     */
     private int MAX_PING_COUNT = 5;
-    private static final IAnoleAuthenticationClient aac = AnoleAuthenticationClient.instance();
     
-    private AnoleSubscriberClient(){}
+    private AnolePublisherClient(){}
     
-    public static AnoleSubscriberClient instance(){
-    	return anoleSubscriberClient;
+    //Properties
+    public static enum ClientProperties{ 
+    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.worker.boss.address", "localhost:54321,localhost:54322"),  
+    	;
+    	private String name;
+    	private String defaultValue;
+    	
+    	private ClientProperties(String name, String defaultValue){
+    		this.name = name;
+    		this.defaultValue = defaultValue;
+    	}
+    	
+    }
+    
+    @Data
+    public static class Servers{ 
+    	private List<String> addresses;  
+    }
+    
+    
+    
+    public static AnolePublisherClient instance(){
+    	return publisher;
     } 
-    
-    public void addPingCount(){
-    	ping_count ++;
-    }
-    
-    public void ackPing(){
-    	ping_count --;
-    }
-    
-    public boolean canPing(){
-    	return ping_count <= MAX_PING_COUNT;
-    }
     
     @Override
 	public void connect() {
-    	
-    	aac.authenticate();
-    	if(ip == null || port ==0 ){
-    		throw new RuntimeException("Authenticate failed.");
-    	}
-    	connectToWorker();
+    	if(!started || !connected) //DCL-1
+  		{
+  			synchronized(AnolePublisherClient.class)
+  			{
+  				if(!started || !connected)//DCL-2
+  				{ 
+  					boolean flag = started; 
+  					executeConnect(); 
+  					try {
+  						TimeUnit.SECONDS.sleep(2);
+  					} catch (InterruptedException e) { 
+  						e.printStackTrace();
+  					} 
+  					if(!flag )
+  						lcMonitor.start();
+  				}
+  			}
+  		} 
     }
 	
     
-    private void connectToWorker(){
-    	if(!started || !connected) //DCL-1
-		{
-			synchronized(AnoleSubscriberClient.class)
-			{
-				if(!started || !connected)//DCL-2
-				{ 
-					boolean flag = started; 
-					executeConnect(AnoleConfig.getProperty("anole.client.remoteAddress", "localhost"), AnoleConfig.getIntProperty("anole.client.remotePort", 54321)); 
-					try {
-						TimeUnit.SECONDS.sleep(AnoleConfig.getIntProperty("anole.client.connect.delay", 2));
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} 
-					if(!flag )
-						lcMonitor.start();
-				}
-			}
-		} 
-    }
     
     @Override
 	public void close(){
 		if(!started) //DCL-1
 		{
-			synchronized(AnoleSubscriberClient.class)
+			synchronized(AnolePublisherClient.class)
 			{
 				if(!started)//DCL-2
 				{
@@ -153,7 +161,7 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
 				tagMessage(msg);
 			return socketChannel.writeAndFlush(msg);
 		}
-		throw new SocketChannelNotReadyException();
+			throw new SocketChannelNotReadyException();
 	}
 	
 	/**
@@ -166,7 +174,35 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
 	    msg.setToken(token);
 	}
 	
-	private void executeConnect(String host, int port)
+	
+	private void executeConnect(){
+  		if(servers == null)
+  			throw new RuntimeException("Boss servers are not ready!");  
+  		for(String serverString : servers.getAddresses()){
+  			if(executeConnect(serverString))
+  				return ;
+  		} 
+  		throw new RuntimeException("No available boss server! Please make sure at least one boss is running and reachable!"); 
+  	}
+  	
+  	/** 
+  	 * @param address in the form of "ip:port"
+  	 */
+  	private boolean executeConnect(String address)
+  	{ 
+  		Preconditions.checkNotNull (address, "address should be null.");
+  		Preconditions.checkArgument(address.contains(":"), "address should be in form of: ip:port.");
+  		String [] ip_port = address.split(":");
+  		boolean result  = executeConnect(ip_port[0], Integer.valueOf(ip_port[1]));
+  		if(result)
+  			logger.info("[:)] Connect to server ({}) successfully!", address);
+  		else
+  			logger.warn("[:(] Connect to server ({}) failed!", address);
+  		return result;
+  	}
+  	
+	
+	private boolean executeConnect(String host, int port)
 	{ 
 		Preconditions.checkNotNull (host  , "host should be null.");
 		Preconditions.checkArgument(port>0, "port should be > 0"  );
@@ -182,8 +218,8 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
                     ch.pipeline().addLast(
                     		new ExceptionHandler(),
                     		new ObjectEncoder(),
-                   		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)),  
-                    		ConfigChangeNotifyMessageHandler.instance(),
+                   		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
+                    		new AuthenticationHandler(),
                     		new OtherLogicHandler()
                     		);
                 }
@@ -195,11 +231,15 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
             	started = true;
             	connected = true;
             	logger.info("[:)] Anole client successfully connected to the remote Anolo hub server with remote host = '{}' and port = {}", host, port);			            	
+            	return true;
             } 
+            else
+            	return false;
         }
         catch (InterruptedException e) {
         	logger.error("[:(] Anole client failed to connect to the remote Anolo hub server with remote host = '{}' and port = ", host, port);
 			e.printStackTrace();
+			return false;
 		} 
 	}
 	
@@ -230,12 +270,24 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
 	}
 
 	@Override
-	public void setWorkerServer(String ip, int port, int clientId, int token) {
+	public void saveToken(int clientId, int token) {
 		 this.clientId = clientId;
 		 this.token = token;
-		 this.ip = ip;
-		 this.port = port;
 	}
+	
+	
+    
+    public void addPingCount(){
+    	ping_count ++;
+    }
+    
+    public void ackPing(){
+    	ping_count --;
+    }
+    
+    public boolean canPing(){
+    	return ping_count <= MAX_PING_COUNT;
+    }
 
 	@Override
 	public void setConnected(boolean connected) {
