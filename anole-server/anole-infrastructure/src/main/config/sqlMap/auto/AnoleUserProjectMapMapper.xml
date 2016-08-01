@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="sqlMap.auto.AnoleUserProjectMapMapper">
+<mapper namespace="org.anole.infrastructure.dao.AnoleUserProjectMapMapper">
   <resultMap id="BaseResultMap" type="org.anole.infrastructure.model.AnoleUserProjectMap">
     <id column="Id" jdbcType="INTEGER" property="id" />
     <result column="Username" jdbcType="VARCHAR" property="username" />
@@ -19,7 +19,7 @@
       SELECT LAST_INSERT_ID()
     </selectKey>
     insert into anole_user_project_map (Username, Project, Env, 
-      "Role", CreateTime, UpdateTime
+      `Role`, CreateTime, UpdateTime
       )
     values (#{username,jdbcType=VARCHAR}, #{project,jdbcType=VARCHAR}, #{env,jdbcType=VARCHAR}, 
       #{role,jdbcType=TINYINT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
@@ -30,18 +30,18 @@
     set Username = #{username,jdbcType=VARCHAR},
       Project = #{project,jdbcType=VARCHAR},
       Env = #{env,jdbcType=VARCHAR},
-      "Role" = #{role,jdbcType=TINYINT},
+      `Role` = #{role,jdbcType=TINYINT},
       CreateTime = #{createTime,jdbcType=TIMESTAMP},
       UpdateTime = #{updateTime,jdbcType=TIMESTAMP}
     where Id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select Id, Username, Project, Env, "Role", CreateTime, UpdateTime
+    select Id, Username, Project, Env, `Role`, CreateTime, UpdateTime
     from anole_user_project_map
     where Id = #{id,jdbcType=INTEGER}
   </select>
   <select id="selectAll" resultMap="BaseResultMap">
-    select Id, Username, Project, Env, "Role", CreateTime, UpdateTime
+    select Id, Username, Project, Env, `Role`, CreateTime, UpdateTime
     from anole_user_project_map
   </select>
 </mapper>

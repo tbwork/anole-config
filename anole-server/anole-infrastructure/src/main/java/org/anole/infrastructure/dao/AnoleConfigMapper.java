@@ -7,7 +7,7 @@ import org.anole.infrastructure.model.AnoleConfigItem;
 import org.apache.ibatis.annotations.Param;
 
 public interface AnoleConfigMapper extends MybatisBaseMapper<AnoleConfig, Integer>{ 
-	
-    //Custom method
+	 
+	//Custom method
     AnoleConfig selectByConfigKey(@Param("key") String key);
 }

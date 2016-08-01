@@ -39,7 +39,7 @@ public interface Cache {
 	/**
 	 * Add or update a new cache item to the local-cache,
 	 * and specify an expire time. For permanent cache
-	 * item, you just need to set its expireTime as -1;
+	 * item, you just need to set its expireTime as 0;
 	 * @param key the cache key
 	 * @param obj the cached item
 	 * @param expireTime the expire time

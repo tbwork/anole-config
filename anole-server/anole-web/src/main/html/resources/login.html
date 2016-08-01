@@ -1,0 +1,51 @@
+<md-dialog class="login_dialog" aria-label="{{self.welcome_login_desc}}"  ng-cloak ng-app="anoleConsoleApp">
+  <form  ng-controller="ProjectSearchController as self">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{self.welcome_login_desc}}</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+      <div class="{{self.login_result_display}}" style="margin-top:10px;margin-left:20px">
+      	<div class="error_text" style="width:300px;">{{self.login_result}}</div>
+      	<div class="error_img" ng-click="hiddenError('login')"><img src="/img/icons/ic_close_24px.svg" /></div>
+      </div>
+      <div class="md-dialog-content"> 
+        <div class="login_item">
+        	<div class="inline label" style="width:100px;">
+        		<label>{{self.text_username_desc}}</label>
+        	</div>
+        	<div class="inline">
+        		<input ng-model="self.text_username"/>
+        	</div>
+        </div>
+        <div  class="login_item">
+        	<div class="inline label" style="width:100px;">
+        		<label>{{self.text_password_desc}}</label>
+        	</div>
+        	<div class="inline">
+        		<input ng-model="self.text_password" type= "password" />
+        	</div>
+        </div>
+        <div  class="login_item" style="height:50px"> 
+        		 <md-button class="md-raised md-primary" ng-click="login($event)" style="margin-left: 62px; width: 200px;" >{{self.login_desc}}</md-button>
+        </div>
+    </md-dialog-content>
+    <!--<md-dialog-actions layout="row">
+      <md-button href="http://en.wikipedia.org/wiki/Mango" target="_blank" md-autofocus>
+        More on Wikipedia
+      </md-button>
+      <span flex></span>
+      <md-button ng-click="answer('not useful')">
+       Not Useful
+      </md-button>
+      <md-button ng-click="answer('useful')">
+        Useful
+      </md-button>
+    </md-dialog-actions>-->
+  </form>
+</md-dialog>

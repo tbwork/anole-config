@@ -1,0 +1,69 @@
+<md-dialog class="config_dialog" aria-label="{{self.config_edit_desc}}"  ng-cloak ng-app="anoleConsoleApp">
+  <form  ng-controller="ProjectSearchController as self">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{self.config_edit_desc}}</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content>
+      <div class="md-dialog-content"> 
+        <div class="config_detail_item">
+        	<div class="inline label" style="width:100px;">
+        		<label>key:</label>
+        	</div>
+        	<div class="inline detail_v">
+        		<input value="{{self.currentConfig.key}}" readonly="readonly"></input>
+        	</div>
+        </div> 
+        <div class="config_detail_item" style="height: 40px">
+        	<div class="inline label" style="width:100px;">
+        		<label style="height: 40px;line-height: 40px;">{{self.text_desc}}:</label>
+        	</div>
+        	<div class="inline detail_v"> 
+        	</div>
+        </div> 
+        <div class="config_detail_item">
+        	<div> 
+        		<textarea class="desc" rows="3" cols="60" ng-model="self.currentConfig.desc">{{self.currentConfig.desc}}</textarea> 
+        	</div>
+        </div>
+        <div class="config_detail_item">
+        	<div class="inline label" style="width:100px;">
+        		<label>{{self.text_env}}:</label>
+        	</div>
+        	<div class="inline detail_v">
+        		<label>{{self.currentConfig.env}}</label>
+        	</div>
+        </div> 
+        <div class="config_detail_item" style="height: 40px">
+        	<div class="inline label" style="width:100px;height: 40px;line-height: 40px;">
+        		<label  style="height: 40px;line-height: 40px;">{{self.text_type}}:</label>
+        	</div> 
+        	<div class="inline detail_v" style="height: 40px;line-height: 40px;">  
+        		<select ng-model="self.currentConfig.type" ng-options="type.value as type.type for type in self.types"> 
+					  </select>
+        	</div> 
+        </div> 
+        <div class="config_detail_item" style="height: 40px">
+        	<div class="inline label" style="width:100px;">
+        		<label style="height: 40px;line-height: 40px;">Value:</label>
+        	</div>
+        	<div class="inline detail_v"> 
+        	  
+        	</div>
+        </div>  
+        <div class="config_detail_item">
+        	<div> 
+        		<textarea class="desc" rows="5" cols="60" ng-model="self.currentConfig.value">{{self.currentConfig.value}}</textarea> 
+        	</div>
+        </div>
+        <div  class="login_item" style="height:50px">
+        		 <md-button class="md-raised md-primary" style="float: right; width: 200px;" >{{self.text_update_desc}}</md-button>
+        </div>
+    </md-dialog-content>
+  </form>
+</md-dialog>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html  ng-app="anoleConsoleApp" >
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="css/app.css"/> 
+<link rel="stylesheet" href="css/angular-material.min.css" />   
+<link rel="stylesheet" href="css/index.css" />  
+<script type="text/javascript" src="js/angular.js"></script> 
+<script type="text/javascript" src="js/index.js" ></script> 
+<script type="text/javascript" src="js/angular-animate.min.js" ></script>
+<script type="text/javascript" src="js/angular-aria.min.js" ></script>
+<script type="text/javascript" src="js/angular-messages.min.js" ></script>
+<script type="text/javascript" src="js/angular-material.min.js" ></script>
+</head>
+<body ng-controller="ProjectSearchController as self">
+ 
+<div class="nav-bar"  >
+	  <div class= "anole-name-container"> 
+	  	<div ng-if="self.lan_index == 0" class="anole-name"><a style="color: #333333;"  href="index.html">{{self.anole_name}}</a></div>  
+	  	<div ng-if="self.lan_index == 1" class="anole-name-en"><a style="color: #333333;"  href="index.html">{{self.anole_name}}</a></div>  
+	  </div> 
+       <!--
+       	作者：tttbbb222000@163.com
+       	时间：2016-07-06
+       	描述：按照项目搜索
+       -->
+      <div class="anole-project-search-box-container" > 
+      	<div class="anole-project-search-box">
+        	 <md-content  layout="column">
+			    <form ng-submit="$event.preventDefault()"> 
+			      <md-autocomplete
+			          ng-disabled="self.isDisabled"
+			          md-no-cache="self.noCache"
+			          md-selected-item="self.selectedProjectItem_For_Index_Page"
+			          md-search-text-change="self.searchTextChange_Project(self.searchText)"
+			          md-search-text="self.searchText"
+			          md-selected-item-change="self.selectedItemChange_Project(item)"
+			          md-items="item in self.querySearch_Project(self.searchText)"
+			          md-item-text="item.projectName"
+			          md-min-length="0"
+			          placeholder="{{self.project_searcher_input_placeholder}}"
+			          md-menu-class="autocomplete-custom-template">
+			        <md-item-template>
+			          <span class="item-title" style="width:100px;display: inline-block;">
+			            <!--<md-icon md-svg-icon="img/icons/octicon-repo.svg"></md-icon>-->
+			            <span> {{item.productLine}} </span>
+			          </span>
+			          <span class="item-metadata" style="display: inline-block;">
+			            <span class="item-metastat">
+			              - <strong>{{item.projectName}}</strong>
+			            </span> 
+			          </span>
+			        </md-item-template>
+			      </md-autocomplete>
+			    </form>
+			  </md-content>
+		</div>
+      </div>   
+      <div class="nav-right-container">
+      	<div class="nav-right">
+      		<div class="nav-right-item " >
+      			<div ng-show="self.loginStatus">
+      				<div style="display:inline-block;">{{self.hello_desc}}{{self.cur_username}}</div>
+      				<div style="cursor:pointer;display:inline-block;" ng-click="logout($event)">, {{self.logout_desc}}</div>
+      			</div>
+      			<div ng-show="!self.loginStatus" class="button">
+      				<div ng-click="showAdvanced($event)">{{self.login_desc}}</div>
+      			</div>
+      		</div>
+      		<div class="nav-right-item " style="padding-left: 10px;padding-right: 10px;"> | </div>
+      		<div class="nav-right-item button" ng-click="showTabDialog($event)">{{self.admin_button_desc}}</div>
+      		<div class="nav-right-item  language button" style="float:right;margin-right: 10px;">
+      			<div ng-click="self.changeLanguage()">{{self.nextPageLanguage}}</div> 
+      		</div>
+      	</div> 
+      </div>  
+</div> 
+
+
+<div class="body">
+	<div class="body-item" style="height:100px"></div>
+	
+    <!--
+    	作者：tttbbb222000@163.com
+    	时间：2016-07-06
+    	描述：全局键值搜索框
+    -->
+	<div class="body-item" ng-if="self.currentProject == null && self.configListResult[0] == null" style="margin-top: 250px;"> 
+		<div style="margin:auto;width:530px;display: block;">
+			<div class ="outsearch" style="width:120px;display: inline-block;border:1px solid #333333; border-radius: 4px;height: 37px;">      
+				        <md-select ng-model="self.outsearch_env" style="margin:0px;width:120px;height: 37px;" placeholder="{{self.env_desc}}">
+				          <md-option ng-repeat="env in self.envs" value="{{env}}">
+				            {{env}}
+				          </md-option>
+				        </md-select>  
+			</div> 
+			<div style="width:400px;display: inline-block;">
+					<input style="width: 385px" class="outsearch" ng-model="self.outsearch_input" ng-enter= "self.searchByKeyAndEnv()" placeholder="{{self.out_search_placeholder_desc}}"/> 
+			</div>
+		</div>
+	</div>
+	
+	<div class="body-item" ng-if="self.currentProject == null && self.configListResult[0] != null" style="margin-bottom: 20px;"> 
+		<div style="margin:auto;width:530px;display: block;">
+			<div class ="outsearch" style="width:120px;display: inline-block;border:1px solid #333333; border-radius: 4px;height: 37px;">      
+				        <md-select ng-model="self.outsearch_env" style="margin:0px;width:120px;height: 37px;" placeholder="{{self.env_desc}}">
+				          <md-option ng-repeat="env in self.envs" value="{{env}}">
+				            {{env}}
+				          </md-option>
+				        </md-select>  
+			</div> 
+			<div style="width:400px;display: inline-block;">
+					<input class="outsearch" ng-model="self.outsearch_input" ng-enter= "self.searchByKeyAndEnv()" placeholder="{{self.out_search_placeholder_desc}}"/> 
+			</div>
+		</div>
+	</div>
+	
+	
+	 <!--
+    	作者：tttbbb222000@163.com
+    	时间：2016-07-06
+    	描述：项目信息
+    -->
+	<div class="body-item" ng-if="self.currentProject != null">
+	   <div class="title">{{self.product_line_desc}}</div>
+	   <div >: {{self.currentProject.productLine}}</div>
+	</div>
+	<div class="body-item" ng-if="self.currentProject != null">
+	   <div class="title">{{self.project_name_desc}}</div>
+	   <div style="font-weight: bolder;">: {{self.currentProject.projectName}}</div>
+	</div>
+	<div class="body-item" ng-if="self.currentProject != null">
+	   <div class="title">{{self.project_author_desc}}</div>
+	   <div>: {{self.currentProject.owner}}</div>
+	   <div style="float: right; cursor: pointer;" ng-click="showConfigAddWindow($event)"> 
+	   		<img src = "img/add.png" title="{{self.create_new_config_desc}}" style="width: 20px;height: 20px;margin-right: 5px;"/>
+	   </div>
+	</div>
+	<hr ng-if="self.currentProject != null" width="1000px"/>
+	 <!--
+    	作者：tttbbb222000@163.com
+    	时间：2016-07-06
+    	描述：环境选择, 项目内全文搜索框
+    -->
+	<div class="body-item" ng-if="self.currentProject != null" style="height: 40px;margin-top:20px;margin-bottom: 10px ;"> 
+	    <div style="height: 41px; margin-left: -5px;"> 
+		     <div ng-repeat="env in self.envs" class="env-item env-item-{{env == self.currentEnv}}" ng-click="self.queryCurrentProjectConfigsByEnv(env)">
+		    	{{env}}
+		     </div>
+	    </div>   
+	    <div style="float:right"> 
+		     	<input class="insearch" ng-model="self.insearch_input" placeholder="{{self.in_search_placeholder_desc}}"/> 
+	    </div> 
+	</div> 
+	
+	 <!--
+    	作者：tttbbb222000@163.com
+    	时间：2016-07-06
+    	描述：搜索结果展示
+    -->
+	<div class="body-item" style="border:1px solid #ddd;border-left:none;border-right:none;" ng-if="self.configListResult[0] != null"> 
+	    <div class="result-item" style="width:50px">{{self.result_title_desc[0]}}</div>  
+	    <div class="result-item" style="width:200px">{{self.result_title_desc[1]}}</div>  
+        <div class="result-item" style="width:100px">{{self.result_title_desc[2]}}</div>  
+        <div class="result-item" style="width:200px">{{self.result_title_desc[3]}}</div>  
+        <div class="result-item" style="width:200px">{{self.result_title_desc[4]}}</div>  
+        <div class="result-item" style="width:100px">{{self.result_title_desc[5]}}</div>  
+        <div class="result-item" style="width:114px">{{self.result_title_desc[6]}}</div> 
+	</div>
+	
+	<div ng-repeat = "result in self.configListResult | filter: self.insearch_input" class="body-item" style="border-bottom:1px solid #ddd; "> 
+		<div class="result-item" style="width:50px">{{$index+1}}</div>  
+	    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key.length < 40 ? result.key : (result.key.substr(0,37)+"...") }}</div>  
+        <div class="result-item" style="width:100px">{{result.env}}</div>  
+        <div class="result-item overlay" style="width:200px;" title="{{result.value}}">{{result.value.length < 40 ? result.value : (result.value.substr(0,37)+"...") }}</div>  
+        <div class="result-item overlay" style="width:200px;" title="{{result.desc}}">{{result.desc}}</div>  
+        <div class="result-item" style="width:100px">{{result.lastModifier}}</div>  
+        <div class="result-item" style="width:114px"> 
+        	<div>
+        		<img src = "img/view.png" title="{{self.view_config_desc}}" ng-click="showConfigView(result,$event)" class="icon_for_list_item"/>
+        	</div>
+        	<div>
+        		<img src = "img/modify.png" title="{{self.modify_config_desc}}" ng-click="showConfigEditWindow(result,$event)" class="icon_for_list_item"/>
+        	</div>
+        	<div>
+        		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result,$event)"  class="icon_for_list_item"/>
+        	</div>
+        </div> 
+	</div> 
+</div> 
+<div class="tail">
+   ©2016 tangbo@lechebang.com
+</div> 
+
+
+</body>
+</html>

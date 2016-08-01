@@ -8,7 +8,7 @@ package org.tbwork.anole.loader.core;
  * <p>Usage example:
  *    	
  * <pre>
- *    AnoleLoader anoleLoader = new ClasspathAnoleLoader();
+ *    AnoleLoader anoleLoader = new AnoleClasspathLoader();
  *    anoleLoader.load(
  *       file1,
  *       file2

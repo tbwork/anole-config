@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.anole.infrastructure.model.AnoleUser;
 
-public interface AnoleUserMapper extends MybatisBaseMapper<AnoleUser, Integer> { 
-	
+public interface AnoleUserMapper extends MybatisBaseMapper<AnoleUser, Integer> {  
+
+	AnoleUser selectByUsername(String username);
 }

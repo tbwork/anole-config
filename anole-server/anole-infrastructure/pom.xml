@@ -18,6 +18,7 @@
     <mybatis.version>3.3.1</mybatis.version> 
 	<mybatis.spring.version>1.2.2</mybatis.spring.version>
 	<dbcp.version>1.4</dbcp.version>
+	<aspectjweaver.version>1.8.9</aspectjweaver.version>
   </properties>
   <dependencies>
     <dependency>
@@ -50,6 +51,11 @@
 	    <groupId>org.springframework</groupId>
 	    <artifactId>spring-jdbc</artifactId>
 	    <version>${org.springframework.version}</version>
+	</dependency>
+	<dependency>
+	    <groupId>org.aspectj</groupId>
+	    <artifactId>aspectjweaver</artifactId>
+	    <version>1.8.9</version>
 	</dependency>
   </dependencies>
 </project>

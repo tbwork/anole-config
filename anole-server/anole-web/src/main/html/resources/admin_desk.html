@@ -1,0 +1,263 @@
+<md-dialog class="admin_desk" aria-label="{{self.admin_desk_desc}}" ng-app="anoleConsoleApp">
+  <form ng-controller="ProjectSearchController as self">
+    <md-toolbar>
+      <div class="md-toolbar-tools">
+        <h2>{{self.admin_button_desc}}</h2>
+        <span flex></span>
+        <md-button class="md-icon-button" ng-click="cancel()">
+          <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+    <md-dialog-content style="max-width:800px;max-height:810px; ">
+      <md-tabs md-dynamic-height md-border-bottom>
+      	<md-tab ng-if="!self.env_initialized" label="{{self.initialize_envs_tab}}">
+          <md-content class="md-padding">
+            <h1 class="md-display-2">{{self.initialize_envs_tab_desc}}</h1>
+            <div class="{{self.initialize_envs_result_display}}">
+            	<div class="error_text">{{self.initialize_envs_result}}</div>
+            	<div class="error_img" ng-click="hiddenError('initialize_envs')"><img src="/img/icons/ic_close_24px.svg" /></div>
+            </div>
+          	<div class="add_user">  
+						<div class="add_user_item">
+							<div class="label"><label>{{self.text_envs_desc}}</label></div>
+							<div class="input" style="width:70%;">
+								<input class="add_user" ng-model="self.text_envs" style="width:380px;" placeholder="{{self.text_envs_placeholder_desc}}"/>
+							</div>
+						</div> 
+						<div class="add_user_item">
+							  <md-button class="md-raised md-primary" ng-click="initializeEnvs($event)" style="margin-left: 177px; width: 200px; margin-top:20px">{{self.text_add_desc}}</md-button>
+						</div>
+			</div>
+		  </md-content>
+        </md-tab> 
+        <md-tab ng-if="self.env_initialized" label="{{self.add_new_project}}">
+          <md-content class="md-padding">
+            <h1 class="md-display-2">{{self.add_new_project_desc}}</h1>
+            <div class="{{self.add_project_result_display}}">
+            	<div class="error_text">{{self.add_project_result}}</div>
+            	<div class="error_img" ng-click="hiddenError('add_project')"><img src="/img/icons/ic_close_24px.svg" /></div>
+            </div>
+			<div class="add_project"> 
+						<div class="add_project_item">
+							<div class="label">
+								<label style="">{{self.text_product_line}}</label>
+							</div>
+							<div class="input ac_input">
+								<md-content  layout="column">
+							    <form ng-submit="$event.preventDefault()"> 
+							      <md-autocomplete
+							          ng-disabled="self.isDisabled"
+							          md-no-cache="self.noCache"
+							          md-selected-item="self.selectedPrdLineItem_For_Project_Page"
+							          md-search-text-change="self.searchTextChange_PrdLine(self.text_prd_line)"
+							          md-search-text="self.text_prd_line"
+							          md-selected-item-change="self.selectedItemChange_PrdLine(item)"
+							          md-items="item in self.querySearch_PrdLine(self.text_prd_line)"
+							          md-item-text="item"
+							          md-min-length="0"
+							          placeholder="{{self.product_line_searcher_input_placeholder}}"
+							          md-menu-class="autocomplete-custom-template">
+							        <md-item-template>
+							          <span class="item-metadata" style="display: inline-block;">
+							            <span class="item-metastat">
+							              <strong>{{item}}</strong>
+							            </span> 
+							          </span>
+							        </md-item-template>
+							      </md-autocomplete>
+							    </form>
+							  </md-content>
+							</div>
+							<div  style="display: inline-block;color:red; line-height: 42px;">
+								<label style="">{{self.new_prd_line_desc}}</label>
+							</div>
+						</div>
+						<div class="add_project_item">
+							<div class="label">
+								<label style="">{{self.project_name_desc}}</label>
+							</div>
+							<div class="input">
+								<input ng-model="self.text_project_name" placeholder="{{self.project_name_desc}} "/>
+							</div>
+						</div> 
+						<div class="add_project_item">
+							  <md-button class="md-raised md-primary" ng-click="addProject($event)"  style="margin-left: 202px; width: 200px; margin-top:30px" >{{self.text_add_desc}}</md-button>
+						</div>  
+			</div>
+          </md-content>
+        </md-tab>
+        <md-tab label="{{self.add_new_user}}">
+          <md-content class="md-padding">
+            <h1 class="md-display-2">{{self.add_new_user_desc}}</h1>
+            <div class="{{self.create_user_result_display}}">
+            	<div class="error_text">{{self.create_user_result}}</div>
+            	<div class="error_img" ng-click="hiddenError('create_user')"><img src="/img/icons/ic_close_24px.svg" /></div>
+            </div>
+          	<div class="add_user"> 
+		            <div class="add_user_item">
+						<div class="label"><label>{{self.text_username_desc}}</label></div>
+						<div class="input">
+							<input class="add_user" ng-model="self.text_username" placeholder="{{self.text_username_desc}}"/>
+						</div>
+					</div>
+					<div class="add_user_item">
+						<div class="label"><label>{{self.text_password_desc}}</label></div>
+						<div class="input">
+							<input class="add_user" ng-model="self.text_password" placeholder="{{self.text_password_desc}}"/>
+						</div>
+					</div> 
+					<div class="add_user_item">
+						  <md-button class="md-raised md-primary" ng-click="createUser($event)" style="margin-left: 177px; width: 200px; margin-top:20px">{{self.text_add_desc}}</md-button>
+					</div>
+			</div>
+  		  </md-content>
+        </md-tab> 
+        <md-tab ng-if="self.env_initialized"  label="{{self.power_control}}">
+          <md-content class="md-padding">
+            <h1 class="md-display-2">{{self.power_control_desc}}</h1>
+            <div class="{{self.change_permission_result_display}}">
+            	<div class="error_text">{{self.change_permission_result}}</div>
+            	<div class="error_img" ng-click="hiddenError('change_permission')"><img src="/img/icons/ic_close_24px.svg" /></div>
+            </div>
+       		<div class="auth_manage"> 
+							<div class="auth_manage_item">
+								<div class="label"><label>{{self.text_username_desc}}</label></div>
+								<div class="input">
+									 <md-content  layout="column">
+								    <form ng-submit="$event.preventDefault()"> 
+								      <md-autocomplete
+								          ng-disabled="self.isDisabled"
+								          md-no-cache="self.noCache"
+								          md-selected-item="self.selectedUserItem_For_Auth_Page"
+								          md-search-text-change="self.searchTextChange_User(self.user_search_text)"
+								          md-search-text="self.user_search_text"
+								          md-selected-item-change="self.selectedItemChange_User(item)"
+								          md-items="item in self.querySearch_User(self.user_search_text)"
+								          md-item-text="item"
+								          md-min-length="0"
+								          placeholder="{{self.user_searcher_input_placeholder}}"
+								          md-menu-class="autocomplete-custom-template">
+								        <md-item-template>
+								          <span class="item-metadata" style="display: inline-block;">
+								            <span class="item-metastat">
+								              <strong>{{item}}</strong>
+								            </span> 
+								          </span>
+								        </md-item-template>
+								      </md-autocomplete>
+								    </form>
+								  </md-content>
+								</div>
+							</div>
+							<div class="auth_manage_item">
+								<div class="label"><label>{{self.project_name_desc}}</label></div>
+								<div class="input">
+									<md-content  layout="column">
+								    <form ng-submit="$event.preventDefault()"> 
+								      <md-autocomplete
+								          ng-disabled="self.isDisabled"
+								          md-no-cache="self.noCache"
+								          md-selected-item="self.selectedProjectItem_For_Auth_Page"
+								          md-search-text-change="self.searchTextChange_Project(self.project_search_text)"
+								          md-search-text="self.project_search_text"
+								          md-selected-item-change="self.selectedItemChange_Project(item)"
+								          md-items="item in self.querySearch_Project(self.project_search_text)"
+								          md-item-text="item.projectName"
+								          md-min-length="0"
+								          placeholder="{{self.project_searcher_input_placeholder}}"
+								          md-menu-class="autocomplete-custom-template">
+								        <md-item-template>
+								          <span class="item-title" style="width:100px;display: inline-block;">
+								            <!--<md-icon md-svg-icon="img/icons/octicon-repo.svg"></md-icon>-->
+								            <span> {{item.productLine}} </span>
+								          </span>
+								          <span class="item-metadata" style="display: inline-block;">
+								            <span class="item-metastat">
+								              - <strong>{{item.projectName}}</strong>
+								            </span> 
+								          </span>
+								        </md-item-template>
+								      </md-autocomplete>
+								    </form>
+								  </md-content>
+								</div>
+							</div>
+							<div class="auth_manage_item">
+								<div class="label"><label>{{self.env_desc}}</label></div>
+								<div class="no_border_input" >
+										 <select ng-model="self.grant_env_name" ng-options="env for env in self.envs">
+										    <option value="">-- NONE --</option>
+										 </select>
+								</div>
+							</div> 
+							<div class="auth_manage_item">
+								<div class="label"><label>{{self.text_power}}</label></div>
+								<div class="no_border_input">
+										 <select ng-model="self.grant_role" ng-options="role for role in self.roles">
+										    <option value="">-- NONE --</option>
+										 </select>
+								</div>
+							</div> 
+							<div class="auth_manage_item">
+								  <md-button class="md-raised md-primary" ng-click="assignPermission($event)" style="margin-left: 342px; width: 200px; margin-top:0px">{{self.text_update_desc}}</md-button>
+							</div>
+			</div> 
+    	  </md-content>
+        </md-tab> 
+        <md-tab label="{{self.modify_password}}">
+          <md-content class="md-padding">
+            <h1 class="md-display-2">{{self.modify_password_desc}}</h1>
+            <div class="{{self.modify_password_result_display}}">
+            	<div class="error_text">{{self.modify_password_result}}</div>
+            	<div class="error_img" ng-click="hiddenError('modify_password')"><img src="/img/icons/ic_close_24px.svg" /></div>
+            </div>
+          	<div class="add_user"> 
+									<div class="add_user_item">
+										<div class="label"><label>{{self.text_username_desc}}</label></div>
+										<div class="input" style="width:215px;border:1px solid #888;border-radius:5px;"">
+											<!-- <input class="add_user" ng-model="self.text_username_for_modify_password" placeholder="{{self.text_username_desc}}"/> -->
+											
+											  <md-content  layout="column">
+											    <form ng-submit="$event.preventDefault()"> 
+											      <md-autocomplete
+											          ng-disabled="self.isDisabled"
+											          md-no-cache="self.noCache"
+											          md-selected-item="self.selectedUserItem_For_Modify_Password_Page"
+											          md-search-text-change="self.searchTextChange_User(self.text_username_for_modify_password)"
+											          md-search-text="self.text_username_for_modify_password"
+											          md-selected-item-change="self.selectedItemChange_User(item)"
+											          md-items="item in self.querySearch_User(self.text_username_for_modify_password)"
+											          md-item-text="item"
+											          md-min-length="0"
+											          placeholder="{{self.user_searcher_input_placeholder}}"
+											          md-menu-class="autocomplete-custom-template">
+											        <md-item-template>
+											          <span class="item-metadata" style="display: inline-block;">
+											            <span class="item-metastat">
+											              <strong>{{item}}</strong>
+											            </span> 
+											          </span>
+											        </md-item-template>
+											      </md-autocomplete>
+											    </form>
+											  </md-content>
+											
+										</div>
+									</div>
+									<div class="add_user_item">
+										<div class="label"><label>{{self.text_password_desc}}</label></div>
+										<div class="input">
+											<input class="add_user" ng-model="self.text_password_for_modify_password" placeholder="{{self.text_password_desc}}"/>
+										</div>
+									</div> 
+									<div class="add_user_item">
+										  <md-button class="md-raised md-primary" ng-click="modifyPassword($event)" style="margin-left: 177px; width: 200px; margin-top:20px">{{self.text_update_desc}}</md-button>
+									</div>
+						</div>
+    			</md-content>
+        </md-tab> 
+      </md-tabs>
+    </md-dialog-content>
+  </form>
+</md-dialog>

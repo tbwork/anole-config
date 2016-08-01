@@ -43,32 +43,31 @@
     </bean>
 	
 	
-	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx
+	<!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->  
     <bean id="transactionManager"  
         class="org.springframework.jdbc.datasource.DataSourceTransactionManager">  
         <property name="dataSource" ref="dataSource" />  
-    </bean>   -->  
+    </bean>  
     
-    <!-- 可通过注解控制事务 
-    <tx:annotation-driven />  -->  
+    <!-- 可通过注解控制事务  -->  
+    <tx:annotation-driven /> 
 	
-	<!-- 事务 
+	<!-- 事务  -->
 	<tx:advice id="txAdvice" transaction-manager="transactionManager">
 	    <tx:attributes>
 	        <tx:method name="*" propagation="REQUIRED" />
 	    </tx:attributes>
-	</tx:advice> -->
+	</tx:advice>
 	
-	<!-- 为所有DAO方法添加事务操作-->
-	 <!--
+	<!-- 为所有DAO方法添加事务操作--> 
 	<aop:config>
-	     <aop:pointcut expression="execution(* com.jgjq.huatuo.infrastructure.dal.dao.*DAO.*(..))" id="allDaoMethod"/>
-	    <aop:advisor advice-ref="txAdvice" pointcut-ref="allDaoMethod"/>
+	     <aop:pointcut expression="execution(* org.anole.infrastructure.dao.*Mapper.*(..))" id="allDaoMethod"/>
+	     <aop:advisor advice-ref="txAdvice" pointcut-ref="allDaoMethod"/>
 	</aop:config>
-	-->
+	
 	 
-	<!-- 使用Spring 非检查型数据访问异常 
- 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />-->
+	<!-- 使用Spring 非检查型数据访问异常 -->
+ 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
  
 
 </beans> 
