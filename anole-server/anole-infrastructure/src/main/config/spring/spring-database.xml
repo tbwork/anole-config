@@ -33,7 +33,7 @@
 	<bean id="sessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">  
        <property name="dataSource" ref="dataSource" />  
        <property name="configLocation" value="classpath:sqlMap/sqlmap-main.xml"/>  
-       <property name="typeAliasesPackage" value="org.anole.infrastructure.model" />  
+       <property name="typeAliasesPackage" value="org.anole.infrastructure.model" />   
     </bean>   
     
 	<!-- 扫描Mapper，会对扫描到的DAO接口自动生成 小写开头的同名 Bean -->
@@ -63,11 +63,10 @@
 	<aop:config>
 	     <aop:pointcut expression="execution(* org.anole.infrastructure.dao.*Mapper.*(..))" id="allDaoMethod"/>
 	     <aop:advisor advice-ref="txAdvice" pointcut-ref="allDaoMethod"/>
-	</aop:config>
-	
+	</aop:config> 
 	 
-	<!-- 使用Spring 非检查型数据访问异常 -->
- 	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
- 
+	<!-- 使用Spring 非检查型数据访问异常
+ 	<bean id="persistenceExceptionTranslationPostProcessor" class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor" />
+     -->
 
 </beans> 

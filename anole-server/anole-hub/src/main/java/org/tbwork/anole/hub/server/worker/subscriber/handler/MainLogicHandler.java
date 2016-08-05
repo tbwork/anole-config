@@ -24,7 +24,7 @@ import org.tbwork.anole.hub.server.lccmanager.model.requests.UnregisterRequest;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 
 import io.netty.channel.ChannelHandler.Sharable;
-@Component
+@Component("w4sMainLogicHandler")
 @Sharable
 public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 

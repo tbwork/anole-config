@@ -16,7 +16,7 @@ import io.netty.channel.ChannelHandler.Sharable;
  * Deal with all exceptions.
  * @author tommy.tang
  */
-@Component
+@Component("w4sExceptionHandler")
 @Sharable
 public class ExceptionHandler extends ChannelHandlerAdapter {
 

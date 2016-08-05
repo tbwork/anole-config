@@ -16,7 +16,7 @@ import io.netty.channel.ChannelHandler.Sharable;
  * Deal with all exceptions.
  * @author tommy.tang
  */
-@Component
+@Component("b4wExceptionHandler")
 @Sharable
 public class ExceptionHandler extends ChannelHandlerAdapter {
 
@@ -25,7 +25,7 @@ public class ExceptionHandler extends ChannelHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) { 
     	if(cause instanceof IOException) {
-    		logger.warn("The Anole client (address = {}) disconnected initiatively! ", ctx.channel().remoteAddress());
+    		logger.warn("The connection with worker (address = {}) disconnected initiatively! ", ctx.channel().remoteAddress());
     	}
     	else {
     		cause.printStackTrace();

@@ -27,7 +27,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler; 
 import io.netty.channel.ChannelHandler.Sharable;
 
-@Component
+@Component("b4sAuthenticationHandler")
 @Sharable
 public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessage> {
  

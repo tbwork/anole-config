@@ -85,9 +85,9 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 	}
 	
 	@Override
-	public void promisePingAndScavenge(){ 
+	public void promisePingAndScavenge(String clientName){ 
 		synchronized(lcMap){
-				logger.info("[:)] Start to add ping promise and sweep bad clients."); 
+				logger.debug("[:)] Start to add ping promise and sweep bad {} clients.", clientName); 
 				Set<Entry<Integer,LongConnectionClient>> entrySet = lcMap.entrySet();
 				int totalCnt = entrySet.size();
 				int badCnt = 0;
@@ -101,7 +101,7 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 					else
 						item.getValue().addPingPromise(); 
 				} 
-				logger.info("[:)] Adding ping promise and sweep bad clients done successfully! Scavenger report: total count of clients:{}, count of alive clients:{}, count of bad clients:{}", totalCnt, totalCnt-badCnt, badCnt);
+				logger.debug("[:)] Adding ping promise and sweep bad {} clients done successfully! Scavenger report: total count of clients:{}, count of alive clients:{}, count of bad clients:{}", clientName, totalCnt, totalCnt-badCnt, badCnt);
 		} 
 	}
 	

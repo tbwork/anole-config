@@ -36,7 +36,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 
-@Component
+@Component("w4sAuthenticationHandler")
 @Sharable
 public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessage> {
 

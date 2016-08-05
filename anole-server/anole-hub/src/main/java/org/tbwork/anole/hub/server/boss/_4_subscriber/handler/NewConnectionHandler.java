@@ -10,7 +10,7 @@ import org.tbwork.anole.hub.server.util.ChannelHelper;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelHandler.Sharable;
-@Component
+@Component("b4sNewConnectionHandler")
 @Sharable
 public class NewConnectionHandler extends ChannelHandlerAdapter {
 
@@ -23,7 +23,6 @@ public class NewConnectionHandler extends ChannelHandlerAdapter {
         AuthenticationFirstMessage afMsg = new AuthenticationFirstMessage();
         ChannelHelper.sendMessageSync(ctx, afMsg); 
     }
-    
     
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {

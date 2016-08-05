@@ -1,14 +1,16 @@
 package org.tbwork.anole.hub;
 
 import java.util.concurrent.TimeUnit;
-
-import org.anole.infrastructure.dao.AnoleConfigItemMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.tbwork.anole.hub.repository.ConfigRepository;
+import org.tbwork.anole.hub.server.boss._4_publisher.BossServer4PublisherStarter;
+import org.tbwork.anole.hub.server.boss._4_subscriber.BossServer4SubscriberStarter; 
+import org.tbwork.anole.hub.server.boss._4_worker.BossServer4WorkerStarter;
 import org.tbwork.anole.hub.server.worker.subscriber.AnoleSubscriberManagerWorkerServer;
+import org.tbwork.anole.hub.server.worker.subscriber.WorkerServer4SubscriberStarter;
 import org.tbwork.anole.loader.core.AnoleLoader;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
@@ -18,27 +20,40 @@ import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
  */ 
 public class ServerStarter
 {  
-	private final static Logger logger = LoggerFactory.getLogger(ServerStarter.class);
-	
+	private final static Logger logger = LoggerFactory.getLogger(ServerStarter.class); 
     @SuppressWarnings("resource")
 	public static void main( String[] args ) throws InterruptedException
-    { 
-    	logger.info("[:)] Anole server is starting...");
+    {  
     	AnoleLoader al = new AnoleClasspathLoader();
-    	al.load();  
-    	
+    	al.load();   
     	ApplicationContext context = new ClassPathXmlApplicationContext(
         		"spring/spring-context.xml",
         		"classpath*:spring/spring-database.xml"
         		);
-        
-        AnoleSubscriberManagerWorkerServer apServer = (AnoleSubscriberManagerWorkerServer) context.getBean("anolePushServer");
-        if(apServer!=null)
-        {
-        	apServer.start(AnoleLocalConfig.getIntProperty("anole.server.push.port", 54321)); 
-        }   
-        logger.info("[:)] Anole server started successfully.");
-        TimeUnit.SECONDS.sleep(10);
-        apServer.close();
+    	
+    	WorkerServer4SubscriberStarter workerServer4SubscriberStarter = (WorkerServer4SubscriberStarter) context.getBean("workerServer4SubscriberStarter");
+    	BossServer4WorkerStarter bossServer4WorkerStarter = (BossServer4WorkerStarter) context.getBean("bossServer4WorkerStarter");
+    	BossServer4SubscriberStarter bossServer4SubscriberStarter = (BossServer4SubscriberStarter) context.getBean("bossServer4SubscriberStarter");
+    	BossServer4PublisherStarter bossServer4PublisherStarter = (BossServer4PublisherStarter) context.getBean("bossServer4PublisherStarter");
+ 
+    	String serverName =  AnoleLocalConfig.getProperty("serverName");
+        if(serverName == null || serverName.isEmpty())
+        	serverName = AnoleLocalConfig.getProperty("anole.server.type");
+        if(serverName == null || serverName.isEmpty()){
+        	serverName = "worker";
+        	logger.warn("Could not find any specified server name. 'worker' will be used.");
+        }
+        if(serverName.equals("boss")){
+        	logger.info("[:)] Anole boss server is starting...");
+        	bossServer4WorkerStarter.run();
+        	bossServer4SubscriberStarter.run();
+        	bossServer4PublisherStarter.run();
+        	logger.info("[:)] Anole boss server started!!!");
+        }
+        else{ //worker
+        	logger.info("[:)] Anole worker server is starting...");
+        	workerServer4SubscriberStarter.run();
+        	logger.info("[:)] Anole worker server started!!!");
+        } 
     }
 }

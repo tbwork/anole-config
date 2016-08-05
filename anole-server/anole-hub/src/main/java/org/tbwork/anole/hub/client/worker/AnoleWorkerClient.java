@@ -57,7 +57,7 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
 	int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
 	
-    private Servers servers;
+    private Servers servers = new Servers();
     
     /**
      * Used to detect disconnection

@@ -1,4 +1,1 @@
 env=all
-anole.server.type = boss
-n:anole.server.push.port=54321
-n:anole.server.receive.port=54321

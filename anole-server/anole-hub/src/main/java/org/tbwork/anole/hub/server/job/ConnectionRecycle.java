@@ -22,9 +22,9 @@ public class ConnectionRecycle {
 	
 	@Scheduled(fixedDelay = StaticConfiguration.PROMISE_PING_INTERVAL)
 	public void run(){
-		scm.promisePingAndScavenge();
-		pcm.promisePingAndScavenge();
-		wcm.promisePingAndScavenge();
+		scm.promisePingAndScavenge("subscriber");
+		pcm.promisePingAndScavenge("publisher");
+		wcm.promisePingAndScavenge("worker");
 	}
 	
 }

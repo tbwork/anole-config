@@ -11,12 +11,12 @@
      </resultMap> 
   
   <select id="selectConfigsByProjectAndEnv" parameterType="map" resultMap="BaseResultMap">
-    select a.`Key`, a.`Type`, b.`Value`, a.Description, b.EnvName, b.LastOperator
+	select a.`Key`, a.`Type`, b.`Value`, a.Description, b.EnvName, b.LastOperator
 	From anole_config as a 
 	left join anole_config_item as b 
-	on a.Project =  #{project,jdbcType=VARCHAR}
-	and a.Key = b.Key 
-	and b.EnvName = #{env,jdbcType=VARCHAR}
+    on a.Key = b.Key 
+	where a.Project =  #{project,jdbcType=VARCHAR}
+	and b.EnvName =  #{env,jdbcType=VARCHAR}
   </select>
    
   <delete id="deleteConfigByKey" parameterType="java.lang.String">

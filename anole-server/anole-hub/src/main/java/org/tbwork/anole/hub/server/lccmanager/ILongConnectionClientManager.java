@@ -52,5 +52,5 @@ public interface ILongConnectionClientManager {
 	 * Promise that a ping from each client would be received,
 	 * and then clean up all dead clients.
 	 */
-	public void promisePingAndScavenge();
+	public void promisePingAndScavenge(String clientName);
 }

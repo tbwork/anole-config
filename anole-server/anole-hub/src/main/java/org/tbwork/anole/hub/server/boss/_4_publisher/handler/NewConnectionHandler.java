@@ -10,7 +10,7 @@ import org.tbwork.anole.hub.server.util.ChannelHelper;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelHandler.Sharable;
-@Component
+@Component("b4pNewConnectionHandler")
 @Sharable
 public class NewConnectionHandler extends ChannelHandlerAdapter {
 

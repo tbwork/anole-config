@@ -64,7 +64,7 @@ anoleConsoleApp.factory('PostService', ['$http', '$q', function ($http, $q) {
 anoleConsoleApp.controller('ProjectSearchController', ProjectSearchController);  
 function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, $mdMedia, GetService, PostService) { 
     var self = this; 
-    loginStatus = loadLoginStatus(); 
+    loginStatus = loadLoginStatus();
     self.loginStatus = loginStatus;
     self.lan_index = lan_index; 
     self.cur_username = cur_username;
@@ -284,7 +284,11 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 
     function selectedItemChange_Project(item) {
       $log.info('Item changed to ' + JSON.stringify(item));
+      var lastProject = self.currentProject;
       self.currentProject  = item;
+      if(item !=null && lastProject != self.currentProject){ 
+    	  permission = getPermission(); 
+      } 
       
       if(item != null)
      	 self.configListResult = queryConfigsByProject(item.projectName);
@@ -293,6 +297,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     } 
     
     function getPermission(){
+    	if(self.currentProject == null)
+    		return 0;
     	var postData = {  
 				project: self.currentProject.projectName, 
 				env :  self.currentEnv 
@@ -422,8 +428,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     self.user_search_text = null; //选择用户
     self.project_search_text = null; //选择项目 
     self.grant_env_name = "";
-    self.grant_role = "";
-    
+    self.grant_role = ""; 
     $scope.logout = function(ev){
     	loginStatus = false;
         self.loginStatus = loginStatus; 
@@ -433,7 +438,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	    if(response.status == 200){
     	    	 $log.info("Logged out!!!");
     	    	 self.refreshCurrentProjectConfigs();
-    	    	 getPermission();
+    	    	 permission = getPermission(); 
     	    }
     	  }, function errorCallback(response) {
     	    // called asynchronously if an error occurs

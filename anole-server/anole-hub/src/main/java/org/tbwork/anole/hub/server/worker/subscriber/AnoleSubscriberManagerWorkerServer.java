@@ -17,6 +17,7 @@ import lombok.Data;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -50,19 +51,22 @@ public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 	EventLoopGroup bossGroup = null;
 	EventLoopGroup workerGroup = null; 
 	
-	private int port;
-	
+	private int port; 
 	
 	@Autowired
+	@Qualifier("w4sAuthenticationHandler")
 	AuthenticationHandler authenticationHandler;
 	
 	@Autowired
+	@Qualifier("w4sMainLogicHandler")
 	MainLogicHandler mainLogicHandler;
 	
 	@Autowired
+	@Qualifier("w4sNewConnectionHandler")
 	NewConnectionHandler newConnectionHandler;
 	
 	@Autowired
+	@Qualifier("w4sExceptionHandler")
 	ExceptionHandler lowLevelExceptionHandler;
 	
 	@Override
@@ -95,6 +99,7 @@ public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 	}
 	private void executeStart(int port){
 		Preconditions.checkArgument(port>0, "port should be > 0");
+		this.port = port;
 		bossGroup = new NioEventLoopGroup();
         workerGroup = new NioEventLoopGroup();
         try {
@@ -119,13 +124,11 @@ public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 
              // Bind and start to accept incoming connections. 
 			 ChannelFuture f = b.bind(port).sync(); 
-             if(f.isSuccess())
-             {    
+             if(f.isSuccess()){    
             	 channel = f.channel();
             	 logger.info("[:)] Anole push server at local address (port = {}) started succesfully !", port);
             	 started = true;
-             }
-			 
+             } 
         }catch(InterruptedException e){ 
         	logger.error("[:(] Anole push server failed to start at port {}!", port);
 			e.printStackTrace();
@@ -152,8 +155,7 @@ public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 
 	@Override
 	public int getPort() {
-		// TODO Auto-generated method stub
-		return 0;
+		return port;
 	} 
 	
 }
