@@ -35,7 +35,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
  * worker server.
  * @author tommy.tang
  */
-@Service
+@Service("subscriberServer")
 public class AnoleSubscriberManagerBossServer implements AnoleServer{
 
 	private int port;
@@ -120,12 +120,12 @@ public class AnoleSubscriberManagerBossServer implements AnoleServer{
              if(f.isSuccess())
              {    
             	 channel = f.channel();
-            	 logger.info("[:)] Anole boss server for worker at local address (port = {}) started succesfully !", port);
+            	 logger.info("[:)] Anole boss server for subscriber started succesfully at local address (port = {}) !", port);
             	 started = true;
              }
 			 
         }catch(InterruptedException e){ 
-        	logger.error("[:(] Anole boss server for worker failed to start at port {}!", port);
+        	logger.error("[:(] Anole boss server for subscriber failed to start at port {}!", port);
 			e.printStackTrace();
         }  
 	}
@@ -135,12 +135,12 @@ public class AnoleSubscriberManagerBossServer implements AnoleServer{
 			channel.disconnect();
 			channel.close(); 
 		} catch (Exception e) {
-			logger.error("[:(] Anole boss server for worker failed to close. Inner message: {}", e.getMessage());
+			logger.error("[:(] Anole boss server for subscriber failed to close. Inner message: {}", e.getMessage());
 			e.printStackTrace();
 		}finally{ 
 			if(!channel.isActive())
 			{
-				logger.info("[:)] Anole boss server for worker closed successfully !");		
+				logger.info("[:)] Anole boss server for subscriber closed successfully !");		
 				workerGroup.shutdownGracefully();
 		        bossGroup.shutdownGracefully();
 				started = false;

@@ -41,19 +41,17 @@ public class ServerStarter
         	serverName = AnoleLocalConfig.getProperty("anole.server.type");
         if(serverName == null || serverName.isEmpty()){
         	serverName = "worker";
-        	logger.warn("Could not find any specified server name. 'worker' will be used.");
+        	logger.warn("Could not find any specified server type. 'worker' will be used.");
         }
         if(serverName.equals("boss")){
         	logger.info("[:)] Anole boss server is starting...");
         	bossServer4WorkerStarter.run();
         	bossServer4SubscriberStarter.run();
-        	bossServer4PublisherStarter.run();
-        	logger.info("[:)] Anole boss server started!!!");
+        	bossServer4PublisherStarter.run(); 
         }
         else{ //worker
         	logger.info("[:)] Anole worker server is starting...");
-        	workerServer4SubscriberStarter.run();
-        	logger.info("[:)] Anole worker server started!!!");
+        	workerServer4SubscriberStarter.run(); 
         } 
     }
 }

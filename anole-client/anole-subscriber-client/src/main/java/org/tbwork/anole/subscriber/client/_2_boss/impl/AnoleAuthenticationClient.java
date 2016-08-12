@@ -71,41 +71,34 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
     public static final Object lock = new Object();
     public static volatile boolean executing = false;
     private AnoleAuthenticationClient(){
-    	String serversString = getProperty(ClientProperties.BOSS_2_WOKRER_SERVER_ADDRESS);
-    	String [] _servers = serversString.split(",");
-    	if(_servers.length < 2)
-    		throw new RuntimeException("At least two boss server were specified for sake of robustness! If you obstinately want to use only one, just specify two same addresses.");
-    	servers.setAddresses(Lists.newArrayList(_servers));  
+    	
     }
     
     public static AnoleAuthenticationClient instance(){
     	return anoleAuthenticationClient;
     } 
-     
-    
+      
     private ExecutorService es = Executors.newSingleThreadExecutor();
     
     
     //Properties
     public static enum ClientProperties{ 
-    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.subscriber.boss.address", "localhost:54321,localhost:54322"),  
+    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.subscriber.boss.address", "localhost:54323,localhost:54324"),  
     	;
     	private String name;
-    	private String defaultValue;
-    	
+    	private String defaultValue; 
     	private ClientProperties(String name, String defaultValue){
     		this.name = name;
     		this.defaultValue = defaultValue;
-    	}
-    	
+    	} 
     }
     
     @Override
 	public void authenticate() {
 		try{
-			Future<Void> future = es.submit(new Callable<Void>() { 
+			Future<Integer> future = es.submit(new Callable<Integer>() { 
 				@Override
-				public Void call() throws Exception { 
+				public Integer call() throws Exception { 
 					if(!executing){
 			    		synchronized(lock){
 			    			if(!executing){ 
@@ -116,20 +109,23 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 			    			}
 			    		} 	
 			    	} 
-					return null; 
+					return 0; 
 				} 
 	    	});
 	    	
-	    	future.get(GlobalConfig.AUTHENTICATION_TIMEOUT_LIMIT, TimeUnit.MILLISECONDS);
+	    	future.get(GlobalConfig.AUTHENTICATION_TIMEOUT_LIMIT*500, TimeUnit.MILLISECONDS);
 		}
 		catch(TimeoutException e){
 			logger.error("Authentication is timeout. Please try latter.", e.getMessage());
 		}
 		catch(Exception e){
+			e.printStackTrace();
 			logger.error("Authentication failed due to a an inner exception. Details: {}", e.getMessage());
 		}
 		finally{
-			lock.notifyAll();
+			synchronized(lock){
+				lock.notifyAll();
+			} 
 		}
     } 
     
@@ -186,10 +182,19 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 	    msg.setToken(token);
 	}
 	
+    private void initialized(){
+    	String serversString = getProperty(ClientProperties.BOSS_2_WOKRER_SERVER_ADDRESS);
+    	String [] _servers = serversString.split(",");
+    	if(_servers.length < 2)
+    		throw new RuntimeException("At least two boss server were specified for sake of robustness! If you obstinately want to use only one, just specify two same addresses.");
+    	servers = new Servers();
+    	servers.setAddresses(Lists.newArrayList(_servers));  
+    }
 	
   	private void executeConnect(){
-  		if(servers == null)
-  			throw new RuntimeException("Boss servers are not ready!");  
+  		if(servers == null){
+  			initialized();
+  		}  
   		for(String serverString : servers.getAddresses()){
   			if(executeConnect(serverString))
   				return ;

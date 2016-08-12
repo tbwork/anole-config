@@ -12,26 +12,26 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.UnixTime;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
-import org.tbwork.anole.hub.client.IAnoleWorkerClient;
-import org.tbwork.anole.loader.core.AnoleLocalConfig; 
-
+import org.tbwork.anole.hub.client.IAnoleWorkerClient; 
+import org.tbwork.anole.loader.core.AnoleLocalConfig;  
+@Sharable
 public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class); 
+	  
+	private IAnoleWorkerClient workerClient;
 	
-	@Autowired
-	private IAnoleWorkerClient workerClient; 
-	
-	public AuthenticationHandler(){
+	public AuthenticationHandler(IAnoleWorkerClient workerClient){
 		super(false);
+		this.workerClient = workerClient;
 	} 
-
-
+ 
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
 			throws Exception { 
@@ -40,16 +40,16 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		MessageType msgType=  msg.getType(); 
         switch (msgType){
 	        case S2C_AUTH_FIRST:{ //Please login first. 
-	        	workerClient.sendMessage(getAuthInfo()); 
+	        	ctx.writeAndFlush( getAuthInfo() );
 		      	ReferenceCountUtil.release(msg);
 	        } break;
 	        case S2C_AUTH_FAIL_CLOSE:{
 		      	logger.error("[:(] Username or password is invalid, please check them and try again."); 
-		      	workerClient.close(); // close the connection and wait for next trial
+		      	ctx.close(); // close the connection and wait for next trial
 		      	ReferenceCountUtil.release(msg);
 			} break;
 		 	case S2C_AUTH_PASS:{ 
-		 		logger.info ("[:)] Login successfully."); 
+		 		logger.debug ("[:)] Login successfully."); 
 		 		int clientId = ((AuthPassWithTokenMessage)msg).getClientId();
 		 		int token = ((AuthPassWithTokenMessage)msg).getToken();
 		 		workerClient.saveToken(clientId, token);
@@ -69,8 +69,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	
 	private CommonAuthenticationMessage getAuthInfo(){
 		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
-    	authBody.setUsername("tommy.tang");
-    	authBody.setPassword("123456"); 
+    	authBody.setUsername(AnoleLocalConfig.getProperty("worker.username", "tommy.tang"));
+    	authBody.setPassword(AnoleLocalConfig.getProperty("worker.password", "123456")); 
     	return authBody;
 	}
     

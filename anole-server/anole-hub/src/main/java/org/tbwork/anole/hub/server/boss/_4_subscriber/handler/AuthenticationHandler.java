@@ -87,7 +87,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		final WorkerClient wcLock = wc;
 		Future<CustomerClient> futureResult = wcm.executeThread(new Callable<CustomerClient>() { 
 			@Override
-			public CustomerClient call() throws Exception { 
+			public CustomerClient call() throws Exception {
 				synchronized(wcLock){
 					RegisterClientMessage rcm = new RegisterClientMessage();
 					rcm.setClientType(clientType);
@@ -122,8 +122,12 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		catch(Exception e){
 			logger.error("Assign worker for client (ClientType={}) failed. Detailed information: {}", clientType, e.getMessage()); 
 			wcLock.setGiveup(true);
-			wcLock.notifyAll();
 			return result;
+		}
+		finally{
+			synchronized(wcLock){
+				wcLock.notifyAll();
+			} 
 		}
 	}
  

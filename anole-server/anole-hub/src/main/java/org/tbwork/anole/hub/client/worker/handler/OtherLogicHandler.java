@@ -1,11 +1,14 @@
 package org.tbwork.anole.hub.client.worker.handler;
 
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler; 
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelHandler.Sharable;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 import org.tbwork.anole.common.enums.ClientType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
@@ -19,28 +22,30 @@ import org.tbwork.anole.hub.client.ConnectionMonitor;
 import org.tbwork.anole.hub.client.IAnoleWorkerClient;
 import org.tbwork.anole.hub.client.WorkerClientConfig;
 import org.tbwork.anole.hub.client.impl.LongConnectionMonitor;
+import org.tbwork.anole.hub.client.worker.AnoleWorkerClient;
 import org.tbwork.anole.hub.server.AnoleServer;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo; 
-
+ 
+@Sharable
 public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
-	public OtherLogicHandler(){
+	public OtherLogicHandler(IAnoleWorkerClient workerClient, AnoleServer publishServer, AnoleServer subscriberServer,  ConnectionMonitor lcMonitor){
 		super(true);
+		this.workerClient = workerClient;
+		this.subscriberServer = subscriberServer;
+		this.publishServer = publishServer; 
+		this.lcMonitor = lcMonitor;
 	}
 	
 	static Logger logger = LoggerFactory.getLogger(OtherLogicHandler.class);
-	 
-	private ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
-	@Autowired
-	private IAnoleWorkerClient worker; 
+
+	private ConnectionMonitor lcMonitor;
 	
-	@Autowired
-	@Qualifier("publishServer")
-	private AnoleServer publishServer;
+	private IAnoleWorkerClient workerClient;
 	 
-	@Autowired
-	@Qualifier("subscriberServer")
+	private AnoleServer publishServer;
+	  
 	private AnoleServer subscriberServer;
 	
 	@Override
@@ -56,7 +61,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 	case S2C_REGISTER_CLIENT:{
 		 		RegisterClientMessage rcm = (RegisterClientMessage) msg;
 		 		ClientType clientType = rcm.getClientType();
-		 		worker.sendMessage(generateRegisterResultMessage(clientType));
+		 		workerClient.sendMessage(generateRegisterResultMessage(clientType));
 		 	} break; 
 		 	default:{ 
 		 	} break; 
@@ -82,7 +87,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 			lcMonitor.restart();
 			logger.info("Synchronize PING_INTERVAL with the server, new interval is set as {} ms", WorkerClientConfig.PING_INTERVAL);
 		} 
-		worker.ackPing();
+		workerClient.ackPing();
 	} 
 	
 

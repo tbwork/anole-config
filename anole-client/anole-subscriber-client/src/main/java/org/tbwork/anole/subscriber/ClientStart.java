@@ -22,14 +22,12 @@ public class ClientStart
 	
     public static void main( String[] args )
     { 
-    	 
+    	startUp();
     }
     
     public static void startUp(){
-    	 
-    	IAnoleSubscriberClient asc = AnoleSubscriberClient.instance(); 
-    	asc.connect();
-    	
+    	AnoleLoader anoleLoader = new AnoleSubscriberClasspathLoader();
+    	anoleLoader.load();   
     }
     
     public static void testAnole(){
@@ -44,5 +42,7 @@ public class ClientStart
     	AnoleLoader anoleLoader = new AnoleClasspathLoader();
     	anoleLoader.load();
     	System.out.println(AnoleConfig.getProperty("cs")); 
+    	
+    	
     }
 }

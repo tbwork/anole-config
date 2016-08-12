@@ -20,18 +20,13 @@ import lombok.Setter;
 import io.netty.channel.socket.SocketChannel;
 
 /**
- * A worker client is also a server provides publishing and 
+ * A worker client is also a server provides 
  * subscribing services.
  * @author tommy.tang
  */
 @Data
 public class WorkerClient extends LongConnectionClient{
-
-	/**
-	 * The count of publisher clients in the worker server.
-	 */
-	private int publisherClientCount;
-	
+ 
 	/**
 	 * The count of subscriber clients in the worker server.
 	 */
@@ -66,8 +61,7 @@ public class WorkerClient extends LongConnectionClient{
 	}
 	
 	public WorkerClient(int token, SocketChannel socketChannel){
-		super(token, socketChannel); 
-		this.publisherClientCount = 0 ;
+		super(token, socketChannel);  
 		this.subscriberClientCount = 0;
 		this.weight = 10;
 		processing = false;

@@ -99,8 +99,8 @@ public class SubscriberConfigManager extends LocalConfigManager{
 		Preconditions.checkNotNull(cItem, "Config item is null! Please check it and try again.");
 		Preconditions.checkArgument(cItem.getKey()!=null &&  !(cItem.getKey().isEmpty()), "Config key is null! Please check it and try again.");
 		try {       
-			Future<Void> getConfigResult = executorService.submit( new Callable<Void>(){ 
-				public Void call() throws Exception { 
+			Future<Integer> getConfigResult = executorService.submit( new Callable<Integer>(){ 
+				public Integer call() throws Exception { 
 				  if(!cItem.isLoaded()){
 					  synchronized(cItem)
 					  { 
@@ -118,11 +118,11 @@ public class SubscriberConfigManager extends LocalConfigManager{
 						  }  
 					  }
 				  } 
-				  return null;
+				  return 0;
 				} 
 			});  
 			@SuppressWarnings("unused")
-			Void innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, TimeUnit.MILLISECONDS); 
+			Integer innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, TimeUnit.MILLISECONDS); 
 			cItem.setGiveup(true);
 			cItem.getKey().notify();
 		} catch (TimeoutException e) {

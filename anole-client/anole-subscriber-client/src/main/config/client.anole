@@ -1,5 +1,4 @@
 env=all
 ###Anole Client Configurations###
-anole.client.remoteAddress=localhost
-n:anole.client.remotePort=54321
-n:anole.client.connect.delay=2
+client.username=tangbo
+client.password=123

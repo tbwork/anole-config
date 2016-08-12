@@ -44,6 +44,7 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 	
 	public Map<Integer, LongConnectionClient> lcMap = new ConcurrentHashMap<Integer, LongConnectionClient>(); 
 	 
+	private int validClientCount;
 	
 	@Override
 	public boolean validate(ValidateRequest request) { 
@@ -64,13 +65,19 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 		ClientInfo clientInfo =  ClientInfoGenerator.generate(request.getClientType());  
 		LongConnectionClient client = createClient(clientInfo.getToken(), request);
 		lcMap.put(clientInfo.getClientId(), client); 
+		validClientCount ++;
 		return new RegisterResult(clientInfo.getToken(), clientInfo.getClientId(), true);  
 	}
 	
 	
 	@Override
 	public void unregisterClient(UnregisterRequest request) { 
-		lcMap.remove(request.getClientId()); 
+		unRegisterClient(request.getClientId());
+	}
+	
+	private void unRegisterClient(int clientId){
+		validClientCount --;
+		lcMap.remove(clientId); 
 	}
 
 	@Override
@@ -95,7 +102,7 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 				{
 					LongConnectionClient client = item.getValue();
 					if(client.maxPromiseCount()){
-						lcMap.remove(item.getKey());
+						unRegisterClient(item.getKey());
 						badCnt ++;
 					}
 					else
@@ -105,9 +112,9 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 		} 
 	}
 	
-	
-	private boolean validate(String username, String password, ClientType clientType){
-		
-		return false;
+	@Override
+	public int getClientCount() { 
+		return validClientCount;
 	}
+	 
 }

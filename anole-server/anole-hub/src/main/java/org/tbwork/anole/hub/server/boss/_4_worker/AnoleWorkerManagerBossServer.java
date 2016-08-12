@@ -127,7 +127,7 @@ public class AnoleWorkerManagerBossServer implements AnoleServer{
              if(f.isSuccess())
              {    
             	 channel = f.channel();
-            	 logger.info("[:)] Anole boss server for worker at local address (port = {}) started succesfully !", port);
+            	 logger.info("[:)] Anole boss server for worker started succesfully at local address (port = {}) !", port);
             	 started = true;
              }
 			 

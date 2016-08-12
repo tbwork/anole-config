@@ -126,11 +126,11 @@ public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 			 ChannelFuture f = b.bind(port).sync(); 
              if(f.isSuccess()){    
             	 channel = f.channel();
-            	 logger.info("[:)] Anole push server at local address (port = {}) started succesfully !", port);
+            	 logger.info("[:)] Anole worker server started succesfully at local address (port = {}) !", port);
             	 started = true;
              } 
         }catch(InterruptedException e){ 
-        	logger.error("[:(] Anole push server failed to start at port {}!", port);
+        	logger.error("[:(] Anole worker server failed to start at port {}!", port);
 			e.printStackTrace();
         }  
 	}
@@ -140,19 +140,19 @@ public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 			channel.disconnect();
 			channel.close(); 
 		} catch (Exception e) {
-			logger.error("[:(] Anole push server failed to close. Inner message: {}", e.getMessage());
+			logger.error("[:(] Anole worker server failed to close. Inner message: {}", e.getMessage());
 			e.printStackTrace();
 		}finally{ 
 			if(!channel.isActive())
 			{
-				logger.info("[:)] Anole push server closed successfully !");		
+				logger.info("[:)] Anole worker server closed successfully !");		
 				workerGroup.shutdownGracefully();
 		        bossGroup.shutdownGracefully();
 				started = false;
 			}
 		} 
-	}
-
+	} 
+	
 	@Override
 	public int getPort() {
 		return port;

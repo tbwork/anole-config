@@ -7,6 +7,8 @@ import javax.annotation.PostConstruct;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
@@ -18,6 +20,9 @@ import org.tbwork.anole.hub.client.worker.handler.ExceptionHandler;
 import org.tbwork.anole.hub.client.worker.handler.OtherLogicHandler;
 import org.tbwork.anole.hub.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.hub.exceptions.SocketChannelNotReadyException;
+import org.tbwork.anole.hub.server.AnoleServer;
+import org.tbwork.anole.hub.server.boss._4_publisher.handler.MainLogicHandler;
+import org.tbwork.anole.hub.server.boss._4_publisher.handler.NewConnectionHandler;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
 
 import com.google.common.base.Preconditions;
@@ -52,7 +57,16 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	SocketChannel socketChannel = null; 
 	
-    private static final ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
+	@Autowired
+    private ConnectionMonitor lcMonitor; 
+	
+	@Autowired
+	@Qualifier("publisherServer")
+	private AnoleServer publisherServer;
+	  
+	@Autowired
+	@Qualifier("subscriberServer")
+	private AnoleServer subscriberServer;
 	
 	int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
@@ -66,7 +80,7 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
     /**
      * Used to detect disconnection
      */
-    private int MAX_PING_COUNT = 5;
+    private int MAX_PING_COUNT = 5; 
     
     @PostConstruct
     private void initialize(){
@@ -78,7 +92,7 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
     }
     //Properties
     public static enum ClientProperties{ 
-    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.worker.boss.address", "localhost:54321,localhost:54322"),  
+    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.worker.boss.address", "localhost:54325,localhost:54326"),  
     	;
     	private String name;
     	private String defaultValue;
@@ -178,15 +192,15 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
   		Preconditions.checkNotNull (address, "address should be null.");
   		Preconditions.checkArgument(address.contains(":"), "address should be in form of: ip:port.");
   		String [] ip_port = address.split(":");
-  		boolean result  = executeConnect(ip_port[0], Integer.valueOf(ip_port[1]));
+  		boolean result  = executeConnect(ip_port[0], Integer.valueOf(ip_port[1]), this);
   		if(result)
-  			logger.info("[:)] Connect to server ({}) successfully!", address);
+  			logger.debug("[:)] Connect to boss server ({}) successfully!", address);
   		else
-  			logger.warn("[:(] Connect to server ({}) failed!", address);
+  			logger.warn("[:(] Connect to boss server ({}) failed!", address);
   		return result;
   	}
   	
-  	private boolean executeConnect(String host, int port)
+  	private boolean executeConnect(String host, int port, final IAnoleWorkerClient anoleWorkerClient)
   	{ 
   		Preconditions.checkNotNull (host  , "host should be null.");
   		Preconditions.checkArgument(port>0, "port should be > 0"  );
@@ -200,11 +214,11 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
                   @Override
                   public void initChannel(SocketChannel ch) throws Exception {
                       ch.pipeline().addLast(
-                      		new ExceptionHandler(),
+                    		new ExceptionHandler(anoleWorkerClient),
                       		new ObjectEncoder(),
                      		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
-                      		new AuthenticationHandler(),  
-                      		new OtherLogicHandler()
+                      		new AuthenticationHandler(anoleWorkerClient),  
+                      		new OtherLogicHandler(anoleWorkerClient, publisherServer, subscriberServer, lcMonitor)
                       		);
                   }
               }); 

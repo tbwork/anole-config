@@ -93,7 +93,9 @@ public class AnolePublisher extends AnoleLocalConfig{
 			result.setSuccess(false);
 			result.setErrorMessage("Inner Java Exception: "+ e.getMessage());
 		} finally{
-			writeLock.notifyAll();
+			synchronized(writeLock){
+				writeLock.notifyAll();
+			} 
 		}
 		return result;
 	}

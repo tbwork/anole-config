@@ -64,9 +64,9 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 		wcm.ackChangeNotify(cnam.getClientId(), cnam.getKey(), cnam.getTimestamp());
 		 	} break;
 		 	case C2S_PING:{ 
-		 		logger.info("[:)] Ping request received successfully from the client ( clientId = {}).", clientId); 
+		 		logger.debug("[:)] Ping request received successfully from the client ( clientId = {}).", clientId); 
 		 		WorkerPingMessage wpm = (WorkerPingMessage) msg;
-		 		wcm.updateStatus(clientId, wpm.getPublisherClientCount(), wpm.getSubscriberClientCount(), wpm.getWeight());
+		 		wcm.updateStatus(clientId, wpm.getSubscriberClientCount(), wpm.getWeight());
 		 		wcm.ackPing(clientId); 
 		 	} break;
 		 	default:break; 

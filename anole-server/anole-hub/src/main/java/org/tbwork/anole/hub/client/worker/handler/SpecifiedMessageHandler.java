@@ -6,6 +6,7 @@ import io.netty.util.ReferenceCountUtil;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType; 
 
+
 public abstract class SpecifiedMessageHandler extends SimpleChannelInboundHandler<Message>{
 
 	private MessageType messageType;  

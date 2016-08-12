@@ -31,7 +31,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
  * It receives and processes all write requests from publishers.
  * @author tommy.tang
  */
-@Service
+@Service("publisherServer")
 public class AnolePublisherManagerBossServer implements AnoleServer{
 
 	private int port; 
@@ -120,12 +120,12 @@ public class AnolePublisherManagerBossServer implements AnoleServer{
              if(f.isSuccess())
              {    
             	 channel = f.channel();
-            	 logger.info("[:)] Anole boss server for worker at local address (port = {}) started succesfully !", port);
+            	 logger.info("[:)] Anole boss server for publisher started succesfully at local address (port = {}) !", port);
             	 started = true;
              }
 			 
         }catch(InterruptedException e){ 
-        	logger.error("[:(] Anole boss server for worker failed to start at port {}!", port);
+        	logger.error("[:(] Anole boss server for publisher failed to start at port {}!", port);
 			e.printStackTrace();
         }  
 	}
@@ -135,12 +135,12 @@ public class AnolePublisherManagerBossServer implements AnoleServer{
 			channel.disconnect();
 			channel.close(); 
 		} catch (Exception e) {
-			logger.error("[:(] Anole boss server for worker failed to close. Inner message: {}", e.getMessage());
+			logger.error("[:(] Anole boss server for publisher failed to close. Inner message: {}", e.getMessage());
 			e.printStackTrace();
 		}finally{ 
 			if(!channel.isActive())
 			{
-				logger.info("[:)] Anole boss server for worker closed successfully !");		
+				logger.info("[:)] Anole boss server for publisher closed successfully !");		
 				workerGroup.shutdownGracefully();
 		        bossGroup.shutdownGracefully();
 				started = false;

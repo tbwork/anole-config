@@ -74,18 +74,18 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 			 	CommonAuthenticationMessage bodyMessage = (CommonAuthenticationMessage) msg;
 			 	String username = bodyMessage.getUsername();
 			    String password = bodyMessage.getPassword();
-			    ClientType clientType = bodyMessage.getClientType(); 
+			    ClientType clientType = ClientType.WORKER;
 			    if(logger.isDebugEnabled())
 		 			logger.debug("A worker is attempting to join the cluster. Its ip is {}", ctx.channel().remoteAddress());
-				if(userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType)){
-					  RegisterRequest registerRequest = new RegisterRequest((SocketChannel)ctx.channel(), null, bodyMessage.getClientType());
+				if(userService.verify(username, password, clientType)){
+					  RegisterRequest registerRequest = new RegisterRequest((SocketChannel)ctx.channel(), null, clientType);
 				      RegisterResult registerResult =  wcm.registerClient(registerRequest);
 				      // send back the clientId and the access token
 		 			  AuthPassWithTokenMessage aptMsg = new AuthPassWithTokenMessage(); 
 		 			  aptMsg.setClientId(registerResult.getClientId());
 		 			  aptMsg.setToken(registerResult.getToken());
 		 			  ChannelHelper.sendMessage(ctx, aptMsg);   
-			 		  logger.info("A worker is attempting to join the cluster. Its ip is {}", ctx.channel().remoteAddress());
+			 		  logger.info("A new worker is attempting to join the cluster. Its ip is {}", ctx.channel().remoteAddress());
 		 			  // Releasing the message which means no further process.
 		 			  ReferenceCountUtil.release(msg);
 				} 

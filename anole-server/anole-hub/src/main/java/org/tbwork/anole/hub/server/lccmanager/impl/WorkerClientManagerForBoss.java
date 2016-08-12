@@ -49,10 +49,9 @@ public class WorkerClientManagerForBoss extends LongConnectionClientManager {
 		} 
 	} 
 	
-	public void updateStatus(int clientId, int publisherClientCount, int subscriberClientCount, int weight){
+	public void updateStatus(int clientId, int subscriberClientCount, int weight){
 		 WorkerClient wc = (WorkerClient)  lcMap.get(clientId);
-		 if(wc != null){
-			 wc.setPublisherClientCount(publisherClientCount);
+		 if(wc != null){ 
 			 wc.setSubscriberClientCount(subscriberClientCount);
 			 wc.setWeight(weight);
 		 } 
@@ -86,4 +85,6 @@ public class WorkerClientManagerForBoss extends LongConnectionClientManager {
 		WorkerClient wc = (WorkerClient)  lcMap.get(clientId);
 		wc.ackChangeNotification(key, timestamp);
 	}
+
+
 }

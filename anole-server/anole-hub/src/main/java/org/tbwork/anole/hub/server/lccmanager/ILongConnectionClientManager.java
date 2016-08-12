@@ -53,4 +53,10 @@ public interface ILongConnectionClientManager {
 	 * and then clean up all dead clients.
 	 */
 	public void promisePingAndScavenge(String clientName);
+	
+	
+	/**
+	 * Get the count of client.
+	 */
+	public int getClientCount();
 }

@@ -22,6 +22,5 @@ public class StartHere {
 		AnoleLoader anoleLoader = new AnoleClasspathLoader();
 	    anoleLoader.load(); 
 		SpringApplication.run(StartHere.class, args);
-	}
-	
+	} 
 }

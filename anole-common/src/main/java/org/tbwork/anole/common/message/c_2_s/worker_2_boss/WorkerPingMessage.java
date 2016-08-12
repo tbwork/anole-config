@@ -5,11 +5,7 @@ import org.tbwork.anole.common.message.c_2_s.PingMessage;
 import lombok.Data;
 
 @Data
-public class WorkerPingMessage extends PingMessage { 
-	/**
-	 * The count of publisher clients in the worker server.
-	 */
-	private int publisherClientCount;
+public class WorkerPingMessage extends PingMessage {  
 	
 	/**
 	 * The count of subscriber clients in the worker server.

@@ -21,7 +21,7 @@ public class ClientEntropyUtil {
 			if(best == null) best = (WorkerClient) item.getValue(); 
 			else{
 				WorkerClient itemWc = (WorkerClient) item.getValue();
-				int tempEntropy = entropy(getOccupiedCount(itemWc, clientType), itemWc.getWeight());
+				int tempEntropy = entropy(itemWc.getSubscriberClientCount(), itemWc.getWeight());
 				if(currentEntropy > tempEntropy){
 					best = itemWc;
 					currentEntropy = tempEntropy;
@@ -30,16 +30,7 @@ public class ClientEntropyUtil {
 		}
 		return best;
 	}
-	
-	
-	private static int getOccupiedCount(WorkerClient wc, ClientType ct){ 
-		if(ct == ClientType.PUBLISHER){
-			return wc.getPublisherClientCount();
-		}
-		else{
-			return wc.getSubscriberClientCount();
-		}
-	}
+	 
 	private static int entropy(int occupiedCount, int weight){ 
 		float ratio = 1.0f/ ((float)weight);
 		return (int)(ratio*((float)occupiedCount)); 

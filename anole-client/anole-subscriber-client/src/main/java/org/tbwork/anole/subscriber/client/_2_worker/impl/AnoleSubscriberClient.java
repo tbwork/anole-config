@@ -101,9 +101,9 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
 				if(!started || !connected)//DCL-2
 				{ 
 					boolean flag = started; 
-					executeConnect(AnoleConfig.getProperty("anole.client.remoteAddress", "localhost"), AnoleConfig.getIntProperty("anole.client.remotePort", 54321)); 
+					executeConnect(ip, port); 
 					try {
-						TimeUnit.SECONDS.sleep(AnoleConfig.getIntProperty("anole.client.connect.delay", 2));
+						TimeUnit.SECONDS.sleep(2);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();

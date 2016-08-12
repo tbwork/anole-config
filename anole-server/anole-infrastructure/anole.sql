@@ -90,27 +90,7 @@ CREATE TABLE `anole_project` (
 #
 # Data for table "anole_project"
 #
-
-
-#
-# Structure for table "anole_sys_user"
-#
-
-DROP TABLE IF EXISTS `anole_sys_user`;
-CREATE TABLE `anole_sys_user` (
-  `Id` int(11) NOT NULL AUTO_INCREMENT,
-  `SysUserName` varchar(50) DEFAULT NULL,
-  `Password` varchar(60) DEFAULT NULL,
-  `UserType` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-subscriber, 2-worker, 3-publisher',
-  `CreateTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `UpdateTime` timestamp NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-#
-# Data for table "anole_sys_user"
-#
-
+ 
 
 #
 # Structure for table "anole_user"

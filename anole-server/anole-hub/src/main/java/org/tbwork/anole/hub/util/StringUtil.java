@@ -1,6 +1,12 @@
 package org.tbwork.anole.hub.util;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
+
+import com.google.common.hash.Hasher;
+import com.google.common.hash.Hashing;
 
 public class StringUtil { 
 	
@@ -19,7 +25,7 @@ public class StringUtil {
     	return port;
     }
     
-    private static String [] getPorts(String propertyName, String defaults){
+    public static String [] getPorts(String propertyName, String defaults){
     	try{
     		String portsString = AnoleLocalConfig.getProperty(propertyName, defaults);
         	String [] ports = portsString.split(","); 
@@ -30,4 +36,19 @@ public class StringUtil {
     		throw new RuntimeException ("Wrong format for the configuration '"+propertyName+"'");
     	} 
     }
+    
+    public static String md5(String inputString){
+    	try{
+    		Hasher hasher = Hashing.md5().newHasher();
+        	hasher.putString(inputString,  Charset.forName("UTF-8")); 
+        	return hasher.hash().toString();
+    	}
+    	catch(Exception e){
+    		throw new RuntimeException(e.getMessage());
+    	} 
+    }
+    
+    public static void main(String[] args) {
+		System.out.println(md5("123456"));
+	}
 }
