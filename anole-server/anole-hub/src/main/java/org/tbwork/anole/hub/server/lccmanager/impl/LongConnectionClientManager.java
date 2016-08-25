@@ -69,7 +69,6 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 		return new RegisterResult(clientInfo.getToken(), clientInfo.getClientId(), true);  
 	}
 	
-	
 	@Override
 	public void unregisterClient(UnregisterRequest request) { 
 		unRegisterClient(request.getClientId());

@@ -35,7 +35,7 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
  * worker server.
  * @author tommy.tang
  */
-@Service("subscriberServer")
+@Service("subscriberBossServer")
 public class AnoleSubscriberManagerBossServer implements AnoleServer{
 
 	private int port;

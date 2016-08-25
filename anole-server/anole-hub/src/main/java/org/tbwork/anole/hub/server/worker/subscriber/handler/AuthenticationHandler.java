@@ -63,11 +63,16 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		     logger.debug("New message received (type = {}, clientId = {})", msg.getType(), msg.getClientId());
 		 C2SMessage message = msg;
     	 MessageType msgType = message.getType(); 
+    	 int clientId = message.getClientId();
+    	 int token = message.getToken();
 	     // message must need be validated (identification) before further process.
-	     if(!scm.validate(new ValidateRequest(message.getClientId(), message.getToken())))
+	     if(!scm.validate(new ValidateRequest(clientId, token)))
 	     {
 			   MatchFailAndCloseMessage mfcMsg = new MatchFailAndCloseMessage(); 
 			   ChannelHelper.sendAndClose(ctx, mfcMsg);
+	     }
+	     else{
+	    	 scm.fillInformation(clientId, (SocketChannel)ctx.channel());
 	     }
 		 // Passed the identification validation, go on processing logical staff.
          ctx.fireChannelRead(msg);  

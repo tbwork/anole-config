@@ -24,29 +24,33 @@ import org.tbwork.anole.hub.client.WorkerClientConfig;
 import org.tbwork.anole.hub.client.impl.LongConnectionMonitor;
 import org.tbwork.anole.hub.client.worker.AnoleWorkerClient;
 import org.tbwork.anole.hub.server.AnoleServer;
+import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWorker;
+import org.tbwork.anole.hub.server.lccmanager.impl.WorkerClientManagerForBoss;
+import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest;
+import org.tbwork.anole.hub.server.lccmanager.model.response.RegisterResult;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo; 
  
 @Sharable
 public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 
-	public OtherLogicHandler(IAnoleWorkerClient workerClient, AnoleServer publishServer, AnoleServer subscriberServer,  ConnectionMonitor lcMonitor){
+	public OtherLogicHandler(IAnoleWorkerClient workerClient, AnoleServer subscriberWorkerServer,  ConnectionMonitor lcMonitor, SubscriberClientManagerForWorker subscriberClientManagerForWorker){
 		super(true);
 		this.workerClient = workerClient;
-		this.subscriberServer = subscriberServer;
-		this.publishServer = publishServer; 
+		this.subscriberWorkerServer = subscriberWorkerServer; 
 		this.lcMonitor = lcMonitor;
+		this.subscriberClientManagerForWorker = subscriberClientManagerForWorker;
 	}
 	
 	static Logger logger = LoggerFactory.getLogger(OtherLogicHandler.class);
 
 	private ConnectionMonitor lcMonitor;
 	
-	private IAnoleWorkerClient workerClient;
-	 
-	private AnoleServer publishServer;
+	private IAnoleWorkerClient workerClient; 
 	  
-	private AnoleServer subscriberServer;
+	private AnoleServer subscriberWorkerServer;
+	
+	private SubscriberClientManagerForWorker subscriberClientManagerForWorker;
 	
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, Message msg)
@@ -70,11 +74,13 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 	
 	
 	private RegisterResultMessage generateRegisterResultMessage(ClientType clientType){
-		RegisterResultMessage result = new RegisterResultMessage();
-		ClientInfo clientInfo = ClientInfoGenerator.generate(clientType);
-		result.setResultClientId(clientInfo.getClientId());;
-		result.setResultToken(clientInfo.getToken());
-		result.setResultPort(clientType == ClientType.PUBLISHER?publishServer.getPort(): subscriberServer.getPort());
+		RegisterResultMessage result = new RegisterResultMessage(); 
+		RegisterRequest rRequest = new RegisterRequest();
+		rRequest.setClientType(clientType);
+		RegisterResult rResult = subscriberClientManagerForWorker.registerClient(rRequest); 
+		result.setResultClientId(rResult.getClientId());;
+		result.setResultToken(rResult.getToken());
+		result.setResultPort(subscriberWorkerServer.getPort());
 		result.setResultClientType(clientType); 
 		return result; 
 	}

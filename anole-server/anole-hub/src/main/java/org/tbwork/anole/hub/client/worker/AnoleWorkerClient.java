@@ -23,6 +23,8 @@ import org.tbwork.anole.hub.exceptions.SocketChannelNotReadyException;
 import org.tbwork.anole.hub.server.AnoleServer;
 import org.tbwork.anole.hub.server.boss._4_publisher.handler.MainLogicHandler;
 import org.tbwork.anole.hub.server.boss._4_publisher.handler.NewConnectionHandler;
+import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWorker;
+import org.tbwork.anole.hub.server.lccmanager.impl.WorkerClientManagerForBoss;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
 
 import com.google.common.base.Preconditions;
@@ -58,15 +60,15 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
 	SocketChannel socketChannel = null; 
 	
 	@Autowired
-    private ConnectionMonitor lcMonitor; 
+    private ConnectionMonitor lcMonitor;  
 	
-	@Autowired
-	@Qualifier("publisherServer")
-	private AnoleServer publisherServer;
 	  
 	@Autowired
-	@Qualifier("subscriberServer")
-	private AnoleServer subscriberServer;
+	@Qualifier("subscriberWorkerServer")
+	private AnoleServer subscriberWorkerServer;
+	
+	@Autowired
+	private SubscriberClientManagerForWorker subscriberClientManagerForWorker;
 	
 	int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
@@ -218,7 +220,7 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
                       		new ObjectEncoder(),
                      		    new ObjectDecoder(ClassResolvers.cacheDisabled(null)), 
                       		new AuthenticationHandler(anoleWorkerClient),  
-                      		new OtherLogicHandler(anoleWorkerClient, publisherServer, subscriberServer, lcMonitor)
+                      		new OtherLogicHandler(anoleWorkerClient, subscriberWorkerServer, lcMonitor, subscriberClientManagerForWorker)
                       		);
                   }
               }); 

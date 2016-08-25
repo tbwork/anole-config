@@ -40,7 +40,8 @@ public class PingTask extends TimerTask {
 					@Override
 					public void operationComplete(ChannelFuture future)
 							throws Exception {
-						logger.info("[:)] Ping message is sent successfully.");
+						if(logger.isDebugEnabled())
+							logger.debug("[:)] Ping message is sent successfully.");
 					}
 		
 				}

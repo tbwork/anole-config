@@ -42,7 +42,7 @@ import com.google.common.base.Preconditions;
  * problem or omitting to call "close()" method.
  * @author Tommy.Tang
  */ 
-@Service
+@Service("subscriberWorkerServer")
 public class AnoleSubscriberManagerWorkerServer implements AnoleServer{
 
 	volatile boolean started;

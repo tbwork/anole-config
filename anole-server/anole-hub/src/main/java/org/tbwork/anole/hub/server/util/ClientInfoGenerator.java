@@ -54,7 +54,7 @@ public class ClientInfoGenerator {
 	 {
 		 long nowtime = System.currentTimeMillis();
 		 Random random = new Random(nowtime);
-		 return random.nextInt();
+		 return random.nextInt(999999999);
 	 }
 	
 	

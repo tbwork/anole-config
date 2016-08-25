@@ -60,7 +60,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 		ChannelHelper.sendMessage(ctx, processModifyConfigMessage(msg)); 
 		 	} break;
 		 	case C2S_PING:{ 
-		 		logger.info("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
+		 		logger.debug("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
 		 		pcm.ackPing(clientId);
 		 	} break;
 		 	default:break; 

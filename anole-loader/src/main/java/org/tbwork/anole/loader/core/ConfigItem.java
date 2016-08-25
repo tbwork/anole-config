@@ -120,7 +120,7 @@ public class ConfigItem {
 				} 
 			}
 			finally{
-				key.notify();   
+				key.notifyAll();   
 			} 
 		} 
 	}

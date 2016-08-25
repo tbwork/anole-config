@@ -59,7 +59,7 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
     
     int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
-    
+     
     
     @Data
     public static class Servers{ 
@@ -69,7 +69,7 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
     private Servers servers;
 
     public static final Object lock = new Object();
-    public static volatile boolean executing = false;
+    public static volatile boolean authenticating = false;
     private AnoleAuthenticationClient(){
     	
     }
@@ -79,6 +79,7 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
     } 
       
     private ExecutorService es = Executors.newSingleThreadExecutor();
+    private ExecutorService es2 = Executors.newSingleThreadExecutor();
     
     
     //Properties
@@ -99,12 +100,12 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 			Future<Integer> future = es.submit(new Callable<Integer>() { 
 				@Override
 				public Integer call() throws Exception { 
-					if(!executing){
+					if(!authenticating){
 			    		synchronized(lock){
-			    			if(!executing){ 
-			    				executing = true;
-			    				connect();
-			    				while(executing)
+			    			if(!authenticating){ 
+			    				authenticating = true;
+			    				asynConnect();
+			    				while(authenticating)
 			    					lock.wait(); 
 			    			}
 			    		} 	
@@ -124,6 +125,7 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 		}
 		finally{
 			synchronized(lock){
+				authenticating = false;
 				lock.notifyAll();
 			} 
 		}
@@ -145,9 +147,19 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
   					}  
   				}
   			}
-  		} 
+  		}  
     }
 	
+    private void asynConnect(){
+    	es2.submit(new Callable<Integer>() { 
+			@Override
+			public Integer call() throws Exception {
+				connect();
+				return 0;
+			}
+		});
+    }
+    
     @Override
 	public void sendMessage(C2SMessage msg)
 	{ 

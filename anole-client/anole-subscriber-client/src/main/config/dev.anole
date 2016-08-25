@@ -3,4 +3,4 @@ name=tangbo
 password = 123
 b:autologin = true
 n:max_trial_number = 3
-cs=#{ip}:#{port}
+cs=#{ip}:1002

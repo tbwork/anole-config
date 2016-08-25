@@ -75,9 +75,8 @@ public class SubscriberConfigManager extends LocalConfigManager{
 			logger.debug("Set config: key = {}, value = {}, type = {}", key, value, type);
 		ConfigItem cItem = super.getConfigItem(key);
 		if(cItem == null) 
-			 cItem = new ConfigItem(key, value, type); 
-		else
-			 cItem.setValue(value, type);  
+			 throw new RuntimeException("Unknown key!"); 
+		cItem.setValue(value, type);  
 		if(logger.isDebugEnabled())
 			logger.debug("Notified! (key = {})", key);
 	}
@@ -122,7 +121,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 				} 
 			});  
 			@SuppressWarnings("unused")
-			Integer innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, TimeUnit.MILLISECONDS); 
+			Integer innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME*500, TimeUnit.MILLISECONDS); 
 			cItem.setGiveup(true);
 			cItem.getKey().notify();
 		} catch (TimeoutException e) {

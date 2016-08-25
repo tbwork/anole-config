@@ -67,12 +67,17 @@ public class WorkerClientManagerForBoss extends LongConnectionClientManager {
 			logger.error("Set register result failed: worker client (id = {}) is not found", clientId);
 		else{
 			if(wc.isProcessing() && !wc.isGiveup()){
-				CustomerClient cc = new CustomerClient(resultClientId, resultToken, resultPort);
-				//if(resultClientType == ClientType.SUBSCRIBER) 
-				wc.setSubscriber(cc);
-				wc.setProcessing(false);
-				wc.notifyAll();
-			}
+				synchronized(wc){
+					if(wc.isProcessing() && !wc.isGiveup()){
+						CustomerClient cc = new CustomerClient(resultClientId, resultToken, resultPort);
+						//if(resultClientType == ClientType.SUBSCRIBER) 
+						wc.setSubscriber(cc);
+						wc.setProcessing(false);
+						wc.notifyAll();
+						return;
+					} 
+				}
+			} 
 			wc.setSubscriber(null);
 		}
 	}

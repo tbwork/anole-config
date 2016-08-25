@@ -23,6 +23,8 @@ import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWor
 import org.tbwork.anole.hub.server.lccmanager.model.requests.UnregisterRequest;
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 
+import com.alibaba.fastjson.JSON;
+
 import io.netty.channel.ChannelHandler.Sharable;
 @Component("w4sMainLogicHandler")
 @Sharable
@@ -54,14 +56,17 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 		scm.unregisterClient(new UnregisterRequest(clientId)); // remove from the registry
 		 	} break;
 		 	case C2S_GET_CONFIG:{
-		 		ChannelHelper.sendMessage(ctx, processGetConfigMessage(msg)); 
+		 		ReturnConfigMessage rcm = processGetConfigMessage(msg);
+		 		if(logger.isDebugEnabled())
+		 			logger.debug("Configuration (key={}) is retrieved successfully, details: {}", rcm.getKey(), JSON.toJSONString(rcm)); 
+		 		ChannelHelper.sendMessage(ctx, rcm); 
 		 	} break;
 		 	case C2S_CONFIG_CHANGE_NOTIFY_ACK_C_2_W:{
 		 		C2WChangeNotifyAckMessage cnam = (C2WChangeNotifyAckMessage) msg;
 		 		scm.ackChangeNotify(cnam.getClientId(), cnam.getKey(), cnam.getTimestamp());
 		 	} break;
 		 	case C2S_PING:{ 
-		 		logger.info("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
+		 		logger.debug("[:)] Ping request received successfully from the client ( clientId = {}).", clientId);
 		 		scm.ackPing(clientId);
 		 	} break;
 		 	default:break; 

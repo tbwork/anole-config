@@ -194,11 +194,11 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
             	socketChannel = (SocketChannel)f.channel(); 
             	started = true;
             	connected = true;
-            	logger.info("[:)] Anole client successfully connected to the remote Anolo hub server with remote host = '{}' and port = {}", host, port);			            	
+            	logger.info("[:)] Anole subscriber successfully connected to the remote Anolo worker server with remote host = '{}' and port = {}", host, port);			            	
             } 
         }
         catch (InterruptedException e) {
-        	logger.error("[:(] Anole client failed to connect to the remote Anolo hub server with remote host = '{}' and port = ", host, port);
+        	logger.error("[:(] Anole subscriber failed to connect to the remote Anolo hub server with remote host = '{}' and port = ", host, port);
 			e.printStackTrace();
 		} 
 	}
@@ -232,9 +232,9 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
 	@Override
 	public void setWorkerServer(String ip, int port, int clientId, int token) {
 		 this.clientId = clientId;
-		 this.token = token;
-		 this.ip = ip;
-		 this.port = port;
+		 this.token    = token;
+		 this.ip       = ip;
+		 this.port     = port;
 	}
 
 	@Override

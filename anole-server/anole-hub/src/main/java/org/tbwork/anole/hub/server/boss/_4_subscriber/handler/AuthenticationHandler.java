@@ -23,6 +23,8 @@ import org.tbwork.anole.hub.server.lccmanager.model.clients.WorkerClient.Custome
 import org.tbwork.anole.hub.server.util.ChannelHelper;
 import org.tbwork.anole.hub.services.IUserService;
 
+import com.alibaba.fastjson.JSON;
+
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler; 
 import io.netty.channel.ChannelHandler.Sharable;
@@ -60,15 +62,16 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
     	 // authentification information from client
 		 if(MessageType.C2S_COMMON_AUTH.equals(msgType))
 		 { 
-			    CommonAuthenticationMessage bodyMessage = (CommonAuthenticationMessage) msg;
-			    String username = bodyMessage.getUsername();
-			    String password = bodyMessage.getPassword();
-			    ClientType clientType = bodyMessage.getClientType(); 
+			    CommonAuthenticationMessage bodyMessage = (CommonAuthenticationMessage) msg; 
+			    ClientType clientType = ClientType.SUBSCRIBER; 
 			    if(logger.isDebugEnabled())
-		 			logger.debug("A client ({}) is attempting to join the cluster. Its ip is {}", clientType, ctx.channel().remoteAddress());
-			    if(userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType))  
-			    	ChannelHelper.sendAndClose(ctx, assignWorker(clientType)); 
-		 		else{
+		 			logger.debug("A subscriber ({}) is attempting to connect to the cluster. Its ip is {}", clientType, ctx.channel().remoteAddress());
+			    if(userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType))  {
+			    	AssignedWorkerInfoMessage assignResult = assignWorker(clientType);
+			    	if(logger.isDebugEnabled())
+			    		logger.debug("New worker client is assigned, its content is: {}", JSON.toJSONString(assignResult));
+			    	ChannelHelper.sendAndClose(ctx, assignResult); 
+			    }else{
 		 			// invalid connection trial, send AuthFailAndCloseMessage message and then close the connection immediately.
 		 			AuthFailAndCloseMessage afcMsg = new AuthFailAndCloseMessage(); 
 		 			ChannelHelper.sendAndClose(ctx, afcMsg);
@@ -104,7 +107,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 			}
 		});
 		try{    
-			CustomerClient resultCc = futureResult.get(StaticConfiguration.WORKER_RESPONSE_TIMEOUT, TimeUnit.SECONDS); 
+			CustomerClient resultCc = futureResult.get(StaticConfiguration.WORKER_RESPONSE_TIMEOUT*5000, TimeUnit.SECONDS); 
 			if(resultCc != null){
 				result.setClientId(resultCc.getClientId());
 				result.setToken(resultCc.getToken());

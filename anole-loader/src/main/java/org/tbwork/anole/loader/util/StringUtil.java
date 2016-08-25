@@ -70,7 +70,8 @@ public class StringUtil {
 		 List<String> result = new ArrayList<String>();
 		 int p = 0;
 		 int vs = -1;
-		  
+		 if(value == null)
+			 throw new RuntimeException("");
 		 while( p < value.length())
 		 {
 			 char icl = p > 0 ? value.charAt(p-1) : ' ';
@@ -93,7 +94,6 @@ public class StringUtil {
 					 String message =  "Lack of '#{': an left brace '#{' is needed to match the right brace'}'.";
 					 throw new ErrorSyntaxException(key, message);
 				 }
-					 
 			 } 	 
 			 p ++;
 		 }

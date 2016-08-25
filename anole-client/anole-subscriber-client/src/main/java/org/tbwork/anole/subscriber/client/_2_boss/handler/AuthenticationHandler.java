@@ -1,6 +1,5 @@
 package org.tbwork.anole.subscriber.client._2_boss.handler;
-
-import java.util.concurrent.TimeUnit;
+ 
  
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler; 
@@ -10,21 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;  
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
-import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
-import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
+import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage; 
 import org.tbwork.anole.common.message.s_2_c.boss.AssignedWorkerInfoMessage;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
-import org.tbwork.anole.subscriber.client._2_boss.IAnoleAuthenticationClient;
+import org.tbwork.anole.loader.core.AnoleLocalConfig; 
 import org.tbwork.anole.subscriber.client._2_boss.impl.AnoleAuthenticationClient;
-import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.util.GlobalConfig; 
-
+import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient; 
 public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
 
 	static final Logger logger = LoggerFactory.getLogger(AuthenticationHandler.class);
 
 	private AnoleSubscriberClient anoleSubscriberClient = AnoleSubscriberClient.instance();
-	private IAnoleAuthenticationClient anoleAuthenticationClient = AnoleAuthenticationClient.instance();
+	private AnoleAuthenticationClient anoleAuthenticationClient = AnoleAuthenticationClient.instance();
 	
 	public AuthenticationHandler(){
 		super(false);
@@ -48,7 +43,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		      	ReferenceCountUtil.release(msg);
 	        } break;
 	        case S2C_AUTH_FAIL_CLOSE:{
-		      	logger.error("[:(] Username or password is invalid, please check them and try again.");  
+		      	logger.error("[:(] Username or password is invalid, please check them and try again."); 
+		      	AnoleAuthenticationClient.authenticating = false;
 		      	ReferenceCountUtil.release(msg);
 			} break;
 		 	case S2C_AUTH_PASS:{ 
@@ -59,6 +55,7 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		 				authenResult.getPort(),
 		 				authenResult.getClientId(), 
 		 				authenResult.getToken()); 	
+		 		AnoleAuthenticationClient.authenticating = false;
 		 		synchronized(AnoleAuthenticationClient.lock){
 		 			AnoleAuthenticationClient.lock.notifyAll();
 		 		} 
