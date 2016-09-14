@@ -29,7 +29,8 @@ import org.tbwork.anole.hub.server.lccmanager.impl.WorkerClientManagerForBoss;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest;
 import org.tbwork.anole.hub.server.lccmanager.model.response.RegisterResult;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
-import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo; 
+import org.tbwork.anole.hub.server.util.ClientInfoGenerator.ClientInfo;
+import org.tbwork.anole.hub.util.SystemUtil; 
  
 @Sharable
 public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
@@ -62,6 +63,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 		PingAckMessage paMsg = (PingAckMessage) msg; 
 		 		processPingAckResponse(paMsg);
 		 	} break;
+		 	//register worker to the boss
 		 	case S2C_REGISTER_CLIENT:{
 		 		RegisterClientMessage rcm = (RegisterClientMessage) msg;
 		 		ClientType clientType = rcm.getClientType();
@@ -81,6 +83,7 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		result.setResultClientId(rResult.getClientId());;
 		result.setResultToken(rResult.getToken());
 		result.setResultPort(subscriberWorkerServer.getPort());
+		result.setResultIp(SystemUtil.getLanIp());
 		result.setResultClientType(clientType); 
 		return result; 
 	}

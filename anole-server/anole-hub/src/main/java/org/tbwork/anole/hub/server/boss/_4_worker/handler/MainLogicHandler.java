@@ -57,7 +57,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 	} break;
 		 	case C2S_REGISTER_RESULT:{
 		 		RegisterResultMessage rrm = (RegisterResultMessage)msg;
-		 		wcm.setRegisterResult(rrm.getClientId(), rrm.getResultClientId(), rrm.getResultToken(), rrm.getResultPort(), rrm.getResultClientType());
+		 		wcm.setRegisterResult(rrm.getClientId(), rrm.getResultClientId(), rrm.getResultToken(), rrm.getResultIp(), rrm.getResultPort(), rrm.getResultClientType());
 		 	} break;
 		 	case C2S_CONFIG_CHANGE_NOTIFY_ACK_W_2_B:{
 		 		W2BChangeNotifyAckMessage cnam = (W2BChangeNotifyAckMessage) msg;

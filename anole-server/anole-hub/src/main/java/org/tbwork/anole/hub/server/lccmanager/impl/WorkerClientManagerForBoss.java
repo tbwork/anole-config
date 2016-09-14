@@ -61,7 +61,7 @@ public class WorkerClientManagerForBoss extends LongConnectionClientManager {
 		return ClientEntropyUtil.selectBestWorker(ClientType.SUBSCRIBER, lcMap);
 	}
 	  
-	public void setRegisterResult(int clientId, int resultClientId, int resultToken, int resultPort, ClientType resultClientType){
+	public void setRegisterResult(int clientId, int resultClientId, int resultToken, String resultIp, int resultPort, ClientType resultClientType){
 		WorkerClient wc =  (WorkerClient) lcMap.get(clientId);
 		if(wc == null)
 			logger.error("Set register result failed: worker client (id = {}) is not found", clientId);
@@ -69,7 +69,7 @@ public class WorkerClientManagerForBoss extends LongConnectionClientManager {
 			if(wc.isProcessing() && !wc.isGiveup()){
 				synchronized(wc){
 					if(wc.isProcessing() && !wc.isGiveup()){
-						CustomerClient cc = new CustomerClient(resultClientId, resultToken, resultPort);
+						CustomerClient cc = new CustomerClient(resultClientId, resultToken, resultPort, resultIp);
 						//if(resultClientType == ClientType.SUBSCRIBER) 
 						wc.setSubscriber(cc);
 						wc.setProcessing(false);

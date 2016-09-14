@@ -111,7 +111,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 			if(resultCc != null){
 				result.setClientId(resultCc.getClientId());
 				result.setToken(resultCc.getToken());
-				result.setIp(ChannelHelper.getIp(wc));
+				result.setIp(resultCc.getLanIp());
 				result.setPort(resultCc.getPort());
 			} 
 			return result;

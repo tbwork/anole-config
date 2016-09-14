@@ -58,6 +58,7 @@ public class WorkerClient extends LongConnectionClient{
 		private int clientId;
 		private int token; 
 		private int port;
+		private String lanIp;
 	}
 	
 	public WorkerClient(int token, SocketChannel socketChannel){
