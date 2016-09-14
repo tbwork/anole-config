@@ -31,5 +31,14 @@ public class SystemUtil {
 		}
 		throw new RuntimeException("No available port!");
 	}
-	
+
+	public static String getLanIp(){
+		try{
+			InetAddress ia = InetAddress.getLocalHost();  
+	        return ia.getHostAddress();  
+		}
+		catch(Exception e){
+			return "127.0.0.1";
+		}
+	}
 }

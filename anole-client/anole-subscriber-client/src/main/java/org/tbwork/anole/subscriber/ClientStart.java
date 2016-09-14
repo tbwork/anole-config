@@ -1,5 +1,7 @@
 package org.tbwork.anole.subscriber;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +22,7 @@ public class ClientStart
 	public static final Object connectLock = new Object();
 	 
 	
-    public static void main( String[] args )
+    public static void main( String[] args ) throws UnknownHostException
     { 
     	startUp();
     }

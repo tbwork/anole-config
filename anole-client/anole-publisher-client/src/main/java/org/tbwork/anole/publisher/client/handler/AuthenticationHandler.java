@@ -16,6 +16,7 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
+import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.publisher.client.IAnolePublisherClient;
 import org.tbwork.anole.publisher.client.StaticClientConfig;
 import org.tbwork.anole.publisher.client.impl.AnolePublisherClient; 
@@ -31,8 +32,10 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	} 
 	private CommonAuthenticationMessage getAuthInfo(){
 		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
-    	authBody.setUsername("tommy.tang");
-    	authBody.setPassword("123456"); 
+		String username = AnoleLocalConfig.getProperty("anole.client.publisher.username", "tangbo");
+		String password = AnoleLocalConfig.getProperty("anole.client.publisher.password", "123");
+    	authBody.setUsername(username);
+    	authBody.setPassword(password); 
     	return authBody;
 	}
 
@@ -44,7 +47,7 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		MessageType msgType=  msg.getType(); 
         switch (msgType){
 	        case S2C_AUTH_FIRST:{ //Please login first. 
-	        	anolePublisher.sendMessage(getAuthInfo()); 
+	        	ctx.writeAndFlush(getAuthInfo()); 
 		      	ReferenceCountUtil.release(msg);
 	        } break;
 	        case S2C_AUTH_FAIL_CLOSE:{

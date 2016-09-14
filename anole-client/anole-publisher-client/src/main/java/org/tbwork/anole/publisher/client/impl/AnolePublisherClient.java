@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage; 
+import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.publisher.client.AnoleClientConfig;
 import org.tbwork.anole.publisher.client.ConnectionMonitor;
 import org.tbwork.anole.publisher.client.IAnolePublisherClient;
@@ -37,7 +38,8 @@ import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.internal.logging.InternalLogger;
 import io.netty.util.internal.logging.InternalLoggerFactory; 
 
-import com.google.common.base.Preconditions; 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists; 
 /** 
  * @author Tommy.Tang
  */ 
@@ -56,12 +58,22 @@ public class AnolePublisherClient implements IAnolePublisherClient{
     private static final AnolePublisherClient publisher = new AnolePublisherClient();
  
     
+    
+    
     int clientId = 0; // assigned by the server
     int token = 0;    // assigned by the server 
     
     private ConnectionMonitor lcMonitor = LongConnectionMonitor.instance();
     
-    private Servers servers;
+    private Servers servers = new Servers();
+    
+    private void initialize(){
+    	String serversString = getProperty(ClientProperties.BOSS_2_PUBLISHER_SERVER_ADDRESS);
+    	String [] _servers = serversString.split(",");
+    	if(_servers.length < 2)
+    		throw new RuntimeException("At least two boss server were specified for sake of robustness! If you obstinately want to use only one, just specify two same addresses.");
+    	servers.setAddresses(Lists.newArrayList(_servers)); 
+    }
     
     /**
      * Used to detect disconnection
@@ -72,11 +84,11 @@ public class AnolePublisherClient implements IAnolePublisherClient{
      */
     private int MAX_PING_COUNT = 5;
     
-    private AnolePublisherClient(){}
+    private AnolePublisherClient(){initialize();}
     
     //Properties
     public static enum ClientProperties{ 
-    	BOSS_2_WOKRER_SERVER_ADDRESS("anole.client.worker.boss.address", "localhost:54321,localhost:54322"),  
+    	BOSS_2_PUBLISHER_SERVER_ADDRESS("anole.client.publisher.boss.address", "localhost:54321,localhost:54322"),  
     	;
     	private String name;
     	private String defaultValue;
@@ -299,4 +311,13 @@ public class AnolePublisherClient implements IAnolePublisherClient{
 		return connected;
 	}
 	
+	 
+	private String getProperty(ClientProperties clientProperties){
+    	return AnoleLocalConfig.getProperty(clientProperties.name, clientProperties.defaultValue);
+	}
+	    
+    private int getIntProerty(ClientProperties clientProperties){
+    	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
+    }
+		
 }

@@ -19,8 +19,12 @@ public class RegisterResultMessage extends C2SMessage {
 	 * Different from token in C2SMessage, this is a result
 	 * to tell Boss server to forward to the customer clients.
 	 */
-	private int resultToken;
+	private int resultToken; 
 	
+	/**
+	 * Worker's ip address in the LAN
+	 */
+	private String resultIp;
 	
 	/**
 	 * The port which is binded by the worker.
