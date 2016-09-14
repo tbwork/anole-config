@@ -26,8 +26,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	} 
 	private CommonAuthenticationMessage getAuthInfo(){
 		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
-    	authBody.setUsername(AnoleLocalConfig.getProperty("client.username","tangbo"));
-    	authBody.setPassword(AnoleLocalConfig.getProperty("client.password", "123")); 
+    	authBody.setUsername(AnoleLocalConfig.getProperty("anole.client.subscriber.username","tangbo"));
+    	authBody.setPassword(AnoleLocalConfig.getProperty("anole.client.subscriber.password", "123")); 
     	return authBody;
 	}
 
