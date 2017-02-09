@@ -32,7 +32,7 @@ public class BossServer4PublisherStarter
 	 
 	public void run()
     {  
-    	int port = StringUtil.getPort("anole.server.boss.4subscriber.port", DEFAULT_PORTS); 
+    	int port = StringUtil.getPort("anole.server.boss.4publisher.port", DEFAULT_PORTS); 
     	anolePublisherManagerBossServer.start(port);  
     }
      

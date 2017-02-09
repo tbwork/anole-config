@@ -12,9 +12,11 @@ import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.common.UnixTime;
+import org.tbwork.anole.common.enums.ClientType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
+import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.publisher.client.IAnolePublisherClient;
@@ -36,6 +38,7 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		String password = AnoleLocalConfig.getProperty("anole.client.publisher.password", "123");
     	authBody.setUsername(username);
     	authBody.setPassword(password); 
+    	authBody.setClientType(ClientType.PUBLISHER);
     	return authBody;
 	}
 
@@ -51,7 +54,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		      	ReferenceCountUtil.release(msg);
 	        } break;
 	        case S2C_AUTH_FAIL_CLOSE:{
-		      	logger.error("[:(] Username or password is invalid, please check them and try again."); 
+	        	AuthFailAndCloseMessage amsg = (AuthFailAndCloseMessage) msg;
+		      	logger.error("[:(] Authen failed ({}), please check them and try again.", amsg.getNote()); 
 		      	anolePublisher.close(); // close the connection and wait for next trial
 		      	ReferenceCountUtil.release(msg);
 			} break;

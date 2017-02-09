@@ -242,7 +242,7 @@ public class AnolePublisherClient implements IAnolePublisherClient{
             	socketChannel = (SocketChannel)f.channel(); 
             	started = true;
             	connected = true;
-            	logger.info("[:)] Anole client successfully connected to the remote Anolo boss server with remote host = '{}' and port = {}", host, port);			            	
+            	logger.debug("[:)] Anole client successfully connected to the remote Anolo server with remote host = '{}' and port = {}", host, port);			            	
             	return true;
             } 
             else

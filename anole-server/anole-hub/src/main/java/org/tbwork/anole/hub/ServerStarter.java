@@ -25,7 +25,7 @@ public class ServerStarter
 	public static void main( String[] args ) throws InterruptedException
     {  
     	AnoleLoader al = new AnoleClasspathLoader();
-    	al.load();   
+    	al.load();
     	ApplicationContext context = new ClassPathXmlApplicationContext(
         		"spring/spring-context.xml",
         		"classpath*:spring/spring-database.xml"

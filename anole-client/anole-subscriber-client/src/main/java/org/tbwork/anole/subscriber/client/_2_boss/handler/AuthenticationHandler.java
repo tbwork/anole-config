@@ -6,7 +6,8 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.ReferenceCountUtil;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;  
+import org.slf4j.LoggerFactory;
+import org.tbwork.anole.common.enums.ClientType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage; 
@@ -28,6 +29,7 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
     	authBody.setUsername(AnoleLocalConfig.getProperty("anole.client.subscriber.username","tangbo"));
     	authBody.setPassword(AnoleLocalConfig.getProperty("anole.client.subscriber.password", "123")); 
+    	authBody.setClientType(ClientType.SUBSCRIBER);
     	return authBody;
 	}
 

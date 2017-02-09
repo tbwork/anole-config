@@ -4,3 +4,8 @@ env=all
 #If you start a worker on a high-performance server, you can
 # set this value to higher to fully use its capacity.
 n:worker.weight=7
+
+#server configuration
+anole.server.boss.4publisher.port=54321,54322
+anole.server.boss.4subscriber.port=54323,54324
+anole.server.boss.4worker.port=54325,54326

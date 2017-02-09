@@ -79,7 +79,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 			    ClientType clientType = bodyMessage.getClientType(); 
 			    if(logger.isDebugEnabled())
 		 			logger.debug("A publish client ({}) is attempting to connect to the boss. Its ip is {}", clientType, ctx.channel().remoteAddress());
-			    if(userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType)){   
+			    if(clientType.equals(ClientType.PUBLISHER) && userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType)){   
 			    	RegisterResult registerResult = pcm.registerClient(new RegisterRequest((SocketChannel)ctx.channel(), new RegisterParameter(), clientType));
 			    	AuthPassWithTokenMessage authPassMessage = new AuthPassWithTokenMessage();
 			    	authPassMessage.setClientId(registerResult.getClientId());
@@ -89,6 +89,10 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		 		else{
 		 			// invalid connection trial, send AuthFailAndCloseMessage message and then close the connection immediately.
 		 			AuthFailAndCloseMessage afcMsg = new AuthFailAndCloseMessage(); 
+		 			if(!clientType.equals(ClientType.SUBSCRIBER))
+		 				afcMsg.setNote(String.format("The client's type is not valid. expect %s, but get %s ", ClientType.PUBLISHER, clientType));
+		 			else
+		 				afcMsg.setNote("User identification is failed.");
 		 			ChannelHelper.sendAndClose(ctx, afcMsg);
 		 		} 
 		 } 

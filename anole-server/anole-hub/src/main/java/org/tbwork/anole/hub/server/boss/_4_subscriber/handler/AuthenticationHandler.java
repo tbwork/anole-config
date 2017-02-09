@@ -63,10 +63,10 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		 if(MessageType.C2S_COMMON_AUTH.equals(msgType))
 		 { 
 			    CommonAuthenticationMessage bodyMessage = (CommonAuthenticationMessage) msg; 
-			    ClientType clientType = ClientType.SUBSCRIBER; 
+			    ClientType clientType = bodyMessage.getClientType(); 
 			    if(logger.isDebugEnabled())
-		 			logger.debug("A subscriber ({}) is attempting to connect to the cluster. Its ip is {}", clientType, ctx.channel().remoteAddress());
-			    if(userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType))  {
+		 			logger.debug("A client ({}) is attempting to connect to the cluster. Its ip is {}", clientType, ctx.channel().remoteAddress());
+			    if(clientType.equals(ClientType.SUBSCRIBER) && userService.verify(bodyMessage.getUsername(), bodyMessage.getPassword(), clientType))  {
 			    	AssignedWorkerInfoMessage assignResult = assignWorker(clientType);
 			    	if(logger.isDebugEnabled())
 			    		logger.debug("New worker client is assigned, its content is: {}", JSON.toJSONString(assignResult));
@@ -74,6 +74,10 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 			    }else{
 		 			// invalid connection trial, send AuthFailAndCloseMessage message and then close the connection immediately.
 		 			AuthFailAndCloseMessage afcMsg = new AuthFailAndCloseMessage(); 
+		 			if(!clientType.equals(ClientType.SUBSCRIBER))
+		 				afcMsg.setNote(String.format("The client's type is not valid. expect %s, but get %s ", ClientType.SUBSCRIBER, clientType));
+		 			else
+		 				afcMsg.setNote("User identification is failed.");
 		 			ChannelHelper.sendAndClose(ctx, afcMsg);
 		 		} 
 		 }

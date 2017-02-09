@@ -258,14 +258,14 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
             	socketChannel = (SocketChannel)f.channel(); 
             	started = true;
             	connected = true;
-            	logger.info("[:)] Anole client successfully connected to the Boss with remote host = '{}' and port = {}", host, port);			            	
+            	logger.debug("[:)] Anole client successfully connected to the server with remote host = '{}' and port = {}", host, port);			            	
             	return true;
             } 
             else
             	return false;
         }
         catch (InterruptedException e) {
-        	logger.error("[:(] AuthenFailed Boss with remote host = '{}' and port = ", host, port);
+        	logger.error("[:(] Anole client failed connect to the server with remote host = '{}' and port = ", host, port);
 			e.printStackTrace();
 			return false;
 		} 
