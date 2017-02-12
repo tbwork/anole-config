@@ -16,8 +16,7 @@ import org.tbwork.anole.subscriber.client._2_boss.impl.AnoleAuthenticationClient
 import org.tbwork.anole.subscriber.client._2_worker.ConnectionMonitor; 
 import org.tbwork.anole.subscriber.client._2_worker.handler.ConfigChangeNotifyMessageHandler;
 import org.tbwork.anole.subscriber.client._2_worker.handler.ExceptionHandler;
-import org.tbwork.anole.subscriber.client._2_worker.handler.OtherLogicHandler;
-import org.tbwork.anole.subscriber.core.AnoleConfig;  
+import org.tbwork.anole.subscriber.client._2_worker.handler.OtherLogicHandler; 
 import org.tbwork.anole.subscriber.exceptions.AuthenticationNotReadyException;
 import org.tbwork.anole.subscriber.exceptions.SocketChannelNotReadyException;
 
@@ -87,7 +86,7 @@ public class AnoleSubscriberClient implements IAnoleSubscriberClient{
     	
     	aac.authenticate();
     	if(ip == null || port ==0 ){
-    		throw new RuntimeException("Authenticate failed.");
+    		throw new RuntimeException("There is no suitable worker server yet, please try again later!");
     	}
     	connectToWorker();
     }

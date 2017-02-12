@@ -8,6 +8,7 @@ import lombok.Data;
 public class AssignedWorkerInfoMessage extends AuthPassWithTokenMessage{ 
 	private String ip;
 	private int port; 
+	private String message;
 	
 	public AssignedWorkerInfoMessage(){
 		this.setClientId(-1);

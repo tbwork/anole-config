@@ -49,7 +49,7 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         cause.printStackTrace();
         ctx.close();
-    } 
+    }
 
 	@Override
 	protected void messageReceived(ChannelHandlerContext ctx, C2SMessage msg)
@@ -89,7 +89,10 @@ public class AuthenticationHandler extends SimpleChannelInboundHandler<C2SMessag
 		WorkerClient wc = null; 
 		if(clientType == ClientType.SUBSCRIBER) 
 			wc = wcm.selectBestWorkerForSubscriber(); 
-		if(wc == null)  return result;
+		if(wc == null){
+			result.setMessage("There is no suitable worker server yet, please try again later.");
+			return result;
+		}
 		//remote register a new subscriber or publisher client.
 		final WorkerClient wcLock = wc;
 		Future<CustomerClient> futureResult = wcm.executeThread(new Callable<CustomerClient>() { 

@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.net.ConnectException;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -92,7 +93,8 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
     		this.name = name;
     		this.defaultValue = defaultValue;
     	} 
-    }
+    } 
+    
     
     @Override
 	public void authenticate() {
@@ -102,7 +104,7 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 				public Integer call() throws Exception { 
 					if(!authenticating){
 			    		synchronized(lock){
-			    			if(!authenticating){ 
+			    			if(!authenticating){
 			    				authenticating = true;
 			    				asynConnect();
 			    				while(authenticating)
@@ -114,10 +116,10 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 				} 
 	    	});
 	    	
-	    	future.get(GlobalConfig.AUTHENTICATION_TIMEOUT_LIMIT*500, TimeUnit.MILLISECONDS);
+	    	future.get(GlobalConfig.AUTHENTICATION_TIMEOUT_LIMIT, TimeUnit.MILLISECONDS);
 		}
 		catch(TimeoutException e){
-			logger.error("Authentication is timeout. Please try latter.", e.getMessage());
+			logger.error("Authentication is timeout. Please try later.", e.getMessage());
 		}
 		catch(Exception e){
 			e.printStackTrace();
@@ -211,7 +213,8 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
   			if(executeConnect(serverString))
   				return ;
   		} 
-  		throw new RuntimeException("No available boss server! Please make sure at least one boss is running and reachable!"); 
+  		logger.error("No available boss server! Please make sure at least one boss is running and reachable!");
+  	//	throw new RuntimeException("No available boss server! Please make sure at least one boss is running and reachable!"); 
   	}
   	
  	/** 
@@ -233,8 +236,9 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 	private boolean executeConnect(String host, int port)
 	{ 
 		Preconditions.checkNotNull (host  , "host should be null.");
-		Preconditions.checkArgument(port>0, "port should be > 0"  );
-        EventLoopGroup workerGroup = new NioEventLoopGroup(); 
+		Preconditions.checkArgument(port>0, "port should be > 0"  ); 
+  		logger.info("Connecting to the boss server at {}:{}", host, port);
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             Bootstrap b = new Bootstrap();
             b.group(workerGroup);
@@ -253,14 +257,14 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
                 }
             }); 
             // Start the client.
-            ChannelFuture f = b.connect(host, port).sync();  
+            ChannelFuture f = b.connect(host, port).sync();   
             if (f.isSuccess()) {
-            	socketChannel = (SocketChannel)f.channel(); 
+            	socketChannel = (SocketChannel) f.channel(); 
             	started = true;
             	connected = true;
             	logger.debug("[:)] Anole client successfully connected to the server with remote host = '{}' and port = {}", host, port);			            	
             	return true;
-            } 
+            }
             else
             	return false;
         }
@@ -268,7 +272,11 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
         	logger.error("[:(] Anole client failed connect to the server with remote host = '{}' and port = ", host, port);
 			e.printStackTrace();
 			return false;
-		} 
+		}
+        catch(Exception e){
+        	logger.error("[:(] Connecting to the boss server ({}:{}) failed because of {}. Please check the boss server address and try again. ", host, port, e.getMessage());
+			return false;
+        }
 	}
 	
 	private void executeClose()

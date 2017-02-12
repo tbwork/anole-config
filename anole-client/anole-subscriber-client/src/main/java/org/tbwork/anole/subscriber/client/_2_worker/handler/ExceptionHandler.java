@@ -27,6 +27,7 @@ public class ExceptionHandler extends ChannelHandlerAdapter {
     		logger.warn("The Anole server (address = {}) disconnected initiatively! ", ctx.channel().remoteAddress());
     	}
     	else {
+    		logger.warn("Exceptions caught, more details: ");
     		cause.printStackTrace();
     	} 
         ctx.close();

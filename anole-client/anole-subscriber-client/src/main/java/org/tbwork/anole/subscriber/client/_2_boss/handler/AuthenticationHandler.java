@@ -50,8 +50,13 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		      	ReferenceCountUtil.release(msg);
 			} break;
 		 	case S2C_AUTH_PASS:{ 
-		 		logger.info ("[:)] Login successfully."); 
+		 		logger.info ("[:)] Authentication passed."); 
 		 		AssignedWorkerInfoMessage authenResult = ((AssignedWorkerInfoMessage)msg);
+		 		if(authenResult.getPort() <=0 || "null".equals(authenResult.getIp())){
+		 			logger.error("[:(] Can not to connect to worker server. More details: {}", authenResult.getMessage());
+		 			break;
+		 		}
+		 		logger.info ("[:)] Successfully connectted to the worker server {}:{}.", authenResult.getIp(), authenResult.getPort()); 
 		 		anoleSubscriberClient.setWorkerServer(
 		 				authenResult.getIp(),
 		 				authenResult.getPort(),
