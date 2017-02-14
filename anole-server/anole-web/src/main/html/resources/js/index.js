@@ -1151,7 +1151,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     }
     
     function refreshCurrentProjectConfigs(){
-    	self.configListResult = queryConfigsByProAndEnv(self.currentProject.projectName, self.currentEnv);
+    	if(self.currentProject!=null && self.currentProject.projectName!=null)
+    		self.configListResult = queryConfigsByProAndEnv(self.currentProject.projectName, self.currentEnv);
     }
     function queryCurrentProjectConfigsByEnv(env){
     	var project = self.currentProject.projectName;
