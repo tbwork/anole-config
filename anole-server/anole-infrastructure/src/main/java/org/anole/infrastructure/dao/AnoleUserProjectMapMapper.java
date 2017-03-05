@@ -8,6 +8,6 @@ import org.apache.ibatis.annotations.Param;
 
 public interface AnoleUserProjectMapMapper extends MybatisBaseMapper<AnoleUserProjectMap, Integer> { 
  
-	int selectRoleByProjectKeyEnv(@Param("username")String username, @Param("project")String project, @Param("env")String env);
+	Integer selectRoleByProjectKeyEnv(@Param("username")String username, @Param("project")String project, @Param("env")String env);
 
 }

@@ -1,5 +1,6 @@
 package org.anole.infrastructure.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import org.anole.infrastructure.model.AnoleConfig;
@@ -10,4 +11,7 @@ public interface AnoleConfigMapper extends MybatisBaseMapper<AnoleConfig, Intege
 	 
 	//Custom method
     AnoleConfig selectByConfigKey(@Param("key") String key);
+    
+	//Custom method
+    List<AnoleConfig> selectConfigsByUpdatedTime(@Param("updateTime") Date updateTime);
 }

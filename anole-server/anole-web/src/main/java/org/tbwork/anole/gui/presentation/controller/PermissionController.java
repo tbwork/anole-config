@@ -61,7 +61,7 @@ public class PermissionController {
 		 try{ 
 			 initializeCheck(0);
 			 loginCheck(sessionBox); 
-			 result.setResult(pers.getPermission(demand.getProject(), sessionBox.getUsername(), demand.getEnv()));
+			 result.setResult(pers.getUserRole(demand.getProject(), sessionBox.getUsername(), demand.getEnv()));
 			 result.setSuccess(true);  
 			 result.setErrorMessage("OK");
 		 }

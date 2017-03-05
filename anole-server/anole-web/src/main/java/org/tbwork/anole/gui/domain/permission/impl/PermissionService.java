@@ -47,6 +47,7 @@ public class PermissionService implements IPermissionService {
 	private AnoleProjectMapper anoleProjectMapper;
 	
 	private final static List<String> roles = Lists.newArrayList("stranger", "vistor", "manager","owner"); 
+	 
 	
 	
 	@Override
@@ -74,10 +75,13 @@ public class PermissionService implements IPermissionService {
 				anoleUserProjectMapMapper.insert(aupMap);
 			}else{
 				AnoleProject ap = anoleProjectMapper.selectByName(permissionDemand.getProjectName());
-				if(ap == null) throw new RuntimeException("The project is not existed now!");
+				if(ap == null) throw new RuntimeException("The project is not existed!");
 				ap.setOwner(permissionDemand.getUsername());
 				anoleProjectMapper.updateByPrimaryKey(ap);
 			} 
+			String cacheKey = CacheKeys.buildPermissionCacheKey(permissionDemand.getProjectName(), permissionDemand.getUsername(), permissionDemand.getEnv());
+			lc.set(cacheKey, getRole(permissionDemand.getRole()), 0);
+			
 			result.setErrorMessage("OK");
 			result.setSuccess(true);
 		}
@@ -127,12 +131,16 @@ public class PermissionService implements IPermissionService {
 
 
 	@Override
-	public int getPermission(String project, String user, String env) {
-		try{
+	public int getUserRole(String project, String user, String env) {
+		try{ 
 			if(user == null || user.isEmpty())
 				return 0;
 			if(user.equals("admin"))// admin is the owner of whole projects.
-				return 3;
+				return 3; 
+			String cacheKey = CacheKeys.buildPermissionCacheKey(project, user, env);
+			Integer permission = lc.get(cacheKey);
+			if(permission != null)
+				return permission; 
 			AnoleProject ap = anoleProjectMapper.selectByName(project);
 			if(ap!=null && ap.getOwner().equals(user))
 				return 3;

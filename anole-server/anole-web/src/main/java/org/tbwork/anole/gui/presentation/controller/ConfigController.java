@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.tbwork.anole.gui.domain.config.IConfigService;
-import org.tbwork.anole.gui.domain.model.Config;
+import org.tbwork.anole.gui.domain.model.ConfigBrief;
 import org.tbwork.anole.gui.domain.model.demand.AddConfigDemand; 
 import org.tbwork.anole.gui.domain.model.demand.DeleteConfigDemand;
+import org.tbwork.anole.gui.domain.model.demand.FuzzyGetConfigByKeyDemand;
 import org.tbwork.anole.gui.domain.model.demand.GetConfigByKeyAndEnvDemand;
 import org.tbwork.anole.gui.domain.model.demand.GetConfigsByProjectAndEnvDemand;
 import org.tbwork.anole.gui.domain.model.demand.ModifyConfigDemand;
@@ -45,7 +46,7 @@ public class ConfigController {
 	public String createConfig(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody AddConfigDemand config)
 	{  
 		 PostResponse<AddConfigResult> result = new PostResponse<AddConfigResult>();
-		 try{ 
+		 try{ 	
 			 initializeCheck(0);
 			 loginCheck(sessionBox);
 			 config.setOperator(sessionBox.getUsername());
@@ -107,7 +108,7 @@ public class ConfigController {
 	@ResponseBody
 	public String getByProjectAndEnv(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody GetConfigsByProjectAndEnvDemand demand)
 	{  
-		 PostResponse<List<Config>> result = new PostResponse<List<Config>>();
+		 PostResponse<List<ConfigBrief>> result = new PostResponse<List<ConfigBrief>>();
 		 try{ 
 			 initializeCheck(0);
 			 result.setResult(cs.getConfigsByProjectAndEnv(demand));
@@ -127,7 +128,7 @@ public class ConfigController {
 	@ResponseBody
 	public String getByKeyAndEnv(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody GetConfigByKeyAndEnvDemand demand)
 	{  
-		 PostResponse<Config> result = new PostResponse<Config>();
+		 PostResponse<ConfigBrief> result = new PostResponse<ConfigBrief>();
 		 try{ 
 			 initializeCheck(0);
 			 loginCheck(sessionBox);
@@ -142,6 +143,27 @@ public class ConfigController {
 		 } 
 		 return result.toString();
 	}
+	
+	
+	@RequestMapping(value="/fuzzyGetByKey", method=RequestMethod.POST)
+	@ResponseBody
+	public String fuzzyGetByKey(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody FuzzyGetConfigByKeyDemand demand)
+	{  
+		 PostResponse<List<ConfigBrief>> result = new PostResponse<List<ConfigBrief>>();
+		 try{ 
+			 initializeCheck(0);
+			 //result.setResult(cs.fuzzyGetConfigsByKey(demand));
+			 result.setSuccess(true);  
+			 result.setErrorMessage("OK");
+		 }
+		 catch(Exception e){
+			 result.setErrorMessage(e.getMessage());
+			 result.setResult(null);
+			 result.setSuccess(false);
+		 } 
+		 return result.toString();
+	}
+	
 	
 	private void initializeCheck(int index){
 		 if(index == 1 || index == 0) if(!us.isInitialized()) throw new RuntimeException("Please create admin account first.");

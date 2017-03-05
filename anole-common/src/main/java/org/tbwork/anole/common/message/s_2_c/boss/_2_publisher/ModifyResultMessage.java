@@ -9,15 +9,20 @@ import org.tbwork.anole.common.model.ConfigModifyResultDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-@Data
-@AllArgsConstructor
+@Data 
 public class ModifyResultMessage extends Message{
 
 	 private ConfigModifyResultDTO changeResult;
 	 
 	 public ModifyResultMessage()
 	 {
-		 super(MessageType.S2C_REGISTER_CLIENT);
+		 super(MessageType.S2C_MODIFY_RESULT);
+	 }
+	 
+	 public ModifyResultMessage(ConfigModifyResultDTO configModifyResultDTO)
+	 {
+		 super(MessageType.S2C_MODIFY_RESULT);
+		 changeResult = configModifyResultDTO;
 	 }
 	
 }

@@ -33,13 +33,11 @@ public class AnolePublisher extends AnoleLocalConfig{
 	public static Object writeLock = new Object();
 	public static volatile boolean writing;
 	public static volatile ConfigModifyResultDTO operationResult;
-	public static ExecutorService executor = Executors.newSingleThreadExecutor();
+	public static ExecutorService executor = Executors.newFixedThreadPool(AnoleLocalConfig.getIntProperty("anole.client.publisher.write.thread.count", 20));
 	
 	public static ConfigChangeResponse edit(ConfigChangeRequest ccr){
 		Preconditions.checkArgument(ccr.getOperator()!=null && !ccr.getOperator().isEmpty(), "Operator must be specified.");
 		Preconditions.checkArgument(ccr.getConfigChangeDTO()!=null, "Configuration change object must be specified.");
-		Preconditions.checkNotNull(ccr.getConfigChangeDTO().getOriConfigType(),"Original type must be specified.");
-		Preconditions.checkNotNull(ccr.getConfigChangeDTO().getOrigValue(),"Original value must be specified.");
 		return modify(ccr);
 	}
 	
@@ -49,15 +47,14 @@ public class AnolePublisher extends AnoleLocalConfig{
 		
 		return modify(ccr);
 	}
-	
-	private static ConfigChangeResponse modify(ConfigChangeRequest ccr){ 
+	private static ConfigChangeResponse modify(ConfigChangeRequest ccr){
 		ConfigChangeResponse result = new ConfigChangeResponse(); 
-		final ModifyConfigMessage mcm = new ModifyConfigMessage(ccr.getOperator(), ccr.getConfigChangeDTO());  
+		final ModifyConfigMessage mcm = new ModifyConfigMessage(ccr.getOperator(), ccr.getConfigChangeDTO()); 
 		try { 
 			Future<ConfigChangeResponse> future = executor.submit(new Callable<ConfigChangeResponse>() { 
 				@Override
-				public ConfigChangeResponse call() throws Exception { 
-					ConfigChangeResponse tempResult = new ConfigChangeResponse();
+				public ConfigChangeResponse call() throws Exception {
+					ConfigChangeResponse tempResult = new ConfigChangeResponse(); 
 					if(!writing){
 						synchronized(writeLock){
 							if(!writing){
@@ -74,29 +71,32 @@ public class AnolePublisher extends AnoleLocalConfig{
 									tempResult.setSuccess(false);
 									tempResult.setErrorMessage("Operation result is not received."); 
 								} 
-								return tempResult;
+								return tempResult; 
 							}
 						}
-					}  
+					} 
 					tempResult.setSuccess(false);
-					tempResult.setErrorMessage("There is another operation executing. Please try again later.");
-					return tempResult;
+					tempResult.setErrorMessage("There is another operation executing. Please try again later."); 
+					return tempResult; 
 				} 
-			});   
-			return future.get(StaticClientConfig.WRITE_OPERATION_TIMEOUT_LIMIT, TimeUnit.SECONDS);  
+			});  
+			ConfigChangeResponse futureResult = future.get(StaticClientConfig.WRITE_OPERATION_TIMEOUT_LIMIT*5, TimeUnit.SECONDS);  
+			return futureResult;
 		} catch(TimeoutException e){
 			logger.error("Timeout Exception, {}", e.getMessage());
 			result.setSuccess(false);
 			result.setErrorMessage("Operation timeout! Please try again.");
+			return result;
 		} catch (Exception e) {
-			logger.error("Java Exception, {}", e.getMessage());
+			logger.error("Java Exception, {}", e.getMessage(), e);
 			result.setSuccess(false);
 			result.setErrorMessage("Inner Java Exception: "+ e.getMessage());
-		} finally{
+			return result;
+		} finally{ 
 			synchronized(writeLock){
-				writeLock.notifyAll();
-			} 
-		}
-		return result;
-	}
+				writing = false;
+				writeLock.notifyAll(); 
+			}
+		} 
+	} 
 }

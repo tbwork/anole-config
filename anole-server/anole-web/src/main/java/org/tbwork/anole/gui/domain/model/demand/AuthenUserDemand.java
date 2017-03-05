@@ -6,4 +6,6 @@ import lombok.Data;
 public class AuthenUserDemand{ 
 	private String username;
 	private String password; 
+	private String project;
+	private String env;
 }

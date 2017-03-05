@@ -3,6 +3,7 @@ package org.anole.infrastructure.model.custom;
 public class AnoleConfigCombine { 
 	private String key;
 	private int type;
+	private String project;
 	private String value;
 	private String description;
 	private String envName;

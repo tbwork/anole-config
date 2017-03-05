@@ -11,58 +11,48 @@
     </md-toolbar>
     <md-dialog-content>
       <div class="md-dialog-content"> 
-        <div class="config_detail_item">
-        	<div class="inline label" style="width:100px;">
+        <div class="config_detail_item" style="line-height: 50px; ">
+        	<div class="inline label" >
         		<label>key:</label>
         	</div>
-        	<div class="inline detail_v">
-        		<input value="{{self.currentConfig.key}}" readonly="readonly"></input>
+        	<div class="inline detail_v" >
+        		<label>{{self.currentConfig.key}}</label>
         	</div>
         </div> 
-        <div class="config_detail_item" style="height: 40px">
-        	<div class="inline label" style="width:100px;">
-        		<label style="height: 40px;line-height: 40px;">{{self.text_desc}}:</label>
+        <div class="config_detail_item"  style="line-height: 70px;">
+        	<div class="inline label"  >
+        		<label  style="height: 40px; line-height: 40px;">{{self.text_desc}}:</label>
         	</div>
         	<div class="inline detail_v"> 
-        	</div>
-        </div> 
-        <div class="config_detail_item">
-        	<div> 
-        		<textarea  readonly="readonly" class="desc" rows="3" cols="60" ng-model="self.currentConfig.desc">{{self.currentConfig.desc}}</textarea> 
+        		<label>{{self.currentConfig.desc}}</label>
         	</div>
         </div>
-        <div class="config_detail_item">
-        	<div class="inline label" style="width:100px;">
-        		<label>{{self.text_env}}:</label>
+        <div class="config_detail_item"  style="line-height: 40px;">
+        	<div class="inline label"  >
+        		<label  >{{self.text_env}}:</label>
         	</div>
-        	<div class="inline detail_v">
-        		<label>{{self.currentConfig.env}}</label>
+        	<div class="inline detail_v"> 
+        		<label >{{self.currentEnv}}</label> 
         	</div>
-        </div> 
-        <div class="config_detail_item" style="height: 40px">
-        	<div class="inline label" style="width:100px;height: 40px;line-height: 40px;">
-        		<label  style="height: 40px;line-height: 40px;">{{self.text_type}}:</label>
-        	</div>
-        	<div class="inline detail_v" style="height: 40px;line-height: 40px;">  
-        		<select disabled="disabled" ng-model="self.currentConfig.type" ng-options="type.value as type.type for type in self.types"> 
-					  </select>
+        </div>
+        <div class="config_detail_item" style="line-height: 50px;">
+        	<div class="inline label"  >
+        		<label >{{self.text_type}}:</label>
         	</div> 
+        	<div class="inline detail_v"  >  
+        		<label>{{self.currentConfig.type}}</label>
+        	</div>
         </div> 
-        <div class="config_detail_item" style="height: 40px">
-        	<div class="inline label" style="width:100px;">
-        		<label style="height: 40px;line-height: 40px;">Value:</label>
+        <div class="config_detail_item"  style="line-height: 120px; height: 120px;">
+        	<div class="inline label"  >
+        		<label>{{self.config_value_desc}}:</label>
         	</div>
         	<div class="inline detail_v"> 
-        	  
+        	  	<label>{{self.currentConfig.value}}</label> 
         	</div>
-        </div>  
-        <div class="config_detail_item">
-        	<div> 
-        		<textarea readonly="readonly" class="desc" rows="5" cols="60" ng-model="self.currentConfig.value">{{self.currentConfig.value}}</textarea> 
-        	</div>
-        </div>
-        <div  class="login_item" style="height:50px">
-        		 <md-button class="md-raised md-primary" style="float: right; width: 200px;" >{{self.text_confirm}}</md-button>
+        </div> 
+        <div  style="height:50px;width:100%;margin-top:10px;margin-bottom:10px">
+        		 <md-button class="md-raised md-primary" style="float: right; width: 200px;" ng-click="cancel()" >{{self.text_confirm}}</md-button>
         </div>
     </md-dialog-content>
   </form>

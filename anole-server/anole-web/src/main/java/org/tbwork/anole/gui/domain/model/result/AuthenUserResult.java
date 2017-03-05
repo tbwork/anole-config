@@ -7,5 +7,6 @@ public class AuthenUserResult {
 
 	private boolean pass;
 	private String errorMessage;
+	private int permission;
 
 }

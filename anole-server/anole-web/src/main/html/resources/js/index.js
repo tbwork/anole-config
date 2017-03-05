@@ -12,10 +12,14 @@ var roles;
 var projects;
 var productLines; 
 var users;
+var currentProject;
+var currentConfig;
+var currentEnv;
+
 if(ls.getItem("lan_index")!=null)
  lan_index = Number(ls.getItem("lan_index")); 
 var nextLanguage = lan_index == 0 ? "English" : "中文";
-var currentConfig = null;
+
 anoleConsoleApp.directive('ngEnter', function () {
     return function (scope, element, attrs) {
         element.bind("keydown keypress", function (event) {
@@ -27,6 +31,26 @@ anoleConsoleApp.directive('ngEnter', function () {
                 event.preventDefault();
             }
         });
+    };
+});
+
+anoleConsoleApp.filter('cut', function () {
+    return function (value, wordwise, max, tail) {
+        if (!value) return '';
+
+        max = parseInt(max, 10);
+        if (!max) return value;
+        if (value.length <= max) return value;
+
+        value = value.substr(0, max);
+        if (wordwise) {
+            var lastspace = value.lastIndexOf(' ');
+            if (lastspace != -1) {
+                value = value.substr(0, lastspace);
+            }
+        }
+
+        return value + (tail || ' ...');
     };
 });
 anoleConsoleApp.factory('GetService', ['$http', '$q', function ($http, $q) {  
@@ -81,8 +105,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	self.project_author_desc_arr  = new Array("创建者","Author");
 	self.env_desc_arr = new Array("选择环境","Run Env");
 	self.in_project_search_box_desc_arr = new Array("条件过滤","Filter By Condition");
-	var chResultTitles = new Array("序号","Key名", "环境", "值","描述","上次修改人","操作");
-	var enResultTitles = new Array("NO.","Key", "Env","Value","Description","Last Operator","Operation");
+	var chResultTitles = new Array("序号","Key名", "环境", "值","描述","上次修改人","操作","项目");
+	var enResultTitles = new Array("NO.","Key", "Env","Value","Description","Last Operator","Operation", "Project");
 	self.result_title_desc_arr = new Array(chResultTitles,enResultTitles);
 	self.out_search_placeholder_desc_arr = new Array("请输入您要查找的Key","Search by key");
 	self.in_search_placeholder_desc_arr = new Array("请输入全文过滤条件","Filter Goes Here");
@@ -118,11 +142,12 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	self.config_detail_desc_arr = new Array("配置详情","Configuration Details");
 	self.config_edit_desc_arr = new Array("配置修改","Update Configuration");
 	self.config_add_desc_arr = new Array("配置添加", "Add Configuration");
-	self.text_default_value_arr = new Array("默认值", "Default Value");
+	self.config_value_desc_arr = new Array("变量值", "Variable Value");
 	self.text_envs_placeholder_desc_arr = new Array("格式：环境变量缩写，多个请用英文逗号隔开", "Set envs here, use comma to split multiple envs")
 	self.text_envs_desc_arr = new Array("环境集","Env Set");
 	self.new_prd_line_desc_arr = new Array("新的产品线!","New product line!");
 	self.logout_desc_arr = new Array("登出", "Logout");
+	self.all_env_desc_arr = new Array("所有环境", "All Envs");
 	self.refreshLanguage = function(){
     	self.project_searcher_input_placeholder = self.project_searcher_input_placeholder_arr[self.lan_index];
     	self.user_searcher_input_placeholder = self.user_searcher_input_placeholder_arr[self.lan_index];
@@ -166,7 +191,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		self.config_detail_desc = self.config_detail_desc_arr[self.lan_index];
 		self.config_edit_desc =  self.config_edit_desc_arr[self.lan_index];
 		self.config_add_desc = self.config_add_desc_arr[self.lan_index];
-		self.text_default_value = self.text_default_value_arr[self.lan_index];
+		self.config_value_desc = self.config_value_desc_arr[self.lan_index];
 		self.text_add_or_update_desc = self.text_add_or_update_desc_arr[self.lan_index];
 		self.modify_password_desc = self.modify_password_desc_arr[self.lan_index];
 		self.modify_password = self.modify_password_arr[self.lan_index];
@@ -176,6 +201,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		self.initialize_envs_tab_desc = self.initialize_envs_tab_desc_arr[self.lan_index];
 		//self.new_prd_line_desc = self.new_prd_line_desc_arr[self.lan_index];
 		self.logout_desc = self.logout_desc_arr[self.lan_index];
+		self.all_env_desc = self.all_env_desc_arr[self.lan_index];
     }
 
 	self.refreshLanguage();
@@ -230,7 +256,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	  value:3
     	}
     ];
-    self.currentEnv = self.envs[0];
+    currentEnv = self.envs[0];
+    self.currentEnv = currentEnv;
 
     /*
      * Autocomplete Project Component.
@@ -261,6 +288,47 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     self.queryCurrentProjectConfigsByEnv = queryCurrentProjectConfigsByEnv;
     self.refreshCurrentProjectConfigs = refreshCurrentProjectConfigs;
     
+    
+    //BUSINESS PARAMETERS
+    self.currentProject =  currentProject;
+    self.currentConfig = currentConfig;
+    self.newConfig = {
+    	key: "",
+    	value:"",
+    	type: 3,
+    	desc:"",
+    };
+    self.configListResult = null; //当前项目的配置列表
+    self.search_result_desc = null;//模糊搜索结果描述
+    self.configSearchResult = null; // 模糊搜索结果
+    self.selectedAuthUser  = null;
+    self.selectedPrdLine = null;
+    
+    //配置详情、修改、添加页面
+    //用户账户页面：
+    self.text_username = null;
+    self.text_password = null;
+    
+    //修改密码页面:
+    self.text_username_for_modify_password = null;
+    self.text_password_for_modify_password = null ;
+    
+    //Env 初始化页面
+    self.text_envs = null;
+    
+    //项目添加页面
+    self.text_prd_line = null;
+    self.text_project_name  = null;
+    
+    //权限授予页面
+    self.user_search_text = null; //选择用户
+    self.project_search_text = null; //选择项目 
+    self.grant_env_name = "";
+    self.grant_role = ""; 
+    
+    //配置添加页面
+    self.allEnvEnabled = false;
+    
     /*
      * Project Autocomplete
      */
@@ -284,8 +352,10 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 
     function selectedItemChange_Project(item) {
       $log.info('Item changed to ' + JSON.stringify(item));
-      var lastProject = self.currentProject;
-      self.currentProject  = item;
+      var lastProject = currentProject;
+      currentProject = item;
+      self.currentProject  = currentProject;
+      $log.info('Current project is changed to ' + JSON.stringify(self.currentProject));
       if(item !=null && lastProject != self.currentProject){ 
     	  permission = getPermission(); 
       } 
@@ -395,40 +465,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
       }; 
     }
  
-    //BUSINESS PARAMETERS
-    self.currentProject =  null;
-    self.currentConfig = currentConfig;
-    self.newConfig = {
-    	key: "",
-    	value:"",
-    	type: 3,
-    	desc:"",
-    };
-    self.configListResult = null;  
-    self.selectedAuthUser  = null;
-    self.selectedPrdLine = null;
-    
-    //配置详情、修改、添加页面
-    //用户账户页面：
-    self.text_username = null;
-    self.text_password = null;
-    
-    //修改密码页面:
-    self.text_username_for_modify_password = null;
-    self.text_password_for_modify_password = null ;
-    
-    //Env 初始化页面
-    self.text_envs = null;
-    
-    //项目添加页面
-    self.text_prd_line = null;
-    self.text_project_name  = null;
-    
-    //权限授予页面
-    self.user_search_text = null; //选择用户
-    self.project_search_text = null; //选择项目 
-    self.grant_env_name = "";
-    self.grant_role = ""; 
+  
     $scope.logout = function(ev){
     	loginStatus = false;
         self.loginStatus = loginStatus; 
@@ -583,6 +620,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	    	 return ;
 	     }
 		 currentConfig = item;
+		 self.currentConfig = currentConfig;
 	     if(item == null){
 	     	if(lan_index == 0)
 	     		$scope.showAlert(ev,"警告！","配置不存在.","alert","OK");
@@ -621,6 +659,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	    	 return ;
 	     }
 	     currentConfig = item;
+	     self.currentConfig = currentConfig;
 	     if(item == null){
 	     	if(lan_index == 0)
 	     		$scope.showAlert(ev,"警告！","配置不存在.","alert","OK");
@@ -745,12 +784,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 			 
 	}
 	
-	// data command 
-	$scope.addConfig = function(ev){
-		var postData = {
-				
-		}
-	}
+	// data command  
 	$scope.assignPermission = function(ev){
 		var postData = { 
 				operator: cur_username,
@@ -815,6 +849,81 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		     $scope.showError('add_project', errorInfo, false);
 		}
 	}
+	
+	$scope.addConfig = function(ev){
+		var selectedEnv = self.currentEnv;
+		if(self.allEnvEnabled)
+			selectedEnv = "all";
+		var postData = {
+				operator:cur_username,
+				key:self.newConfig.key,
+				destValue:self.newConfig.value,
+				destConfigType:self.newConfig.type,
+				project:self.currentProject.projectName,
+				env: selectedEnv
+		};
+		var response = PostService.submit("/config/create", postData);
+		if(response !=null && response != -1 && response.success && response.result.success){
+			 var successInfo = ""; 
+			 if(lan_index == 0)
+				 successInfo = "配置添加成功！";
+	  	  	 else
+	  	  		 successInfo = "Add config successfully!"; 
+			 
+			 // 更新本地配置信息
+			 $scope.showError('add_config', successInfo, true);
+		}else{ 
+			 var errorInfo = "";
+			 if(lan_index == 0)
+				 errorInfo = "配置添加失败！";
+			 else
+				 errorInfo = "Add config failed!";
+			 if(!response.success) 
+				 errorInfo = errorInfo + " Details: " + response.errorMessage;
+			 else if(!response.result.success)
+				 errorInfo = errorInfo + " Details: " + response.result.errorMessage; 
+		     $scope.showError('add_config', errorInfo, false);
+		}
+	}
+	
+	$scope.modifyConfig = function(ev){
+		var selectedEnv = self.currentEnv;
+		if(self.allEnvEnabled)
+			selectedEnv = "all";
+		var postData = {
+				operator:cur_username,
+				key:self.newConfig.key,
+				value:self.newConfig.value,
+				configType:self.newConfig.type,
+				project:self.currentProject.projectName,
+				env: selectedEnv,
+				description: self.newConfig.desc
+		};
+		var response = PostService.submit("/config/modify", postData);
+		if(response !=null && response != -1 && response.success && response.result.success){
+			 var successInfo = ""; 
+			 if(lan_index == 0)
+				 successInfo = "配置修改成功！";
+	  	  	 else
+	  	  		 successInfo = "Modify config successfully!"; 
+			 
+			 // 更新本地配置信息
+			 $scope.showError('modify_config', successInfo, true);
+		}else{ 
+			 var errorInfo = "";
+			 if(lan_index == 0)
+				 errorInfo = "配置修改失败！";
+			 else
+				 errorInfo = "Modify config failed!";
+			 if(!response.success) 
+				 errorInfo = errorInfo + " Details: " + response.errorMessage;
+			 else if(!response.result.success)
+				 errorInfo = errorInfo + " Details: " + response.result.errorMessage; 
+		     $scope.showError('modify_config', errorInfo, false);
+		}
+	}
+	
+	
 	$scope.initializeEnvs = function(ev){
 		var postData = { 
 				operator: cur_username,
@@ -874,14 +983,20 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		}
 	}
 	$scope.login = function(ev){
+		var projectName = null; 
+		if(self.currentProject != null)
+			projectName = self.currentProject.projectName; 
 		var postData = { 
 				username: self.text_username,
-				password: self.text_password
+				password: self.text_password,
+				project: projectName, 
+				env :  self.currentEnv 
 		};
 		var response = PostService.submit("/user/auth", postData);
 		if(response !=null && response != -1 && response.success && response.result.pass){
 			 loginStatus = true; 
 			 cur_username = self.text_username; 
+			 permission = response.result.permission;
 			 $mdDialog.cancel();
 		}else{ 
 			 var errorInfo = "";
@@ -1081,9 +1196,9 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	if(project == null)
     		return null; 
     	var env = self.envs[0]; 
-    	self.currentEnv = env;
+    	currentEnv = env;
+    	self.currentEnv = currentEnv;
     	return queryConfigsByProAndEnv(project, env);
-    	
     }
     
     function searchByKeyAndEnv(){
@@ -1097,57 +1212,19 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	return input == null || input == "";
     }
     
-    function queryConfigsByKeyAndEnv(key, env){
-    	return [
-			    	{
-			    		'key':'lcb-order-service.login.u',
-			    		'type':3,
-			    		'value':"hello",
-			    		'desc':"你好"+env,
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.u',
-			    		'type':3,
-			    		'value':"hello",
-			    		'desc':"你好"+env,
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.u',
-			    		'type':3,
-			    		'value':"hello",
-			    		'env':"test",
-			    		'desc':"你好"+env,
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.usssssssssss',
-			    		'type':3,
-			    		'value':"hello",
-			    		'desc':"你好"+env,
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.u',
-			    		'type':3,
-			    		'value':"hello",
-			    		'desc':"你好"+env,
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.uddddddddddd',
-			    		'type':3,
-			    		'value':"hello",
-			    		'env':"test",
-			    		'desc':"你好"+env,
-			    		'lastModifier':"tommy.tang",
-			    	}, 
-			    ]; 
+    function queryConfigsByKeyAndEnv(key, env){ 
+		var postData = {
+				operator:cur_username,
+				project:self.currentProject.projectName,
+				env: self.currentEnv
+		};
+		var response = PostService.submit("/config/getByProjectAndEnv", postData);
+		if(response !=null && response != -1 && response.success && response.result.success){
+			 return response.result.result;
+		}else{  
+		     $scope.showError('add_config', errorInfo, false);
+		}
+    	 
     }
     
     function refreshCurrentProjectConfigs(){
@@ -1156,7 +1233,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     }
     function queryCurrentProjectConfigsByEnv(env){
     	var project = self.currentProject.projectName;
-    	self.currentEnv = env;
+    	currentEnv = env;
+    	self.currentEnv = currentEnv;
     	self.configListResult = queryConfigsByProAndEnv(project, env);
     }
     function queryConfigsByProAndEnv(project, env_in){ 

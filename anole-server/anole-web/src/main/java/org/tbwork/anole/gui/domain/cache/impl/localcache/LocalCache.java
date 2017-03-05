@@ -14,9 +14,10 @@ public class LocalCache implements Cache{
 
 	public static final Map<String, CacheItem> lc = new ConcurrentHashMap<String, CacheItem>();  
   
+	private static final long defaultExpireTime = 5*60*1000;
 	@Override
 	public <T> void set(String key, T obj) {
-		set(key, obj, 0); 
+		set(key, obj, defaultExpireTime); 
 	}
 
 	@Override

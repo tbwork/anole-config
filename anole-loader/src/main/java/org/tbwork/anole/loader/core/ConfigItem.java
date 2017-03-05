@@ -26,17 +26,17 @@ public class ConfigItem {
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private String strValue; 
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private boolean boolValue;
+	private Boolean boolValue;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private double doubleValue;
+	private Double doubleValue;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private float floatValue;
+	private Float floatValue;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private int intValue;
+	private Integer intValue;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private long longValue;
+	private Long longValue;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private short shortValue; 
+	private Short shortValue; 
 
 	/**
 	 * True empty means user does not set value 
@@ -103,7 +103,7 @@ public class ConfigItem {
 						 try{
 							 BigDecimal a = new BigDecimal(value);
 							 intValue = a.toBigInteger().intValue();
-							 shortValue = (short) intValue;
+							 shortValue = intValue.shortValue();
 							 longValue = a.toBigInteger().longValue();
 							 floatValue = a.floatValue();
 							 doubleValue = a.doubleValue();
@@ -115,6 +115,18 @@ public class ConfigItem {
 					}break;
 					case STRING:{
 						 strValue = value;
+						 try{
+							 BigDecimal a = new BigDecimal(value);
+							 intValue = a.toBigInteger().intValue();
+							 shortValue = intValue.shortValue();
+							 longValue = a.toBigInteger().longValue();
+							 floatValue = a.floatValue();
+							 doubleValue = a.doubleValue();
+						 }
+						 catch(NumberFormatException e)
+						 {
+							//do nothing
+						 }  
 					}break;
 					default:break;
 				} 
@@ -131,56 +143,56 @@ public class ConfigItem {
 	
 	public int intValue()
 	{
-		if(ConfigType.NUMBER.equals(type))
+		if(intValue != null)
 		{
 			return intValue;
-		}
-		throw new ConfigTypeNotMatchedException(type, ConfigType.JSON);
+		} 
+		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
 	}
 	
 	public boolean boolValue()
 	{
-		if(ConfigType.BOOL.equals(type))
+		if(boolValue != null)
 		{
 			return boolValue;
 		}
-		return false;
+		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
 	}
 	
 	public double doubleValue()
 	{
-		if(ConfigType.NUMBER.equals(type))
+		if(doubleValue != null)
 		{
 			return doubleValue;
 		}
-		return 0;
+		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
 	}
 	
 	public float floatValue()
 	{
-		if(ConfigType.NUMBER.equals(type))
+		if(floatValue != null)
 		{
 			return floatValue;
 		}
-		return 0;
+		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
 	}
 	
 	public short shortValue()
 	{
-		if(ConfigType.NUMBER.equals(type))
+		if(shortValue != null)
 		{
 			return shortValue;
 		}
-		return 0;
+		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
 	}
 	
 	public long longValue()
 	{
-		if(ConfigType.NUMBER.equals(type))
+		if(longValue != null)
 		{
 			return longValue;
 		}
-		return 0;
+		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
 	}
 	
 	

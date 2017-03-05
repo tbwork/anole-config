@@ -93,49 +93,93 @@ public class SubscriberConfigManager extends LocalConfigManager{
 		} 
 		return ci;
 	}
-	
 	private ConfigItem retrieveRemoteConfig(final ConfigItem cItem){ 
 		Preconditions.checkNotNull(cItem, "Config item is null! Please check it and try again.");
 		Preconditions.checkArgument(cItem.getKey()!=null &&  !(cItem.getKey().isEmpty()), "Config key is null! Please check it and try again.");
-		try {       
-			Future<Integer> getConfigResult = executorService.submit( new Callable<Integer>(){ 
-				public Integer call() throws Exception { 
+		if(!cItem.isLoaded()){
+			  synchronized(cItem){ 
 				  if(!cItem.isLoaded()){
-					  synchronized(cItem)
-					  { 
-						  if(!cItem.isLoaded())
-						  {
-							  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getProperty("env")));
-							  if(logger.isDebugEnabled())  
-								  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
-							  synchronized(cItem.getKey())  {
-								  while(!cItem.isLoaded() && !cItem.isGiveup())
-								     cItem.getKey().wait(); 
-							  }
-							  if(logger.isDebugEnabled())  
-								  logger.debug("Wait() of {} is over!", cItem.getKey());
-						  }  
+					  try {  
+							 Future<Integer> getConfigResult = executorService.submit( new Callable<Integer>(){ 
+									public Integer call() throws Exception {  
+										  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getProperty("env")));
+										  if(logger.isDebugEnabled())
+											  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
+										  synchronized(cItem.getKey())  {
+											  while(!cItem.isLoaded() && !cItem.isGiveup())
+											     cItem.getKey().wait();
+										  }
+										  if(logger.isDebugEnabled())  
+											  logger.debug("Wait() of {} is over!", cItem.getKey());
+										  return 0;
+									} 
+							 });  
+							 @SuppressWarnings("unused")
+							 Integer innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME * 5, TimeUnit.MILLISECONDS); 
+							 
+					  } catch (TimeoutException e) {
+								logger.error("[:(] Timeout (tolerent limit is {}) when anole tried to retrieving config (key = {}) from the remote. Anole will use the default value until the server responses successfully.", GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, cItem.getKey());
+								e.printStackTrace(); 
+					  } catch (InterruptedException e) {
+								logger.error("[:(] Retrieving config thread is interrupted.");
+								e.printStackTrace();
+					  } catch (ExecutionException e) {
+								logger.error("[:(] Retrieving config task failed to be executed.");
+								e.printStackTrace();
+					  } finally{
+							 synchronized(cItem.getKey()){ 
+							    cItem.setGiveup(true);
+								cItem.getKey().notify();
+							 }
 					  }
-				  } 
-				  return 0;
-				} 
-			});  
-			@SuppressWarnings("unused")
-			Integer innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME*500, TimeUnit.MILLISECONDS); 
-			cItem.setGiveup(true);
-			cItem.getKey().notify();
-		} catch (TimeoutException e) {
-			logger.error("[:(] Timeout (tolerent limit is {}) when anole tried to retrieving config (key = {}) from the remote. Anole will use the default value until the server responses successfully.", GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, cItem.getKey());
-			e.printStackTrace(); 
-		} catch (InterruptedException e) {
-			logger.error("[:(] Retrieving config thread is interrupted.");
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			logger.error("[:(] Retrieving config task failed to be executed.");
-			e.printStackTrace();
-		} finally{
-			return cItem;
+				  }
+			  }
 		}
+		return cItem;
+	}  
+	private ConfigItem retrieveRemoteConfig2(final ConfigItem cItem){ 
+		Preconditions.checkNotNull(cItem, "Config item is null! Please check it and try again.");
+		Preconditions.checkArgument(cItem.getKey()!=null &&  !(cItem.getKey().isEmpty()), "Config key is null! Please check it and try again.");
+		try {  
+			 Future<Integer> getConfigResult = executorService.submit( new Callable<Integer>(){ 
+					public Integer call() throws Exception { 
+					  if(!cItem.isLoaded()){
+						  synchronized(cItem){ 
+							  if(!cItem.isLoaded()){
+								  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getProperty("env")));
+								  if(logger.isDebugEnabled())
+									  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
+								  synchronized(cItem.getKey())  {
+									  while(!cItem.isLoaded() && !cItem.isGiveup())
+									     cItem.getKey().wait();
+								  }
+								  if(logger.isDebugEnabled())  
+									  logger.debug("Wait() of {} is over!", cItem.getKey());
+							  }  
+						  }
+					  } 
+					  return 0;
+					} 
+				});  
+			 @SuppressWarnings("unused")
+			 Integer innerResult = getConfigResult.get(GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME * 5, TimeUnit.MILLISECONDS); 
+			 
+		 } catch (TimeoutException e) {
+				logger.error("[:(] Timeout (tolerent limit is {}) when anole tried to retrieving config (key = {}) from the remote. Anole will use the default value until the server responses successfully.", GlobalConfig.RETRIEVING_CONFIG_TIMEOUT_TIME, cItem.getKey());
+				e.printStackTrace(); 
+		 } catch (InterruptedException e) {
+				logger.error("[:(] Retrieving config thread is interrupted.");
+				e.printStackTrace();
+		 } catch (ExecutionException e) {
+				logger.error("[:(] Retrieving config task failed to be executed.");
+				e.printStackTrace();
+		 } finally{
+			 synchronized(cItem){ 
+			    cItem.setGiveup(true);
+				cItem.getKey().notify();
+			 }
+		 }
+		 return cItem;
 	}   
 	
 	/**

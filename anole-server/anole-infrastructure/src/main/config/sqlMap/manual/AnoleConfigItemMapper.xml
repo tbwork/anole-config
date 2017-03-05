@@ -13,13 +13,28 @@
   <update id="updateByKeyAndEnv" parameterType="org.anole.infrastructure.model.AnoleConfigItem" >
     update anole_config_item
     set
-      LastOperator = #{lastOperator,jdbcType=VARCHAR},  
-      `Value` = #{value,jdbcType=LONGVARCHAR}
+      `LastOperator` = #{lastOperator,jdbcType=VARCHAR},  
+      `Value` = #{value,jdbcType=LONGVARCHAR},
+      `UpdateTime` = #{updateTime, jdbcType=TIMESTAMP}
     where 
     `Key` = #{key,jdbcType=VARCHAR}
     AND
     EnvName = #{env,jdbcType=VARCHAR} 
   </update>
+  
+  <select id="selectConfigItemsByUpdatedTime" resultMap="BaseResultMap">
+    select Id, `Key`, EnvName, LastOperator, CreateTime, UpdateTime, `Value`
+    from anole_config_item
+    Where
+    `UpdateTime` >= #{updateTime, jdbcType=TIMESTAMP}
+  </select>
+  
+  <select id="selectByConfigKey" resultMap="BaseResultMap" parameterType="map" >
+    select Id, `Key`, EnvName, LastOperator, CreateTime, UpdateTime, `Value`
+    from anole_config_item
+    where `Key` = #{key,jdbcType=VARCHAR}
+  </select> 
+  
   
   
 </mapper>

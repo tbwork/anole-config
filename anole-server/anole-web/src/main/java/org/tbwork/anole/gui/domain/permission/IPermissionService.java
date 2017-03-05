@@ -10,12 +10,12 @@ public interface IPermissionService {
 	
 	
 	/**
-	 * @param project
-	 * @param user
-	 * @param env
-	 * @return role: 0-stranger, 1-visitor, 2-manager, 3-admin
+	 * @param project project's name
+	 * @param user user's name
+	 * @param env environment
+	 * @return role: 0-stranger, 1-visitor, 2-manager, 3-owner
 	 */
-	public int getPermission(String project, String user, String env);
+	public int getUserRole(String project, String user, String env);
 	
 	public boolean isOwner(String project, String user);
 

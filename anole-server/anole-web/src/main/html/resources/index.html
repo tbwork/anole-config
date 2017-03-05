@@ -100,21 +100,56 @@
 		</div>
 	</div>
 	
-	<div class="body-item" ng-if="self.currentProject == null && self.configListResult[0] != null" style="margin-bottom: 20px;"> 
-		<div style="margin:auto;width:530px;display: block;">
-			<div class ="outsearch" style="width:120px;display: inline-block;border:1px solid #333333; border-radius: 4px;height: 37px;">      
-				        <md-select ng-model="self.outsearch_env" style="margin:0px;width:120px;height: 37px;" placeholder="{{self.env_desc}}">
-				          <md-option ng-repeat="env in self.envs" value="{{env}}">
-				            {{env}}
-				          </md-option>
-				        </md-select>  
-			</div> 
-			<div style="width:400px;display: inline-block;">
-					<input class="outsearch" ng-model="self.outsearch_input" ng-enter= "self.searchByKeyAndEnv()" placeholder="{{self.out_search_placeholder_desc}}"/> 
-			</div>
-		</div>
+	
+	
+	<!--
+    	作者：tttbbb222000@163.com
+    	时间：2016-07-06
+    	描述：模糊搜索结果描述
+    -->
+	<div class="body-item" ng-if="self.currentProject != null" style="height: 40px;margin-top:20px;margin-bottom: 10px ;"> 
+	    <div style="height: 41px; margin-left: -5px;"> 
+		     <nobr>self.search_result_desc</nobr> 
+	    </div>   
+	    <div style="float:right"> 
+		     <input class="insearch" ng-model="self.insearch_input_fuzzy" placeholder="{{self.in_search_placeholder_desc}}"/> 
+	    </div> 
+	</div> 
+	
+	 <!--
+    	作者：tttbbb222000@163.com
+    	时间：2016-07-06
+    	描述：模糊搜索结果列表
+    -->
+	<div class="body-item" style="border:1px solid #ddd;border-left:none;border-right:none;" ng-if="self.configListResult[0] != null"> 
+	    <div class="result-item" style="width:50px">{{self.result_title_desc[0]}}</div>  
+	    <div class="result-item" style="width:200px">{{self.result_title_desc[1]}}</div>
+	    <div class="result-item" style="width:100px">{{self.result_title_desc[7]}}</div>
+        <div class="result-item" style="width:100px">{{self.result_title_desc[2]}}</div>  
+        <div class="result-item" style="width:200px">{{self.result_title_desc[3]}}</div>  
+        <div class="result-item" style="width:200px">{{self.result_title_desc[4]}}</div>
 	</div>
 	
+	<div ng-repeat = "result in self.configSearchResult | filter: self.insearch_input_fuzzy" class="body-item" style="border-bottom:1px solid #ddd; "> 
+		<div class="result-item" style="width:50px">{{$index+1}}</div>  
+	    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key}}</div>  
+        <div class="result-item" style="width:200px">{{result.lastModifier}}</div>  
+        <div class="result-item" style="width:100px">{{result.env}}</div>  
+        <div class="result-item overlay" style="width:200px;" title="{{result.value}}">{{result.value}}</div>   
+        <div class="result-item" style="width:114px"> 
+        	<div>
+        		<img src = "img/view.png" title="{{self.view_config_desc}}" ng-click="showConfigView(result,$event)" class="icon_for_list_item"/>
+        	</div>
+        	<div>
+        		<img src = "img/modify.png" title="{{self.modify_config_desc}}" ng-click="showConfigEditWindow(result,$event)" class="icon_for_list_item"/>
+        	</div>
+        	<div>
+        		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result,$event)"  class="icon_for_list_item"/>
+        	</div>
+        </div> 
+	</div>
+	
+	<!-- ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
 	
 	 <!--
     	作者：tttbbb222000@163.com
@@ -137,7 +172,7 @@
 	   </div>
 	</div>
 	<hr ng-if="self.currentProject != null" width="1000px"/>
-	 <!--
+	<!--
     	作者：tttbbb222000@163.com
     	时间：2016-07-06
     	描述：环境选择, 项目内全文搜索框
@@ -156,7 +191,7 @@
 	 <!--
     	作者：tttbbb222000@163.com
     	时间：2016-07-06
-    	描述：搜索结果展示
+    	描述：项目内配置展示
     -->
 	<div class="body-item" style="border:1px solid #ddd;border-left:none;border-right:none;" ng-if="self.configListResult[0] != null"> 
 	    <div class="result-item" style="width:50px">{{self.result_title_desc[0]}}</div>  
@@ -170,9 +205,9 @@
 	
 	<div ng-repeat = "result in self.configListResult | filter: self.insearch_input" class="body-item" style="border-bottom:1px solid #ddd; "> 
 		<div class="result-item" style="width:50px">{{$index+1}}</div>  
-	    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key.length < 40 ? result.key : (result.key.substr(0,37)+"...") }}</div>  
+	    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key}}</div>  
         <div class="result-item" style="width:100px">{{result.env}}</div>  
-        <div class="result-item overlay" style="width:200px;" title="{{result.value}}">{{result.value.length < 40 ? result.value : (result.value.substr(0,37)+"...") }}</div>  
+        <div class="result-item overlay" style="width:200px;" title="{{result.value}}">{{result.value}}</div>  
         <div class="result-item overlay" style="width:200px;" title="{{result.desc}}">{{result.desc}}</div>  
         <div class="result-item" style="width:100px">{{result.lastModifier}}</div>  
         <div class="result-item" style="width:114px"> 
@@ -186,7 +221,7 @@
         		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result,$event)"  class="icon_for_list_item"/>
         	</div>
         </div> 
-	</div> 
+	</div>
 </div> 
 <div class="tail">
    ©2016 tangbo@lechebang.com

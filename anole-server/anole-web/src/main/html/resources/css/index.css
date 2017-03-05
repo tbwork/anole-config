@@ -22,12 +22,9 @@ div.overlay{
 }
 textarea{
 	border-radius: 4px;
-}
-input,select{
-	width: 200px;
-    height: 25px;
-    font-size: 16px; 
-}
+} 
+ 
+
 div{
 	overflow: hidden;
 	display: block;
@@ -206,8 +203,11 @@ div.result-list{
 div.result-item{
     display: inline-block;
     text-align: center; 
-    min-height: 55px;
-    line-height: 27px;
+    height: 45px;
+    line-height: 40px;
+    vertical-align: middle;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 div.tail{
@@ -370,17 +370,18 @@ md-dialog.config_dialog{
 div.config_detail_item{
 	width:650px; 
 }
-
+  
+  
 div.config_detail_item div.label{
-	height: 50px;
-	line-height: 50px;
+	width:100px; 
+}
+ 
+div.config_detail_item div.detail_v{
+	width:400px
 }
 
-div.config_detail_item div.detail_v{ 
-	width: 400px;
-	height: 50px;
-}
-div.config_detail_item div.detail_v input{ 
+  
+div.config_detail_item  input.text{ 
 	width: 96%;
 	border-radius: 3px;
 	border: 1px solid #515151;
@@ -401,8 +402,7 @@ div.config_detail_item div.detail_v select{
 
 div.config_detail_item div.detail_v label{ 
 	width: 98%;
-	height: 100%;
-	line-height: 50px;
+	height: 100%; 
 }
 
 md-dialog-content{
@@ -431,3 +431,6 @@ div.error_img{
 	cursor:pointer;
 }
 
+input#checkbox1, input#checkbox2{
+	
+}

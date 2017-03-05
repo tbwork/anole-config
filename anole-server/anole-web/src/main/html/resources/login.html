@@ -2,7 +2,7 @@
   <form  ng-controller="ProjectSearchController as self">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>{{self.welcome_login_desc}}</h2>
+        <h2>{{self.welcome_login_desc}}{{self.currentProject.projectName}}</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="cancel()">
           <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>

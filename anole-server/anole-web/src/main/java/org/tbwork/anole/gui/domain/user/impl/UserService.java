@@ -22,6 +22,7 @@ import org.tbwork.anole.gui.domain.model.demand.ModifyPasswordDemand;
 import org.tbwork.anole.gui.domain.model.result.AuthenUserResult;
 import org.tbwork.anole.gui.domain.model.result.CreateUserResult;
 import org.tbwork.anole.gui.domain.model.result.ModifyPasswordResult;
+import org.tbwork.anole.gui.domain.permission.IPermissionService;
 import org.tbwork.anole.gui.domain.user.IUserService;
 import org.tbwork.anole.gui.domain.util.CacheKeys;
 
@@ -37,6 +38,10 @@ public class UserService implements IUserService {
 	private IAuthorizationService authenService;
 	
 	private boolean initialized = false;
+
+	@Autowired
+	private IPermissionService pers;
+	
 	
 	@PostConstruct
 	private void initialize(){
@@ -118,6 +123,13 @@ public class UserService implements IUserService {
 					if(md5Password.equals(anoleUser.getPassword())){
 						result.setPass(true);
 						result.setErrorMessage("OK");
+						if("admin".equals(username))
+								initialized = true;
+						// 获取 权限
+						if(authenUserDemand.getProject()!=null && authenUserDemand.getEnv()!=null){
+							result.setPermission(pers.getUserRole(authenUserDemand.getProject(), username, authenUserDemand.getEnv()));
+						}
+						
 					}
 					else{
 						result.setPass(false);

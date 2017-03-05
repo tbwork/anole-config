@@ -67,8 +67,7 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 } 
 	}
  
-	private ModifyResultMessage processModifyConfigMessage(Message msg){ 
-		ModifyResultMessage result = new ModifyResultMessage();
+	private ModifyResultMessage processModifyConfigMessage(Message msg){
 		ModifyConfigMessage mcMsg = (ModifyConfigMessage) msg;
  		String operator = mcMsg.getOperator(); 
  		ConfigModifyDTO changeRule = mcMsg.getChangeRule();  

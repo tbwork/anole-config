@@ -9,5 +9,14 @@
     from anole_config
     where `Key` = #{key,jdbcType=VARCHAR} 
   </select>
+  
+  <select id="selectConfigsByUpdatedTime" resultMap="BaseResultMap">
+    select Id, `Key`, `Type`, Creator, LastOperator, Project, CreateTime, UpdateTime, 
+    Description
+    from anole_config
+    where
+    `UpdateTime` >= #{updateTime, jdbcType=TIMESTAMP}
+    limit 0, 500
+  </select>
    
 </mapper>

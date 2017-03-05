@@ -1,7 +1,9 @@
 package org.tbwork.anole.gui.domain.config.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.anole.infrastructure.dao.AnoleConfigCombineMapper;
 import org.anole.infrastructure.dao.AnoleConfigItemMapper;
@@ -14,10 +16,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.gui.domain.cache.Cache;
+import org.tbwork.anole.gui.domain.config.IConfigSearchService;
 import org.tbwork.anole.gui.domain.config.IConfigService;
 import org.tbwork.anole.gui.domain.model.Config;
+import org.tbwork.anole.gui.domain.model.ConfigBrief; 
 import org.tbwork.anole.gui.domain.model.demand.AddConfigDemand;
-import org.tbwork.anole.gui.domain.model.demand.DeleteConfigDemand;
+import org.tbwork.anole.gui.domain.model.demand.DeleteConfigDemand; 
 import org.tbwork.anole.gui.domain.model.demand.GetConfigByKeyAndEnvDemand;
 import org.tbwork.anole.gui.domain.model.demand.GetConfigsByProjectAndEnvDemand;
 import org.tbwork.anole.gui.domain.model.demand.ModifyConfigDemand;
@@ -30,6 +34,7 @@ import org.tbwork.anole.gui.domain.util.CacheKeys;
 import org.tbwork.anole.publisher.core.AnolePublisher;
 import org.tbwork.anole.publisher.model.ConfigChangeRequest;
 import org.tbwork.anole.publisher.model.ConfigChangeResponse;
+import org.tbwork.anole.common.ConfigType;
 
 @Service
 public class ConfigService implements IConfigService {
@@ -50,27 +55,30 @@ public class ConfigService implements IConfigService {
 	@Autowired
 	private IPermissionService pers;
 	 
+	@Autowired
+	private IConfigSearchService configSearchService;
+	
 	@Autowired 
 	@Qualifier("localCache")
 	private Cache lc ;
 	 
 	
 	@Override
-	public List<Config> getConfigsByProjectAndEnv(GetConfigsByProjectAndEnvDemand demand) { 
-		List<Config> result = new ArrayList<Config>();
+	public List<ConfigBrief> getConfigsByProjectAndEnv(GetConfigsByProjectAndEnvDemand demand) { 
+		List<ConfigBrief> result = new ArrayList<ConfigBrief>();
 		String cacheKey = CacheKeys.buildConfigsForProjectKey(demand.getProject(), demand.getEnv());
-		List<Config> cachedData = lc.get(cacheKey);
+		List<ConfigBrief> cachedData = lc.get(cacheKey);
 		if(cachedData == null){
-			cachedData = new ArrayList<Config>();
+			cachedData = new ArrayList<ConfigBrief>();
 			List<AnoleConfigCombine> dbData = anoleConfigCombineMapper.selectConfigsByProjectAndEnv(demand.getProject(), demand.getEnv());
 			for(AnoleConfigCombine item : dbData ){
 				cachedData.add(convert2Config(item));
 			}
 			lc.set(cacheKey, cachedData);
 		}
-		int permission = pers.getPermission(demand.getProject(), demand.getOperator(), demand.getEnv()); 
+		int permission = pers.getUserRole(demand.getProject(), demand.getOperator(), demand.getEnv()); 
 		if(permission == 0){
-			for(Config item: cachedData){
+			for(ConfigBrief item: cachedData){
 				result.add(shiledValue(item)); 
 			} 
 		}
@@ -84,13 +92,17 @@ public class ConfigService implements IConfigService {
 	public AddConfigResult addConfig(AddConfigDemand config) {
 		AddConfigResult result = new AddConfigResult();
 		try{
+			config.preCheck(); 
 			ConfigChangeRequest ccr = new ConfigChangeRequest();
 			ConfigModifyDTO cmDto = new ConfigModifyDTO();
-			cmDto.setDestConfigType(config.getDestConfigType());
-			cmDto.setDestValue(config.getDestValue());
+			cmDto.setConfigType(ConfigType.configType(config.getDestConfigType()));
+			cmDto.setValue(config.getDestValue());
 			cmDto.setKey(config.getKey());
 			cmDto.setProject(config.getProject());
 			cmDto.setTimestamp(System.currentTimeMillis());
+			cmDto.setEnv(config.getEnv());
+			cmDto.setDescription(config.getDescription());
+			cmDto.setCreateNew(true);
 			ccr.setConfigChangeDTO(cmDto);
 			ccr.setOperator(config.getOperator());
 			ConfigChangeResponse response = AnolePublisher.add(ccr);
@@ -106,20 +118,25 @@ public class ConfigService implements IConfigService {
 		return result;
 	}
 
+	private boolean checkExists(String key){
+		AnoleConfig anoleConfig = anoleConfigMapper.selectByConfigKey(key);
+		return anoleConfig != null;
+	}
+	
 	@Override
 	public ModifyConfigResult modifyConfig(ModifyConfigDemand config) {
 		ModifyConfigResult result = new ModifyConfigResult();
 		try{
 			ConfigChangeRequest ccr = new ConfigChangeRequest();
-			ConfigModifyDTO cmDto = new ConfigModifyDTO();
-			cmDto.setOriConfigType(config.getOriConfigType());
-			cmDto.setOrigValue(config.getOrigValue());
-			cmDto.setDestConfigType(config.getDestConfigType());
-			cmDto.setDestValue(config.getDestValue());
+			ConfigModifyDTO cmDto = new ConfigModifyDTO(); 
+			cmDto.setConfigType(config.getConfigType());
+			cmDto.setValue(config.getValue());
 			cmDto.setKey(config.getKey());
 			cmDto.setProject(config.getProject());
 			cmDto.setTimestamp(System.currentTimeMillis());
+			cmDto.setCreateNew(false);
 			cmDto.setEnv(config.getEnv());
+			cmDto.setDescription(config.getDescription());
 			ccr.setConfigChangeDTO(cmDto);
 			ccr.setOperator(config.getOperator());
 			ConfigChangeResponse response = AnolePublisher.edit(ccr);
@@ -136,12 +153,12 @@ public class ConfigService implements IConfigService {
 	}
 
 	@Override
-	public Config getConfigByKeyAndEnv(GetConfigByKeyAndEnvDemand demand) { 
-		Config config = null;
+	public ConfigBrief getConfigByKeyAndEnv(GetConfigByKeyAndEnvDemand demand) { 
+		ConfigBrief config = null;
 		AnoleConfigItem ci = anoleConfigItemMapper.selectByConfigKeyAndEnv(demand.getKey(), demand.getEnv());
 		AnoleConfig ac = anoleConfigMapper.selectByConfigKey(demand.getKey());
 		if(ci != null){
-			config = new Config();
+			config = new ConfigBrief();
 			config.setDesc(ac.getDescription());
 			config.setEnv(demand.getEnv());
 			config.setKey(demand.getKey());
@@ -153,8 +170,8 @@ public class ConfigService implements IConfigService {
 	}
  
 	
-	private Config convert2Config(AnoleConfigCombine acc){
-		Config result = new Config();
+	private ConfigBrief convert2Config(AnoleConfigCombine acc){
+		ConfigBrief result = new ConfigBrief();
 		result.setDesc(acc.getDescription());
 		result.setEnv(acc.getEnvName());
 		result.setKey(acc.getKey());
@@ -164,8 +181,8 @@ public class ConfigService implements IConfigService {
 		return result;
 	}
 	
-	private Config shiledValue(Config org){
-		Config result = new Config();
+	private ConfigBrief shiledValue(ConfigBrief org){
+		ConfigBrief result = new ConfigBrief();
 		result.setDesc(org.getDesc());
 		result.setEnv(org.getEnv());
 		result.setKey(org.getKey());
@@ -190,5 +207,31 @@ public class ConfigService implements IConfigService {
 			result.setSuccess(false);
 		}
 		return result;
-	} 
+	}
+
+	@Override
+	public Config getConfigByKeyCacheable(String key) {
+		String cacheKey = CacheKeys.buildConfigCacheKey(key);
+		Config result = lc.get(cacheKey);
+		if(result != null) return result;
+		result = new Config();
+		AnoleConfig anoleConfig = anoleConfigMapper.selectByConfigKey(key);
+		if(anoleConfig == null)
+			return null;
+		result.setDesc(anoleConfig.getDescription());
+		result.setProject(anoleConfig.getProject());
+		result.setType((int)anoleConfig.getType());
+		Map<String,String> valueMap = new HashMap<String, String>();
+		List<AnoleConfigItem> anoleConfigItems = anoleConfigItemMapper.selectByConfigKey(key);
+		if(anoleConfigItems!=null){
+			for(AnoleConfigItem item : anoleConfigItems){
+				valueMap.put(item.getEnvName(), item.getValue());
+			}
+		}
+		result.setValues(valueMap);
+		lc.set(cacheKey, result, 5*60*1000);
+		return result;
+	}
+
+
 }

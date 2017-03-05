@@ -67,10 +67,8 @@ public class ProjectService implements IProjectService{
 				newApl.setName(createProjectDemand.getProductLineName()); 
 			    anoleProductLineMapper.insert(newApl);
 			    List<String> cachedPrdLines = lc.get(CacheKeys.PRODUCT_LINE_CACHE_KEY);
-				if(cachedPrdLines!=null && !cachedPrdLines.contains(createProjectDemand.getProductLineName())){
-					cachedPrdLines.add(createProjectDemand.getProductLineName());
-					//lc.set(PRODUCT_LINE_CACHE_KEY, cachedPrdLines); //local cache need not do this
-				}
+			    // refresh local cache
+			    lc.remove(CacheKeys.PRODUCT_LINE_CACHE_KEY);
 			} 
 			if(anoleProjectMapper.countProject(createProjectDemand.getProjectName()) == 0){
 				AnoleProject ap = new AnoleProject();
@@ -79,12 +77,8 @@ public class ProjectService implements IProjectService{
 				ap.setName(createProjectDemand.getProjectName());
 				ap.setProductLine(createProjectDemand.getProductLineName()); 
 				anoleProjectMapper.insert(ap);
-				
-				List<String> cachedProjects = lc.get(CacheKeys.PROJECTS_CACHE_KEY);
-				if(cachedProjects!=null && !cachedProjects.contains(createProjectDemand.getProjectName())){
-					cachedProjects.add(createProjectDemand.getProjectName());
-					//lc.set(PROJECTS_CACHE_KEY, cachedPrdLines); //local cache need not do this
-				}
+				// refresh local cache
+				lc.remove(CacheKeys.PROJECTS_CACHE_KEY);
 				
 				result.setErrorMessage("OK");
 				result.setSuccess(true);
@@ -178,6 +172,7 @@ public class ProjectService implements IProjectService{
 			}
 			result.setErrorMessage("OK");
 			result.setSuccess(true);
+			initialized = true;
 		}
 		catch(Exception e){
 			result.setErrorMessage(e.getMessage());

@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.anole.infrastructure.dao.AnoleConfigCombineMapper"> 
-	<resultMap id="BaseResultMap" type="org.anole.infrastructure.model.custom.AnoleConfigCombine">
+   <resultMap id="BaseResultMap" type="org.anole.infrastructure.model.custom.AnoleConfigCombine">
 	    <result column="Key" jdbcType="VARCHAR" property="key" />
 	    <result column="Type" jdbcType="TINYINT" property="type" />
+	    <result column="Project" jdbcType="VARCHAR" property="project" />
 	    <result column="Value" jdbcType="VARCHAR" property="value" />
 	    <result column="EnvName" jdbcType="VARCHAR" property="envName" />
 	    <result column="Description" jdbcType="LONGVARCHAR" property="description" />
 	    <result column="LastOperator" jdbcType="VARCHAR" property="lastOperator" /> 
-     </resultMap> 
+  </resultMap> 
   
   <select id="selectConfigsByProjectAndEnv" parameterType="map" resultMap="BaseResultMap">
-	select a.`Key`, a.`Type`, b.`Value`, a.Description, b.EnvName, b.LastOperator
+	select a.`Key`, a.`Type`, a.`Project`, b.`Value`, a.Description, b.EnvName, b.LastOperator
 	From anole_config as a 
 	left join anole_config_item as b 
     on a.Key = b.Key 
@@ -24,5 +25,6 @@
     where a.`Key` = #{key,jdbcType=VARCHAR}
     OR b.`key` = #{key,jdbcType=VARCHAR}
   </delete>
+  
   
 </mapper>

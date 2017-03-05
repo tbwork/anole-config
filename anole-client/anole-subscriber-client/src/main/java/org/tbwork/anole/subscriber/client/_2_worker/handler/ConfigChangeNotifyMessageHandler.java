@@ -50,8 +50,8 @@ public class ConfigChangeNotifyMessageHandler extends SpecifiedMessageHandler{
 			return ;
 		// Refresh local configuration.
 		cm.setConfigItem(ccnMsg.getConfigChangeDTO().getKey(), 
-									ccnMsg.getConfigChangeDTO().getDestValue(), 
-									ccnMsg.getConfigChangeDTO().getDestConfigType()); 
+									ccnMsg.getConfigChangeDTO().getValue(), 
+									ccnMsg.getConfigChangeDTO().getConfigType()); 
 		// Post Observers
 		postProcess(ccDto);
 	}
