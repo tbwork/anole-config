@@ -51,7 +51,7 @@ public class PermissionController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/get", method=RequestMethod.POST)
@@ -59,8 +59,13 @@ public class PermissionController {
 	public String getPermission(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody GetPermissionDemand demand){
 		PostResponse<Integer> result = new PostResponse<Integer>();
 		 try{ 
-			 initializeCheck(0);
-			 loginCheck(sessionBox); 
+			 initializeCheck(0); 
+			 if(!sessionBox.isLogined()){
+				 result.setResult(0);
+				 result.setErrorMessage("ok");
+				 result.setSuccess(true);
+				 return result.toString();
+			 } 
 			 result.setResult(pers.getUserRole(demand.getProject(), sessionBox.getUsername(), demand.getEnv()));
 			 result.setSuccess(true);  
 			 result.setErrorMessage("OK");
@@ -70,7 +75,7 @@ public class PermissionController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	

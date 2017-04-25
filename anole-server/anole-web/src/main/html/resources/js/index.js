@@ -1,12 +1,12 @@
 'use strict';
 var ls = window.localStorage;
 var anoleConsoleApp = angular.module('anoleConsoleApp',   ['ngMaterial', 'ngMessages']);  
-var loginStatus = false;
-var cur_username = '';
-var lan_index = 0;
-var initialized = false ;
-var env_initialized = false;
-var permission = 0;
+var loginStatus;
+var cur_username;
+var lan_index;
+var initialized;
+var env_initialized;
+var permission;
 var envs;
 var roles;
 var projects;
@@ -15,6 +15,8 @@ var users;
 var currentProject;
 var currentConfig;
 var currentEnv;
+var searchBarMarginTop_expand = 250;
+var searchBarMarginTop_shrink = 0; 
 
 if(ls.getItem("lan_index")!=null)
  lan_index = Number(ls.getItem("lan_index")); 
@@ -27,7 +29,6 @@ anoleConsoleApp.directive('ngEnter', function () {
                 scope.$apply(function (){
                     scope.$eval(attrs.ngEnter);
                 });
- 
                 event.preventDefault();
             }
         });
@@ -53,14 +54,33 @@ anoleConsoleApp.filter('cut', function () {
         return value + (tail || ' ...');
     };
 });
+
+function getCookie(name) 
+{ 
+    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+ 
+    if(arr=document.cookie.match(reg))
+ 
+        return unescape(arr[2]); 
+    else 
+        return null; 
+} 
+
 anoleConsoleApp.factory('GetService', ['$http', '$q', function ($http, $q) {  
 	  return {  
-	    query : function(input_url) {  
+	    query : function(input_url) {
 	    	var request = new XMLHttpRequest();
-	    	request.open('GET', input_url, false);  // `false` makes the request synchronous
+	    	request.open('GET', input_url, false);  // `false` makes the request synchronous 
+	    	request.onerror=function(error){
+	    		showNetErrorAlert("请检查网络后再试！","Please check the network and try again.");
+            };
 	    	request.send(null); 
 	    	if (request.status === 200) {
-	    	  return request.responseText;
+	    	  var resultJson = angular.fromJson(request.responseText);
+	    	  loginStatus = resultJson.loginStatus;
+	    	  if(!loginStatus)
+	    		  permission = 0;
+	    	  return resultJson;
 	    	}
 	    	else{
 	    	  return -1;
@@ -71,13 +91,17 @@ anoleConsoleApp.factory('GetService', ['$http', '$q', function ($http, $q) {
 anoleConsoleApp.factory('PostService', ['$http', '$q', function ($http, $q) {  
 	  return {  
 	    submit : function(input_url, data) {  
-	    	var request = new XMLHttpRequest();
-	    	request.open('POST', input_url, false);  // `false` makes the request synchronous
+	    	var request = new XMLHttpRequest(); 
+	    	request.open('POST', input_url, false);  // `false` makes the request synchronous 
 	    	request.setRequestHeader("dataType", "json");
 	    	request.setRequestHeader("Content-Type", "application/json; charset=utf-8");
-	    	request.send(angular.toJson(data)); 
-	    	if (request.status === 200) {
-	    	  return angular.fromJson(request.responseText);
+	    	request.onerror=function(error){
+	    		showNetErrorAlert("请检查网络后再试！","Please check the network and try again.");
+            };
+	    	request.send(angular.toJson(data));
+	    	if (request.status === 200) { 
+	    		 var resultJson = angular.fromJson(request.responseText);
+		    	 return resultJson;
 	    	}
 	    	else{
 	    	  return -1;
@@ -85,8 +109,8 @@ anoleConsoleApp.factory('PostService', ['$http', '$q', function ($http, $q) {
 	    } // end query  
 	  };  
 	}]);  
-anoleConsoleApp.controller('ProjectSearchController', ProjectSearchController);  
-function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, $mdMedia, GetService, PostService) { 
+anoleConsoleApp.controller('ProjectSearchController', ['GetService', 'PostService',  '$timeout', '$q', '$log', '$http', '$scope', '$mdDialog', '$mdMedia', ProjectSearchController]);  
+function ProjectSearchController ( GetService, PostService,  $timeout, $q, $log, $http, $scope, $mdDialog, $mdMedia) { 
     var self = this; 
     loginStatus = loadLoginStatus();
     self.loginStatus = loginStatus;
@@ -103,7 +127,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	self.product_line_desc_arr = new Array("所属产品线","Product Line");
 	self.project_name_desc_arr = new Array("项目名", "Project Name");
 	self.project_author_desc_arr  = new Array("创建者","Author");
-	self.env_desc_arr = new Array("选择环境","Run Env");
+	self.env_desc_arr = new Array("选择环境","Environment");
 	self.in_project_search_box_desc_arr = new Array("条件过滤","Filter By Condition");
 	var chResultTitles = new Array("序号","Key名", "环境", "值","描述","上次修改人","操作","项目");
 	var enResultTitles = new Array("NO.","Key", "Env","Value","Description","Last Operator","Operation", "Project");
@@ -135,6 +159,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	self.welcome_login_desc_arr = new Array("欢迎登录","Welcome to login."); 
 	self.text_confirm_arr = new Array("确认","OK");
 	self.text_desc_arr = new Array("描述","Description");
+	self.config_desc_note_arr = new Array("配置描述修改对所有环境生效","Modifing description works for all environments");
 	self.text_env_arr = new Array("环境","Env");
 	self.text_type_arr = new Array("类型","Type");
 	self.cancel_confirm_title_arr = new Array("操作确认！","Operation Confirmation!");
@@ -142,12 +167,13 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	self.config_detail_desc_arr = new Array("配置详情","Configuration Details");
 	self.config_edit_desc_arr = new Array("配置修改","Update Configuration");
 	self.config_add_desc_arr = new Array("配置添加", "Add Configuration");
-	self.config_value_desc_arr = new Array("变量值", "Variable Value");
+	self.config_value_desc_arr = new Array("变量值", "Value");
 	self.text_envs_placeholder_desc_arr = new Array("格式：环境变量缩写，多个请用英文逗号隔开", "Set envs here, use comma to split multiple envs")
 	self.text_envs_desc_arr = new Array("环境集","Env Set");
 	self.new_prd_line_desc_arr = new Array("新的产品线!","New product line!");
 	self.logout_desc_arr = new Array("登出", "Logout");
-	self.all_env_desc_arr = new Array("所有环境", "All Envs");
+	self.all_env_desc_arr = new Array("所有环境", "All Envs"); 
+    self.search_result_desc_arr = new Array("","");//模糊搜索结果描述中英文 
 	self.refreshLanguage = function(){
     	self.project_searcher_input_placeholder = self.project_searcher_input_placeholder_arr[self.lan_index];
     	self.user_searcher_input_placeholder = self.user_searcher_input_placeholder_arr[self.lan_index];
@@ -202,6 +228,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		//self.new_prd_line_desc = self.new_prd_line_desc_arr[self.lan_index];
 		self.logout_desc = self.logout_desc_arr[self.lan_index];
 		self.all_env_desc = self.all_env_desc_arr[self.lan_index];
+		self.config_desc_note = self.config_desc_note_arr[self.lan_index];
+		self.search_result_desc = self.search_result_desc_arr[self.lan_index];
     }
 
 	self.refreshLanguage();
@@ -212,7 +240,6 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     		self.nextPageLanguage = 'English';
     		self.lan_index = 0;
     		lan_index = 0;
-    		
     	}
     	else{
     		self.nextPageLanguage = '中文';
@@ -228,20 +255,24 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	envs = loadAllEnvs();
     	roles =  loadRoles();
     	projects  = loadAllProjects();
-    	users = loadAllUsers();
     	productLines = loadAllPrdLines();
     	initialized = true;
     	env_initialized = loadEnvInitialStatus();
+    	loadLoginStatus();
     }
-    self.env_initialized = env_initialized;
+    if(env_initialized != null)
+    	self.env_initialized = env_initialized;
+    else
+    	self.env_initialized = false;
+    
     self.envs = envs;
-    self.roles = roles;  
+    self.roles = roles;
     self.projectRepos  =  projects;
     self.userRepos = users;
     self.prdLineRepos = productLines;
-    
-	//meta data
-	
+    self.searchBarMarginTop = searchBarMarginTop_expand;
+    self.outsearch_env = "All"; 
+    //meta data
     self.types = [
     	{
     	  type:"Number",
@@ -256,9 +287,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	  value:3
     	}
     ];
-    currentEnv = self.envs[0];
-    self.currentEnv = currentEnv;
-
+    currentEnv = self.envs[0]; 
+	self.currentEnv = currentEnv; 
     /*
      * Autocomplete Project Component.
      */
@@ -283,7 +313,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     self.selectedItemChange_PrdLine = selectedItemChange_PrdLine;
     self.searchTextChange_PrdLine   = searchTextChange_PrdLine; 
     
-    self.searchByKeyAndEnv = searchByKeyAndEnv;
+    self.fuzzySearch = fuzzySearch;
     // config search
     self.queryCurrentProjectConfigsByEnv = queryCurrentProjectConfigsByEnv;
     self.refreshCurrentProjectConfigs = refreshCurrentProjectConfigs;
@@ -299,7 +329,6 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	desc:"",
     };
     self.configListResult = null; //当前项目的配置列表
-    self.search_result_desc = null;//模糊搜索结果描述
     self.configSearchResult = null; // 模糊搜索结果
     self.selectedAuthUser  = null;
     self.selectedPrdLine = null;
@@ -347,7 +376,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     function searchTextChange_Project(text) {
       $log.info('Text changed to ' + text);
       if(text == null)
-      	selectedItemChange(null);
+    	  selectedItemChange_Project(null);
     }
 
     function selectedItemChange_Project(item) {
@@ -355,27 +384,35 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
       var lastProject = currentProject;
       currentProject = item;
       self.currentProject  = currentProject;
-      $log.info('Current project is changed to ' + JSON.stringify(self.currentProject));
+      $log.info('Current project is changed to ' + JSON.stringify(self.currentProject)); 
+      if(item != null){
+    	  self.configListResult = queryConfigsByProject(item.projectName);
+    	  self.outsearch_input = null;
+    	  self.configSearchResult = null;
+      } 
+      else{//为空，显示搜索框
+    	  self.configListResult = queryConfigsByProject(null); 
+    	  self.searchBarMarginTop = searchBarMarginTop_expand;
+      }
       if(item !=null && lastProject != self.currentProject){ 
     	  permission = getPermission(); 
       } 
-      
-      if(item != null)
-     	 self.configListResult = queryConfigsByProject(item.projectName);
-      else
-      	 self.configListResult = queryConfigsByProject(null);
+      	
     } 
     
-    function getPermission(){
-    	if(self.currentProject == null)
+    function getPermission(projectName, env){
+    	if( projectName == null && self.currentProject == null)
     		return 0;
+    	var tempProjectName = projectName == null ? self.currentProject.projectName: projectName;
+    	var tempEnv = env == null ? self.currentEnv : env;  
     	var postData = {  
-				project: self.currentProject.projectName, 
-				env :  self.currentEnv 
+				project: tempProjectName, 
+				env :  tempEnv
 		};
     	if(!loginStatus)
     		return 0;
-		var response = PostService.submit("/permission/get", postData);
+		var response = PostService.submit("/permission/get", postData); 
+		self.loginStatus = loginStatus;
 		var resultPermission = 0;
 		if(response !=null && response != -1 && response.success){
 			 resultPermission = response.result;  
@@ -394,15 +431,15 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
      * User autocomplete
      */
      function querySearch_User(query) {
-      var results = query ? self.userRepos.filter( createFilterFor(query) ) : self.userRepos,
-          deferred;
-      if (self.simulateQuery) {
-        deferred = $q.defer();
-        $timeout(function () { deferred.resolve( results ); }, Math.random() * 1000, false);
-        return deferred.promise;
-      } else {
-        return results;
-      }
+	      var results = query ? self.userRepos.filter( createFilterFor(query) ) : self.userRepos,
+	          deferred;
+	      if (self.simulateQuery) {
+	        deferred = $q.defer();
+	        $timeout(function () { deferred.resolve( results ); }, Math.random() * 1000, false);
+	        return deferred.promise;
+	      } else {
+	        return results;
+	      }
     }
 
     function searchTextChange_User(text) {
@@ -428,7 +465,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
         return results;
       }
     }
-
+   
     function searchTextChange_PrdLine(text) {
       $log.info('Text changed to ' + text); 
       if(!isProjectExisted(text)) 
@@ -466,22 +503,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     }
  
   
-    $scope.logout = function(ev){
-    	loginStatus = false;
-        self.loginStatus = loginStatus; 
-        cur_username = "";
-        self.cur_username = cur_username;
-        $http.get("/user/logout").then(function successCallback(response) {
-    	    if(response.status == 200){
-    	    	 $log.info("Logged out!!!");
-    	    	 self.refreshCurrentProjectConfigs();
-    	    	 permission = getPermission(); 
-    	    }
-    	  }, function errorCallback(response) {
-    	    // called asynchronously if an error occurs
-    	    // or server returns response with an error status.
-    	  });
-    }
+ 
      
       /*
        * Dialog control
@@ -508,8 +530,11 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		 self.cur_username = cur_username;
 		 self.lan_index = lan_index;
 		 self.projectRepos  =  projects;
-	     self.userRepos = users;
 	     self.prdLineRepos = productLines;
+		 if(self.currentProject != null && self.currentProject.projectName!=null && self.currentProject.projectName!="")
+			 self.configListResult = queryConfigsByProject(self.currentProject.projectName);
+		 if(self.outsearch_input != null && self.outsearch_input!="")
+			 fuzzySearch();
 	  }
 	  $scope.resultNotify = function(content, success, ev , msg){
 	  	if(success)
@@ -541,7 +566,10 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	         cancel_operation();
 	    });
 	  };
-	  $scope.showConfirmDelete = function(item, ev){
+	  
+	  
+	  
+	  $scope.showConfirmDelete = function(key, ev){
 		  if(permission < 3){
 	    	 if(lan_index == 0)
 	     		$scope.showAlert(ev,"警告！","无权限!","alert","OK");
@@ -549,7 +577,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	     	    $scope.showAlert(ev,"Warning!","Permission denied!","alert","OK");
 	    	 return ;
 	      }
-	  	  $scope.showConfirm(ev, self.cancel_confirm_title, self.cancel_confirm_content, "cancel", "YES", "BACK",  $scope.deleteConfig, item.key, function(){});
+	  	  $scope.showConfirm(ev, self.cancel_confirm_title, self.cancel_confirm_content, "cancel", "YES", "BACK",  $scope.deleteConfig, key, function(){});
 	  }
 	  $scope.showPrompt = function(ev) {
 	    // Appending dialog to document.body to cover sidenav in docs app
@@ -594,7 +622,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	    }); 
 	  };
 	  $scope.showTabDialog = function(ev) {
-	  	
+		users = loadAllUsers();
 	    $mdDialog.show({
 	      controller: DialogController,
 	      templateUrl: 'admin_desk.html',
@@ -610,9 +638,23 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
         });  
 	  };  
 	  
+	 $scope.showConfigViewEx = function(configInfo, _env, event){
+		 var config = {
+				 key: configInfo.key,
+				 type: configInfo.type,
+				 value:configInfo.values[_env],
+				 desc: configInfo.desc,
+				 env : _env
+		 }
+		 currentProject =  { 
+				 projectName: configInfo.project
+		 }
+		 $scope.showConfigView(config, event, getPermission(configInfo.project, _env));
+	 }
 	  
-	 $scope.showConfigView = function(item, ev) {
-	     if(permission == 0){
+	 $scope.showConfigView = function(item, ev, specifiedPermission) {
+		 var tempPermission = specifiedPermission==null? permission : specifiedPermission;
+	     if(tempPermission == 0){
 	    	 if(lan_index == 0)
 	     		$scope.showAlert(ev,"警告！","无权限!","alert","OK");
 	     	 else
@@ -650,8 +692,25 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	    
 	 };
 	 
-	 $scope.showConfigEditWindow = function(item, ev) {
-		 if(permission < 2){
+	 $scope.showConfigEditWindowEx = function(configInfo, _env, event){
+		 var config = {
+				 key: configInfo.key,
+				 type: configInfo.type,
+				 value:configInfo.values[_env],
+				 desc: configInfo.desc,
+				 env : _env
+		 }
+		 currentProject = { 
+					 projectName: configInfo.project
+		 }
+		 
+		 $scope.showConfigEditWindow(config, event, getPermission(configInfo.project, _env));
+	 }
+	 
+	 
+	 $scope.showConfigEditWindow = function(item, ev, specifiedPermission) {
+		 var tempPermission = specifiedPermission==null? permission : specifiedPermission;
+		 if(tempPermission < 2){
 	    	 if(lan_index == 0)
 	     		$scope.showAlert(ev,"警告！","无权限!","alert","OK");
 	     	 else
@@ -688,7 +747,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	    });
 	   
 	 };
-	 
+	
 	 $scope.showConfigAddWindow = function(ev) {  
 		 if(permission < 2){
 	    	 if(lan_index == 0)
@@ -784,7 +843,18 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 			 
 	}
 	
-	// data command  
+	function adjustLoginStatus(result){ 
+	   	 loginStatus = result.loginStatus;
+	   	 self.loginStatus = loginStatus;
+	   	 if(!loginStatus){
+	   		permission = 0;
+	   		cur_username = "";
+	   		self.cur_username = cur_username;
+	   	 }
+	   		  
+	}
+	
+	// ----------------------------------------Post Http----------------------------------------------------------
 	$scope.assignPermission = function(ev){
 		var postData = { 
 				operator: cur_username,
@@ -794,6 +864,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				role: self.grant_role,
 		};
 		var response = PostService.submit("/permission/assign", postData);
+		adjustLoginStatus(response);
 		if(response !=null && response != -1 && response.success && response.result.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
@@ -817,7 +888,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		     $scope.showError('change_permission', errorInfo, false);
 		}
 		
-	}
+	} 
 	
 	$scope.addProject = function(ev){
 		var postData = { 
@@ -826,7 +897,8 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				projectName: self.text_project_name,
 		};
 		var response = PostService.submit("/project/create", postData);
-		if(response !=null && response != -1 && response.success && response.result.success){
+		adjustLoginStatus(response);
+		if(response !=null && response != -1 && response.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
 				 successInfo = "项目添加成功！";
@@ -851,26 +923,25 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 	}
 	
 	$scope.addConfig = function(ev){
-		var selectedEnv = self.currentEnv;
-		if(self.allEnvEnabled)
-			selectedEnv = "all";
 		var postData = {
 				operator:cur_username,
 				key:self.newConfig.key,
 				destValue:self.newConfig.value,
 				destConfigType:self.newConfig.type,
 				project:self.currentProject.projectName,
-				env: selectedEnv
+				env: self.currentEnv,
+				allEnvEnabled:self.allEnvEnabled
 		};
 		var response = PostService.submit("/config/create", postData);
-		if(response !=null && response != -1 && response.success && response.result.success){
+		adjustLoginStatus(response);
+		if(response !=null && response != -1 && response.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
 				 successInfo = "配置添加成功！";
 	  	  	 else
 	  	  		 successInfo = "Add config successfully!"; 
-			 
 			 // 更新本地配置信息
+			 // self.configListResult.push(response.result);
 			 $scope.showError('add_config', successInfo, true);
 		}else{ 
 			 var errorInfo = "";
@@ -886,29 +957,53 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		}
 	}
 	
-	$scope.modifyConfig = function(ev){
-		var selectedEnv = self.currentEnv;
-		if(self.allEnvEnabled)
-			selectedEnv = "all";
+	$scope.modifyConfig = function(ev){ 
 		var postData = {
 				operator:cur_username,
-				key:self.newConfig.key,
-				value:self.newConfig.value,
-				configType:self.newConfig.type,
+				key:self.currentConfig.key,
+				value:self.currentConfig.value,
+				configType:self.currentConfig.type,
 				project:self.currentProject.projectName,
-				env: selectedEnv,
-				description: self.newConfig.desc
+				env: self.currentEnv,
+				description: self.currentConfig.desc,
+				allEnvEnabled: self.allEnvEnabled
 		};
 		var response = PostService.submit("/config/modify", postData);
-		if(response !=null && response != -1 && response.success && response.result.success){
+		adjustLoginStatus(response);
+		if(response !=null && response != -1 && response.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
 				 successInfo = "配置修改成功！";
 	  	  	 else
-	  	  		 successInfo = "Modify config successfully!"; 
-			 
+	  	  		 successInfo = "Modify config successfully!";
 			 // 更新本地配置信息
-			 $scope.showError('modify_config', successInfo, true);
+			 if(self.currentProject !=  null){ //更新项目配置列表 
+				 var resultConfig = response.result;
+				 if(self.configListResult != null){
+					 for(config in self.configListResult){
+						 if(config.key == resultConfig.key){
+							 config.type = resultConfig.type;
+							 config.value = resultConfig.value;
+							 config.desc = resultConfig.desc;
+							 config.lastModifier = resultConfig.lastModifier; 
+							 break;
+						 }
+					 }
+				 } 
+			 }
+			 else{ // 更新搜索结果更新
+				 if( self.configSearchResult != null){
+					 var resultConfig = response.result;
+					 for(config in self.configSearchResult){
+						 if(config.key == resultConfig.key){
+							 config.type = resultConfig.type;
+							 config.desc = resultConfig.desc; 
+							 config.values = resultConfig.values;
+						 }
+					 }
+				 }
+			 }
+			 $scope.showError('add_config', successInfo, true);
 		}else{ 
 			 var errorInfo = "";
 			 if(lan_index == 0)
@@ -919,7 +1014,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				 errorInfo = errorInfo + " Details: " + response.errorMessage;
 			 else if(!response.result.success)
 				 errorInfo = errorInfo + " Details: " + response.result.errorMessage; 
-		     $scope.showError('modify_config', errorInfo, false);
+		     $scope.showError('add_config', errorInfo, false);
 		}
 	}
 	
@@ -930,6 +1025,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				envs: self.text_envs,
 		};
 		var response = PostService.submit("/project/setEnvs", postData);
+		adjustLoginStatus(response);
 		if(response !=null && response != -1 && response.success && response.result.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
@@ -960,6 +1056,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				password: self.text_password_for_modify_password
 		};
 		var response = PostService.submit("/user/modifyPassword", postData);
+		adjustLoginStatus(response);
 		if(response !=null && response != -1 && response.success && response.result.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
@@ -982,6 +1079,25 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		     $scope.showError('modify_password', errorInfo, false);
 		}
 	}
+	 
+    $scope.logout = function(ev){
+    	loginStatus = false;
+        self.loginStatus = loginStatus; 
+        permission = 0; //退出登录后，权限必定为0
+        cur_username = "";
+        self.cur_username = cur_username;
+        $http.get("/user/logout").then(function successCallback(response) {
+    	    if(response.status == 200){
+    	    	 $log.info("Logged out!!!");
+    	    	 self.refreshCurrentProjectConfigs();
+    	    	 fuzzySearch();
+    	    }
+    	  }, function errorCallback(response) {
+    	    // called asynchronously if an error occurs
+    	    // or server returns response with an error status.
+    	  });
+    }
+	
 	$scope.login = function(ev){
 		var projectName = null; 
 		if(self.currentProject != null)
@@ -993,12 +1109,13 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				env :  self.currentEnv 
 		};
 		var response = PostService.submit("/user/auth", postData);
+		adjustLoginStatus(response);
 		if(response !=null && response != -1 && response.success && response.result.pass){
 			 loginStatus = true; 
 			 cur_username = self.text_username; 
 			 permission = response.result.permission;
 			 $mdDialog.cancel();
-		}else{ 
+		}else{
 			 var errorInfo = "";
 			 if(lan_index == 0)
 				 errorInfo = "登入失败！";
@@ -1019,6 +1136,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 				password: self.text_password
 		};
 		var response = PostService.submit("/user/create", postData);
+		adjustLoginStatus(response);
 		if(response !=null && response != -1 && response.success && response.result.success){
 			 var successInfo = ""; 
 			 if(lan_index == 0)
@@ -1042,10 +1160,51 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
 		     $scope.showError('create_user', errorInfo, false);
 		}
 	}
-	 
-	// data repository
+	
+    function fuzzyQueryBySearchTextAndEnv(_searchText, env){ 
+		var postData = {
+				operator:cur_username,
+				searchText:_searchText,
+				env: env
+		};
+		var response = PostService.submit("/config/fuzzyQueryConfig", postData);
+		adjustLoginStatus(response);
+		if(response !=null && response != -1 && response.success){
+			 var result = response.result;
+			 var resultCount = result.length;
+			 var costTime = response.costTime; 
+			 self.search_result_desc_arr = ["搜索到"+resultCount+"个结果，共耗时"+costTime+"ms", "Count of results : " + resultCount+", costs "+costTime+" ms"];
+			 self.search_result_desc = self.search_result_desc_arr[self.lan_index];
+			 self.searchBarMarginTop = searchBarMarginTop_shrink;
+			 return result;
+		}else if(response == -1){  
+			showNetErrorAlert("查询失败，请检查网络后再试！","Query failed, please check the network and try again.");
+		}
+		else if(response.errorMessage !=null){
+			showNetErrorAlert(response.errorMessage);
+		}  
+    } 
+	
+    function queryConfigsByProAndEnv(project, env_in){ 
+    	var postData = {
+				operator: cur_username,
+				project: project,
+				env: env_in
+		};
+		var response = PostService.submit("/config/getByProjectAndEnv", postData);
+		adjustLoginStatus(response);
+		if(response !=null && response != -1 && response.success && response.result != null){
+			  return response.result;
+		}else{ 
+			 return [];
+		}
+    }
+    
+    
+	//-----------------------------------------HTTP GET-------data repository------------------------------------------------ 
 	function loadEnvInitialStatus(){
 		var data = GetService.query('/project/envstatus');
+		adjustLoginStatus(data);
 		if(data == -1){
        	 if(lan_index == 0)
 	  		   showAlert(ev, "失败提醒", ":( 获取配置初始化情况失败", "notify","好的");
@@ -1054,11 +1213,12 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
        	  return null;
         }
         else{
-       	  return angular.fromJson(data).result;
+       	  return data.result;
         }  
 	}
     function loadAllEnvs(){ 
-         var data = GetService.query('/project/envs');   // 返回承诺，这里并不是最终数据，而是访问最终数据的API  
+         var data = GetService.query('/project/envs');   // 返回承诺，这里并不是最终数据，而是访问最终数据的API
+         adjustLoginStatus(data);
          if(data == -1){
         	 if(lan_index == 0)
 	  		   showAlert(null, "失败提醒", ":( 获取配置环境失败!", "notify","好的");
@@ -1067,27 +1227,30 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
         	 return null;
          }
          else{
-        	 return angular.fromJson(data).result;
+        	 return data.result;
          }  
     }
     function loadLoginStatus(){
     	var data = GetService.query('/user/status');   // 返回承诺，这里并不是最终数据，而是访问最终数据的API  
+    	adjustLoginStatus(data);
         if(data == -1){
        	 if(lan_index == 0)
 	  		   showAlert(null, "失败提醒", ":( 调用服务器失败!", "notify","好的");
 	  	  	 else
 	  		   showAlert(null, "Failed", ":( Error occurs when call service from server!", "notify", "OK"); 
-       	 return false;
+       	 	return false;
         }
         else{
-        	var result = angular.fromJson(data);
+        	var result = data;
         	cur_username = result.result.username;
         	loginStatus = result.result.status;
+        	self.loginStatus = loginStatus;
        	    return loginStatus;
         }   
     }
     function loadAllUsers(ev){
     	 var data = GetService.query('/user/users');   // 返回承诺，这里并不是最终数据，而是访问最终数据的API  
+    	 adjustLoginStatus(data);
          if(data == -1){
         	 if(lan_index == 0)
 	  		   showAlert(null, "失败提醒", ":( 获取配置环境失败!", "notify","好的");
@@ -1096,20 +1259,21 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
         	 return null;
          }
          else{
-        	 return angular.fromJson(data).result;
+        	 return data.result;
          }  
     }
     function loadAllPrdLines(){
     	var data = GetService.query('/project/prdlines');   // 返回承诺，这里并不是最终数据，而是访问最终数据的API  
+    	adjustLoginStatus(data);
         if(data == -1){
         	 if(lan_index == 0)
 	  		   showAlert(null, "失败提醒", ":( 获取产品线失败!", "notify","好的");
 	  	  	 else
 	  		   showAlert(null, "Failed", ":( Error occurs when retrieving product lines!", "notify", "OK"); 
-       	 return null;
+        	return null;
         }
         else{
-       	 return angular.fromJson(data).result;
+       	 	return data.result;
         }  
     }
     function loadRoles(){
@@ -1119,6 +1283,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     function loadAllProjects() {
       var repos = null;
       var data = GetService.query('/project/projects');   // 返回承诺，这里并不是最终数据，而是访问最终数据的API  
+      adjustLoginStatus(data);
       if(data == -1){
      	 if(lan_index == 0)
 	  		   showAlert(null, "失败提醒", ":( 获取项目列表失败!", "notify","好的");
@@ -1127,7 +1292,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
      	 return null;
       }
       else{
-    	  repos = angular.fromJson(data).result;
+    	  repos = data.result;
       }  
       return repos.map( function (repo) {
         repo.value = repo.projectName.toLowerCase();
@@ -1139,58 +1304,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	 $log.error(title+": " + content);  
     }
     
-    function queryConfigsByKey(key){ 
-    	return [
-			    	{
-			    		'key':'lcb-order-service.login.usssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
-			    		'type':3,
-			    		'value':"hellsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssso",
-			    		'desc':"你好",
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.usssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
-			    		'type':3,
-			    		'value':"hellsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssso",
-			    		'desc':"你好",
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.usssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
-			    		'type':3,
-			    		'value':"hellsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssso",
-			    		'desc':"你好",
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-query.login.usssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss',
-			    		'type':3,
-			    		'value':"hellsssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssso",
-			    		'desc':"你好",
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.u',
-			    		'type':3,
-			    		'value':"hello",
-			    		'desc':"你好",
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	},
-			    	{
-			    		'key':'lcb-order-service.login.uddddddddddd',
-			    		'type':3,
-			    		'value':"hello",
-			    		'desc':"你好",
-			    		'env':"test",
-			    		'lastModifier':"tommy.tang",
-			    	}, 
-			    ]; 
-    }
+  
     
     function queryConfigsByProject(project){
     	if(project == null)
@@ -1201,32 +1315,25 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	return queryConfigsByProAndEnv(project, env);
     }
     
-    function searchByKeyAndEnv(){
-    	if(!checkEmpty(self.outsearch_input) && !checkEmpty(self.outsearch_env))
-    		self.configListResult =  queryConfigsByKeyAndEnv(self.outsearch_input,self.outsearch_env);
-    	else if( !checkEmpty(self.outsearch_input))
-    	    self.configListResult = queryConfigsByKey(self.outsearch_input); 
+    function fuzzySearch(){
+    	if(!checkEmpty(self.outsearch_input) && !checkEmpty(self.outsearch_env) && self.outsearch_env!="All")
+    		self.configSearchResult =  fuzzyQueryBySearchTextAndEnv(self.outsearch_input,self.outsearch_env);
+    	else{
+    		self.configSearchResult = fuzzyQueryBySearchTextAndEnv(self.outsearch_input); 
+    	} 
     }
     
     function checkEmpty(input){
     	return input == null || input == "";
-    }
+    } 
     
-    function queryConfigsByKeyAndEnv(key, env){ 
-		var postData = {
-				operator:cur_username,
-				project:self.currentProject.projectName,
-				env: self.currentEnv
-		};
-		var response = PostService.submit("/config/getByProjectAndEnv", postData);
-		if(response !=null && response != -1 && response.success && response.result.success){
-			 return response.result.result;
-		}else{  
-		     $scope.showError('add_config', errorInfo, false);
-		}
-    	 
+    function showNetErrorAlert(chMsg, enMsg){
+    	if(enMsg == null) enMsg = chMsg;
+    	if(lan_index == 0)
+	  		 showAlert(null, "失败提醒", ":( "+chMsg+"!", "notify","好的");
+  	  	else
+	  		 showAlert(null, "Failed", ":( "+enMsg+"!", "notify", "OK");  
     }
-    
     function refreshCurrentProjectConfigs(){
     	if(self.currentProject!=null && self.currentProject.projectName!=null)
     		self.configListResult = queryConfigsByProAndEnv(self.currentProject.projectName, self.currentEnv);
@@ -1237,21 +1344,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	self.currentEnv = currentEnv;
     	self.configListResult = queryConfigsByProAndEnv(project, env);
     }
-    function queryConfigsByProAndEnv(project, env_in){ 
-    	var postData = {
-				operator: cur_username,
-				project: project,
-				env: env_in
-		};
-		var response = PostService.submit("/config/getByProjectAndEnv", postData);
-		if(response !=null && response != -1 && response.success && response.result != null){
-			  return response.result;
-		}else{ 
-			 return [];
-		}
-    }
-    
-    
+
     // Data refresh
     $scope.loadSpecifiedMetaData = function(methodArr){
     	$http.post("/multi/load", JSON.stringify(methodArr), "{'Content-Type': 'application/json'}").then(function successCallback(response) {
@@ -1264,11 +1357,7 @@ function ProjectSearchController ($timeout, $q, $log, $http, $scope, $mdDialog, 
     	    	if($scope.contains("getPrdLines",methodArr)){
     	    		productLines = result.result.prdLines;
         	    	self.prdLineRepos = productLines;
-    	    	}
-    	    	if($scope.contains("getUsers",methodArr)){
-    	    		users = result.result.users;
-        	    	self.userRepos = users; 
-    	    	}
+    	    	} 
     	    	if($scope.contains("loginStatus",methodArr)){
     	    		loginStatus = result.result.loginStatus;
     	    	    self.loginStatus = loginStatus;

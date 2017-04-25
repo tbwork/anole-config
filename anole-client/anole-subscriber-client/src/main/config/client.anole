@@ -1,4 +1,4 @@
-env=all
+#env:all
 ###Anole Client Configurations###
 anole.client.subscriber.boss.address=192.168.0.128:54323,192.168.0.128:54324
 anole.client.subscriber.username=tangbo

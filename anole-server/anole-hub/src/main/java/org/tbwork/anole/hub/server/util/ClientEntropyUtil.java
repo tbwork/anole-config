@@ -5,22 +5,22 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.tbwork.anole.common.enums.ClientType;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.WorkerClient;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClientSkeleton;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.WorkerClientSkeleton;
 
 public class ClientEntropyUtil {
 
 	
 	public static final int MAX_INT  = Integer.MAX_VALUE; 
 	
-	public static WorkerClient selectBestWorker(ClientType clientType, Map<Integer, LongConnectionClient> lcMap){
-		Set<Entry<Integer, LongConnectionClient>> entrySet = lcMap.entrySet();
-		WorkerClient best = null;
+	public static WorkerClientSkeleton selectBestWorker(ClientType clientType, Map<Integer, LongConnectionClientSkeleton> lcMap){
+		Set<Entry<Integer, LongConnectionClientSkeleton>> entrySet = lcMap.entrySet();
+		WorkerClientSkeleton best = null;
 		int currentEntropy = MAX_INT;
-		for(Entry<Integer, LongConnectionClient> item: entrySet){ 
-			if(best == null) best = (WorkerClient) item.getValue(); 
+		for(Entry<Integer, LongConnectionClientSkeleton> item: entrySet){ 
+			if(best == null) best = (WorkerClientSkeleton) item.getValue(); 
 			else{
-				WorkerClient itemWc = (WorkerClient) item.getValue();
+				WorkerClientSkeleton itemWc = (WorkerClientSkeleton) item.getValue();
 				int tempEntropy = entropy(itemWc.getSubscriberClientCount(), itemWc.getWeight());
 				if(currentEntropy > tempEntropy){
 					best = itemWc;

@@ -15,7 +15,7 @@ import lombok.Setter;
  * @author tommy.tang
  */
 @Data
-public abstract class LongConnectionClient {
+public class LongConnectionClientSkeleton {
 
 	/**
 	 * The unique identity code of one client 
@@ -31,9 +31,9 @@ public abstract class LongConnectionClient {
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)  
 	int ping_promise_count; 
 	
-	public LongConnectionClient(){}
+	public LongConnectionClientSkeleton(){}
 	
-	public LongConnectionClient(int token, SocketChannel socketChannel){
+	public LongConnectionClientSkeleton(int token, SocketChannel socketChannel){
 		this.token = token;
 		this.socketChannel = socketChannel;
 		this.ping_promise_count = 0; 
@@ -52,7 +52,7 @@ public abstract class LongConnectionClient {
 	public boolean maxPromiseCount()
 	{
 		return ping_promise_count >= StaticConfiguration.MAX_PROMISE_COUNT ;
-	}
+	} 
 	
 	
 }

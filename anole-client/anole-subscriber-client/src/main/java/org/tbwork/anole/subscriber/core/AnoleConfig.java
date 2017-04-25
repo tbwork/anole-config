@@ -42,14 +42,11 @@ public class AnoleConfig extends AnoleLocalConfig{
 	 * <pre>  
 	 *   1. AnoleConfig.registerPreObserver("keyname", new ChainedConfigObserver(false) { 
 	 *   2.     @Override
-	 *   3.     public void process(ConfigChangeDTO ccDto) {
-	 *   4.          ccDto.getKey(); 
-	 *   5.          ccDto.getOrigValue();
-	 *   6.          ccDto.getDestValue();
-	 *   7.          ccDto.getOriConfigType(); 
-	 *   8.          ccDto.getDestConfigType(); 
-	 *   9.     }
-	 *   10.});
+	 *   3.     public void process(ValueChangeDTO vcd) {
+	 *   4.          vcd.getKey(); 
+	 *   5.          vcd.getValue();  
+	 *   6.     }
+	 *   7.});
 	 * </pre>
 	 * 
 	 * @param key the key will be observed
@@ -66,14 +63,11 @@ public class AnoleConfig extends AnoleLocalConfig{
 	 * <pre>  
 	 *   1. AnoleConfig.registerPostObserver("keyname", new ChainedConfigObserver(false) { 
 	 *   2.     @Override
-	 *   3.     public void process(ConfigChangeDTO ccDto) {
-	 *   4.          ccDto.getKey(); 
-	 *   5.          ccDto.getOrigValue();
-	 *   6.          ccDto.getDestValue();
-	 *   7.          ccDto.getOriConfigType(); 
-	 *   8.          ccDto.getDestConfigType(); 
-	 *   9.     }
-	 *   10.});
+	 *   3.     public void process(ValueChangeDTO vcd) {
+	 *   4.          vcd.getKey(); 
+	 *   5.          vcd.getValue(); 
+	 *   6.     }
+	 *   7.});
 	 * </pre>
 	 * 
 	 * @param key the key will be observed

@@ -115,7 +115,7 @@ div.body{
 }
 
 div.body-item{
-	width: 1000px;
+	width: 1150px;
 	margin: auto;
 	overflow: hidden; 
 }
@@ -365,17 +365,17 @@ div.login_item div.label{
 md-dialog.config_dialog{
 	width:560px;
 	height:600px;
+	padding-bottom: 30px;
 }
  
 div.config_detail_item{
 	width:650px; 
 }
   
-  
 div.config_detail_item div.label{
 	width:100px; 
 }
- 
+
 div.config_detail_item div.detail_v{
 	width:400px
 }
@@ -433,4 +433,19 @@ div.error_img{
 
 input#checkbox1, input#checkbox2{
 	
+}
+
+
+div.enter_button{
+    background: none repeat scroll 0 0 #eee9bf;
+    text-align: center;
+    height: 38px;
+    border-width: 0;
+    line-height: 38px;
+   	border: 1px solid #333;
+    font-size: 17px;
+    color: rgb(148, 143, 143);
+    font-weight: bolder;
+    border-radius: 6px;
+    cursor: pointer;  
 }

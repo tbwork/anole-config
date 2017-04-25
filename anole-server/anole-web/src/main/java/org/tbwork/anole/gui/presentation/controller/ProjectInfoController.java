@@ -55,7 +55,7 @@ public class ProjectInfoController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/setEnvs", method=RequestMethod.POST)
@@ -76,55 +76,55 @@ public class ProjectInfoController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/envs", method=RequestMethod.GET)
 	@ResponseBody
-	public String getEnvs()
+	public String getEnvs(@ModelAttribute("sessionBox") SessionBox sessionBox)
 	{ 
 		 PostResponse<List<String>> result = new PostResponse<List<String>>(); 
 		 List<String> envs = ps.getEnvs();
 		 result.setResult(envs);
 		 result.setSuccess(true);  
 		 result.setErrorMessage("OK"); 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	
 	@RequestMapping(value="/prdlines", method=RequestMethod.GET)
 	@ResponseBody
-	public String getProductLines()
+	public String getProductLines(@ModelAttribute("sessionBox") SessionBox sessionBox)
 	{ 
 		 PostResponse<List<String>> result = new PostResponse<List<String>>(); 
 		 List<String> envs = ps.getProductLines();
 		 result.setResult (envs);
 		 result.setSuccess(true);  
 		 result.setErrorMessage("OK"); 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/envstatus", method=RequestMethod.GET)
 	@ResponseBody
-	public String getEnvstatus()
+	public String getEnvstatus(@ModelAttribute("sessionBox") SessionBox sessionBox)
 	{ 
 		 PostResponse<Boolean> result = new PostResponse<Boolean>();  
 		 result.setResult(ps.isInitialized());
 		 result.setSuccess(true);  
 		 result.setErrorMessage("OK"); 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/projects", method=RequestMethod.GET)
 	@ResponseBody
-	public String getProjects()
+	public String getProjects(@ModelAttribute("sessionBox") SessionBox sessionBox)
 	{ 
 		 PostResponse<List<Project>> result = new PostResponse<List<Project>>(); 
 		 List<Project> projects = ps.getProjects();
 		 result.setResult(projects);
 		 result.setSuccess(true);  
 		 result.setErrorMessage("OK"); 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	private void initializeCheck(){

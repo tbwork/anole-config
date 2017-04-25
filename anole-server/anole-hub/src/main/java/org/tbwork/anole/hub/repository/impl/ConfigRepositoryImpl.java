@@ -22,6 +22,10 @@ import org.tbwork.anole.hub.util.ProjectUtil;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * Used for worker server.
+ * @author tommy.tang 
+ */
 @Service("configRepository")
 public class ConfigRepositoryImpl implements ConfigRepository{
 
@@ -44,74 +48,26 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		if(cvdo != null){
 			return cvdo;
 		} 
+		AnoleConfig anoleConfig = anoleConfigDao.selectByConfigKey(key);
 		AnoleConfigItem aci = anoleConfigItemDao.selectByConfigKeyAndEnv(key, env);
-		if(aci != null)
+		if(anoleConfig!=null && aci != null)
 		{
-			cvdo = dpo2dmo(aci);
+			cvdo = dpo2dmo(aci, ConfigType.configType(anoleConfig.getType()));
 			cache.set(cacheKey, cvdo); // set cache
 		} 
 		return cvdo;
 	}
 	
 	@Override
-	public void setConfigValue(ConfigValueDO configValueDo) {
-		basicCheck(configValueDo);
-		if(checkConfigExists(configValueDo.getKey())){ 
-			//disable cache
-			String ckey = buildConfigItemCacheKey(configValueDo.getKey(), configValueDo.getEnv());
-			cache.asynRemove(ckey);
-			//update the database
-			AnoleConfigItem aci = dmo2dpo(configValueDo);
-			if(!checkConfigValueExists(configValueDo.getKey(), configValueDo.getEnv()))
-			{ 
-				synchronized(lr.getInsertLock(configValueDo.getKey())){
-					if(!checkConfigValueExists(configValueDo.getKey(), configValueDo.getEnv()))
-					{  
-						anoleConfigItemDao.insert(aci);
-						return;
-					}
-				}
-			} 
-			anoleConfigItemDao.updateByPrimaryKey(aci); 
-			//update the cache
-			cache.asynSet(ckey, configValueDo);
-		}
-		else
-		throw new ConfigNotExistsException(configValueDo.getKey());
-		
+	public void setConfigValue(String key, String value, String env, ConfigType configType) {
+		String cacheKey = buildConfigItemCacheKey(key, env);
+		ConfigValueDO cvdo = cache.get(cacheKey);
+		if(cvdo != null){
+			cvdo.setValue(value);
+			cvdo.setConfigType(configType);  
+		}  
 	}
-	
-	
-	@Override
-	public void addConfig(ConfigDO config) { 
-		basicCheck(config);
-		addOperationCheck(config);
-		try{  
-			// add to database
-			AnoleConfig ac = dmo2dpo(config);  
-			anoleConfigDao.insert(ac); 
-			
-			// add to cache
-			String ckey = buildConfigCacheKey(config.getKey());
-			cache.asynSet(ckey, config);
-		}catch(Exception e){
-			throw new ConfigAlreadyExistsException(config.getKey());
-		} 
-	}
- 
-	@Override
-	public void setConfig(ConfigDO config) {
-		basicCheck(config);  
-		configExistsCheck(config.getKey());
-		// remove the cache
-		String ckey = buildConfigCacheKey(config.getKey());
-		cache.asynRemove(ckey);
-		// update database
-		AnoleConfig ac = dmo2dpo(config); 
-		anoleConfigDao.updateByPrimaryKey(ac);
-		// update the cache 
-		cache.asynSet(ckey, config);  
-	}
+	 
 	
 	//------------privates--------------------------------------------------------
 	
@@ -119,8 +75,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		Preconditions.checkNotNull (cvdo.getKey(), "You should specify a key first.");
 		Preconditions.checkNotNull (cvdo.getLastOperator(), "Operator should not be null.");
 		Preconditions.checkNotNull (cvdo.getEnv(), "You should sepcify a environment name.");
-		Preconditions.checkArgument(!cvdo.getKey().isEmpty(), "You should specify a key first.");
-		Preconditions.checkArgument(!cvdo.getLastOperator().isEmpty(), "Operator should not be empty.");
+		Preconditions.checkArgument(!cvdo.getKey().isEmpty(), "You should specify a key first."); 
 		Preconditions.checkArgument(!cvdo.getEnv().isEmpty(), "You should sepcify a environment name.");
 	}
 	private void addOperationCheck(ConfigValueDO cvdo){
@@ -155,9 +110,6 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		String ckey = buildConfigCacheKey(configKey);
 		if(cache.contain(ckey))
 			return true;
-		AnoleConfig ac = anoleConfigDao.selectByConfigKey(configKey);
-		if(ac != null) 
-			return true;
 		return false;
 	}
 	
@@ -180,12 +132,13 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		return dpo;
 	}
 	
-	private ConfigValueDO dpo2dmo(AnoleConfigItem dpo){
+	private ConfigValueDO dpo2dmo(AnoleConfigItem dpo, ConfigType configType){
 		ConfigValueDO dmo = new ConfigValueDO();
 		dmo.setEnv(dpo.getEnvName());
 		dmo.setKey(dpo.getKey());
 		dmo.setValue(dpo.getValue());
 		dmo.setLastOperator(dpo.getLastOperator()); 
+		dmo.setConfigType(configType);
 		return dmo;
 	}
 	
@@ -204,7 +157,7 @@ public class ConfigRepositoryImpl implements ConfigRepository{
 		dpo.setDescription(cdo.getDescription());
 		dpo.setKey(cdo.getKey());
 		dpo.setProject(ProjectUtil.getProjectName(cdo.getKey()));
-		dpo.setType(cdo.getConfigType().index()); 
+		dpo.setType(cdo.getConfigType().code()); 
 		dpo.setLastOperator(cdo.getLastOpeartor()); 
 		return dpo;
 	}

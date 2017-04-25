@@ -20,7 +20,7 @@ public enum ConfigType {
 		return STRING; //DEFAULT
 	} 
 	
-	public Byte index(){
+	public Byte code(){
 		return code;
 	}
 }

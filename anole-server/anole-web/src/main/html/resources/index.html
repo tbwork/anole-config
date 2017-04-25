@@ -15,7 +15,7 @@
 <body ng-controller="ProjectSearchController as self">
  
 <div class="nav-bar"  >
-	  <div class= "anole-name-container"> 
+	  <div class= "anole-name-container">
 	  	<div ng-if="self.lan_index == 0" class="anole-name"><a style="color: #333333;"  href="index.html">{{self.anole_name}}</a></div>  
 	  	<div ng-if="self.lan_index == 1" class="anole-name-en"><a style="color: #333333;"  href="index.html">{{self.anole_name}}</a></div>  
 	  </div> 
@@ -85,31 +85,32 @@
     	时间：2016-07-06
     	描述：全局键值搜索框
     -->
-	<div class="body-item" ng-if="self.currentProject == null && self.configListResult[0] == null" style="margin-top: 250px;"> 
-		<div style="margin:auto;width:530px;display: block;">
-			<div class ="outsearch" style="width:120px;display: inline-block;border:1px solid #333333; border-radius: 4px;height: 37px;">      
-				        <md-select ng-model="self.outsearch_env" style="margin:0px;width:120px;height: 37px;" placeholder="{{self.env_desc}}">
-				          <md-option ng-repeat="env in self.envs" value="{{env}}">
-				            {{env}}
-				          </md-option>
-				        </md-select>  
-			</div> 
+	<div class="body-item" ng-if="self.currentProject == null && self.configListResult[0] == null" style="margin-top: {{self.searchBarMarginTop}}px;"> 
+		<div style="margin:auto;width:700px;display: block;">
+			<div class ="outsearch" style="margin-left:60px;width:100px;display: inline-block;border:1px solid #333333; border-radius: 4px;height: 37px;">      
+				        
+				        <select ng-model="self.outsearch_env"  style="margin:0px;width:100%;height: 37px;border:none; padding-left: 10px;" ng-change="self.fuzzySearch()">
+				        	<option selected  value="All">All</option>
+				        	<option ng-repeat="env in self.envs"  value="{{env}}">{{env}}</option>
+				        </select> 
+			</div>
 			<div style="width:400px;display: inline-block;">
-					<input style="width: 385px" class="outsearch" ng-model="self.outsearch_input" ng-enter= "self.searchByKeyAndEnv()" placeholder="{{self.out_search_placeholder_desc}}"/> 
+				<input style="width: 385px" class="outsearch" ng-model="self.outsearch_input" ng-enter= "self.fuzzySearch()" placeholder="{{self.out_search_placeholder_desc}}"/> 
+			</div>
+			<div class ="enter_button" style="width:60px;display: inline-block; " ng-click="self.fuzzySearch()">
+			 	<nobr>Enter</nobr>
 			</div>
 		</div>
 	</div>
-	
-	
 	
 	<!--
     	作者：tttbbb222000@163.com
     	时间：2016-07-06
     	描述：模糊搜索结果描述
     -->
-	<div class="body-item" ng-if="self.currentProject != null" style="height: 40px;margin-top:20px;margin-bottom: 10px ;"> 
-	    <div style="height: 41px; margin-left: -5px;"> 
-		     <nobr>self.search_result_desc</nobr> 
+	<div class="body-item" ng-if="self.configSearchResult[0] != null" style="height: 40px;margin-top:20px;margin-bottom: 10px ;"> 
+	    <div style="height:100%; line-height:40px"> 
+		     <nobr>{{self.search_result_desc}}</nobr> 
 	    </div>   
 	    <div style="float:right"> 
 		     <input class="insearch" ng-model="self.insearch_input_fuzzy" placeholder="{{self.in_search_placeholder_desc}}"/> 
@@ -121,32 +122,37 @@
     	时间：2016-07-06
     	描述：模糊搜索结果列表
     -->
-	<div class="body-item" style="border:1px solid #ddd;border-left:none;border-right:none;" ng-if="self.configListResult[0] != null"> 
+	<div class="body-item" style="border:1px solid #ddd;border-left:none;border-right:none;" ng-if="self.configSearchResult[0] != null"> 
 	    <div class="result-item" style="width:50px">{{self.result_title_desc[0]}}</div>  
 	    <div class="result-item" style="width:200px">{{self.result_title_desc[1]}}</div>
-	    <div class="result-item" style="width:100px">{{self.result_title_desc[7]}}</div>
+	    <div class="result-item" style="width:200px">{{self.result_title_desc[7]}}</div>
         <div class="result-item" style="width:100px">{{self.result_title_desc[2]}}</div>  
-        <div class="result-item" style="width:200px">{{self.result_title_desc[3]}}</div>  
-        <div class="result-item" style="width:200px">{{self.result_title_desc[4]}}</div>
+        <div class="result-item" style="width:250px">{{self.result_title_desc[3]}}</div>  
+        <div class="result-item" style="width:180px">{{self.result_title_desc[4]}}</div>
+        <div class="result-item" style="width:114px">{{self.result_title_desc[6]}}</div>
 	</div>
 	
-	<div ng-repeat = "result in self.configSearchResult | filter: self.insearch_input_fuzzy" class="body-item" style="border-bottom:1px solid #ddd; "> 
-		<div class="result-item" style="width:50px">{{$index+1}}</div>  
-	    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key}}</div>  
-        <div class="result-item" style="width:200px">{{result.lastModifier}}</div>  
-        <div class="result-item" style="width:100px">{{result.env}}</div>  
-        <div class="result-item overlay" style="width:200px;" title="{{result.value}}">{{result.value}}</div>   
-        <div class="result-item" style="width:114px"> 
+	<div ng-repeat = "result in self.configSearchResult | filter : self.insearch_input_fuzzy" class="body-item" style="border-bottom:1px solid #ddd; "> 
+        <div ng-repeat = " ( env, value ) in result.values" >
+        	<div class="result-item" style="width:50px">{{$index+1}}</div>  
+		    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key}}</div>  
+	        <div class="result-item" style="width:200px">{{result.project}}</div>  
+	        <div class="result-item" style="width:100px">{{env}}</div>  
+	        <div class="result-item overlay" style="width:250px;" title="{{value}}">{{value}}</div>   
+	        <div class="result-item" style="width:180px">{{result.desc}}</div>  
+        	<div class="result-item" style="width:114px"> 
         	<div>
-        		<img src = "img/view.png" title="{{self.view_config_desc}}" ng-click="showConfigView(result,$event)" class="icon_for_list_item"/>
+        		<img src = "img/view.png" title="{{self.view_config_desc}}" ng-click="showConfigViewEx(result, env,$event)" class="icon_for_list_item"/>
         	</div>
         	<div>
-        		<img src = "img/modify.png" title="{{self.modify_config_desc}}" ng-click="showConfigEditWindow(result,$event)" class="icon_for_list_item"/>
+        		<img src = "img/modify.png" title="{{self.modify_config_desc}}" ng-click="showConfigEditWindowEx(result, env,$event)" class="icon_for_list_item"/>
         	</div>
         	<div>
-        		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result,$event)"  class="icon_for_list_item"/>
+        		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result.key, $event)"  class="icon_for_list_item"/>
         	</div>
         </div> 
+        </div>
+      
 	</div>
 	
 	<!-- ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
@@ -171,7 +177,7 @@
 	   		<img src = "img/add.png" title="{{self.create_new_config_desc}}" style="width: 20px;height: 20px;margin-right: 5px;"/>
 	   </div>
 	</div>
-	<hr ng-if="self.currentProject != null" width="1000px"/>
+	<hr ng-if="self.currentProject != null" width="1150px"/>
 	<!--
     	作者：tttbbb222000@163.com
     	时间：2016-07-06
@@ -194,31 +200,31 @@
     	描述：项目内配置展示
     -->
 	<div class="body-item" style="border:1px solid #ddd;border-left:none;border-right:none;" ng-if="self.configListResult[0] != null"> 
-	    <div class="result-item" style="width:50px">{{self.result_title_desc[0]}}</div>  
-	    <div class="result-item" style="width:200px">{{self.result_title_desc[1]}}</div>  
+	    <div class="result-item" style="width:50px"> {{self.result_title_desc[0]}}</div>  
+	    <div class="result-item" style="width:250px">{{self.result_title_desc[1]}}</div>  
         <div class="result-item" style="width:100px">{{self.result_title_desc[2]}}</div>  
-        <div class="result-item" style="width:200px">{{self.result_title_desc[3]}}</div>  
-        <div class="result-item" style="width:200px">{{self.result_title_desc[4]}}</div>  
+        <div class="result-item" style="width:300px">{{self.result_title_desc[3]}}</div>  
+        <div class="result-item" style="width:180px">{{self.result_title_desc[4]}}</div>  
         <div class="result-item" style="width:100px">{{self.result_title_desc[5]}}</div>  
         <div class="result-item" style="width:114px">{{self.result_title_desc[6]}}</div> 
 	</div>
 	
 	<div ng-repeat = "result in self.configListResult | filter: self.insearch_input" class="body-item" style="border-bottom:1px solid #ddd; "> 
 		<div class="result-item" style="width:50px">{{$index+1}}</div>  
-	    <div class="result-item overlay" style="width:200px;" title="{{result.key}}">{{result.key}}</div>  
+	    <div class="result-item overlay" style="width:250px;" title="{{result.key}}">{{result.key}}</div>  
         <div class="result-item" style="width:100px">{{result.env}}</div>  
-        <div class="result-item overlay" style="width:200px;" title="{{result.value}}">{{result.value}}</div>  
-        <div class="result-item overlay" style="width:200px;" title="{{result.desc}}">{{result.desc}}</div>  
+        <div class="result-item overlay" style="width:300px;" title="{{result.value}}">{{result.value}}</div>  
+        <div class="result-item overlay" style="width:180px;" title="{{result.desc}}">{{result.desc}}</div>  
         <div class="result-item" style="width:100px">{{result.lastModifier}}</div>  
         <div class="result-item" style="width:114px"> 
         	<div>
-        		<img src = "img/view.png" title="{{self.view_config_desc}}" ng-click="showConfigView(result,$event)" class="icon_for_list_item"/>
+        		<img src = "img/view.png"   title="{{self.view_config_desc}}"   ng-click="showConfigView(result, $event)" class="icon_for_list_item"/>
         	</div>
         	<div>
-        		<img src = "img/modify.png" title="{{self.modify_config_desc}}" ng-click="showConfigEditWindow(result,$event)" class="icon_for_list_item"/>
+        		<img src = "img/modify.png" title="{{self.modify_config_desc}}" ng-click="showConfigEditWindow(result, $event)" class="icon_for_list_item"/>
         	</div>
         	<div>
-        		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result,$event)"  class="icon_for_list_item"/>
+        		<img src = "img/delete.png" title="{{self.delete_config_desc}}" ng-click="showConfirmDelete(result.key, $event)"  class="icon_for_list_item"/>
         	</div>
         </div> 
 	</div>

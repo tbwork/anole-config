@@ -102,7 +102,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 					  try {  
 							 Future<Integer> getConfigResult = executorService.submit( new Callable<Integer>(){ 
 									public Integer call() throws Exception {  
-										  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getProperty("env")));
+										  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getCurrentEnvironment()));
 										  if(logger.isDebugEnabled())
 											  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
 										  synchronized(cItem.getKey())  {
@@ -146,7 +146,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 					  if(!cItem.isLoaded()){
 						  synchronized(cItem){ 
 							  if(!cItem.isLoaded()){
-								  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getProperty("env")));
+								  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getCurrentEnvironment()));
 								  if(logger.isDebugEnabled())
 									  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
 								  synchronized(cItem.getKey())  {

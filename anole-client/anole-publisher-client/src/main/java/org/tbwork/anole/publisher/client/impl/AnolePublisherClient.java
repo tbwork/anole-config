@@ -5,7 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
@@ -36,20 +41,17 @@ import io.netty.handler.codec.serialization.ClassResolvers;
 import io.netty.handler.codec.serialization.ObjectDecoder;
 import io.netty.handler.codec.serialization.ObjectEncoder;
 import io.netty.util.internal.logging.InternalLogger;
-import io.netty.util.internal.logging.InternalLoggerFactory; 
+import io.netty.util.internal.logging.InternalLoggerFactory;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists; 
 /** 
  * @author Tommy.Tang
- */ 
+ */  
 @Data
 public class AnolePublisherClient implements IAnolePublisherClient{
 
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
-	private volatile boolean started; 
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
-	private volatile boolean connected;
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
 	private static final Logger logger = LoggerFactory.getLogger(AnolePublisherClient.class);
 	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE) 
@@ -57,6 +59,8 @@ public class AnolePublisherClient implements IAnolePublisherClient{
     @Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
     private static final AnolePublisherClient publisher = new AnolePublisherClient();
  
+    public static ExecutorService executor = Executors.newSingleThreadExecutor();
+	
     
     
     
@@ -67,6 +71,14 @@ public class AnolePublisherClient implements IAnolePublisherClient{
     
     private Servers servers = new Servers();
     
+    /**
+     * Whether the publisher connected to the anole boss server.
+     */
+    private Boolean connected = false; 
+    @Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
+    private volatile Boolean connectOver = false;
+    
+    private final Object connectProcedureLock = new Object();
     private void initialize(){
     	String serversString = getProperty(ClientProperties.BOSS_2_PUBLISHER_SERVER_ADDRESS);
     	String [] _servers = serversString.split(",");
@@ -113,21 +125,18 @@ public class AnolePublisherClient implements IAnolePublisherClient{
     
     @Override
 	public void connect() {
-    	if(!started || !connected) //DCL-1
+    	if(!connected) 
   		{
   			synchronized(AnolePublisherClient.class)
   			{
-  				if(!started || !connected)//DCL-2
-  				{ 
-  					boolean flag = started; 
+  				if(!connected)
+  				{  
   					executeConnect(); 
   					try {
   						TimeUnit.SECONDS.sleep(2);
   					} catch (InterruptedException e) { 
   						e.printStackTrace();
-  					} 
-  					if(!flag )
-  						lcMonitor.start();
+  					}
   				}
   			}
   		} 
@@ -137,11 +146,11 @@ public class AnolePublisherClient implements IAnolePublisherClient{
     
     @Override
 	public void close(){
-		if(!started) //DCL-1
+		if(!connected)
 		{
 			synchronized(AnolePublisherClient.class)
 			{
-				if(!started)//DCL-2
+				if(!connected)
 				{
 					lcMonitor.stop();
 					executeClose(); 
@@ -171,6 +180,7 @@ public class AnolePublisherClient implements IAnolePublisherClient{
 		{
 			if(!MessageType.C2S_COMMON_AUTH.equals(msg.getType()))
 				tagMessage(msg);
+			logger.info("Send msg {} to {}:{}", JSON.toJSONString(msg,true), socketChannel.remoteAddress().getHostName(), socketChannel.remoteAddress().getPort());
 			return socketChannel.writeAndFlush(msg);
 		}
 			throw new SocketChannelNotReadyException();
@@ -191,8 +201,9 @@ public class AnolePublisherClient implements IAnolePublisherClient{
   		if(servers == null)
   			throw new RuntimeException("Boss servers are not ready!");  
   		for(String serverString : servers.getAddresses()){
+  			logger.info("Now connecting to the boss server at {} ...", serverString);
   			if(executeConnect(serverString))
-  				return ;
+  				return ;  
   		} 
   		throw new RuntimeException("No available boss server! Please make sure at least one boss is running and reachable!"); 
   	}
@@ -239,20 +250,57 @@ public class AnolePublisherClient implements IAnolePublisherClient{
             // Start the client.
             ChannelFuture f = b.connect(host, port).sync();  
             if (f.isSuccess()) {
-            	socketChannel = (SocketChannel)f.channel(); 
-            	started = true;
-            	connected = true;
-            	logger.debug("[:)] Anole client successfully connected to the remote Anolo server with remote host = '{}' and port = {}", host, port);			            	
-            	return true;
+            	socketChannel = (SocketChannel)f.channel();   
+            	Future<Void> connectResult = executor.submit(new Callable<Void>() { 
+					@Override
+					public Void call() throws Exception { 
+						synchronized(connectProcedureLock){
+							connectOver = false;
+							while(!connectOver){
+								connectProcedureLock.wait();
+							}
+							logger.debug("connected lock is released, current connected status is {}", connected);
+		            	} 
+						return null;
+					} 
+				});
+            	Integer expireTime = AnolePublisher.getIntProperty("anole.publisher.startup.connection.timeout", 5);
+            	Void result = null;
+            	try{
+            		connectResult.get(expireTime, TimeUnit.SECONDS);
+            		if(connected){
+            			return true;
+            		}
+            		return false;
+            	}
+            	catch(TimeoutException e ){
+            		logger.warn("[:(] Timeout when Anole client connect to the remote Anolo hub server ({}:{}).", host, port, e);
+            		connectOver = true;
+            		socketChannel.closeFuture();
+            		socketChannel = null;
+            		return false;
+            	} 
+        	    catch (Exception e){
+                  	logger.warn("[:(] Anole client failed to connect to the remote Anolo hub server ({}:{}) due to {}", host, port, e.getMessage(), e);
+                  	connectOver = true;
+                  	socketChannel.closeFuture();
+            		socketChannel = null;
+                  	return false;
+        	    }
+            	finally{
+            		synchronized(connectProcedureLock){
+            			connectProcedureLock.notifyAll();
+	            	}  
+            	}  
             } 
-            else
-            	return false;
+        	return false;
         }
         catch (InterruptedException e) {
         	logger.error("[:(] Anole client failed to connect to the remote Anolo hub server with remote host = '{}' and port = ", host, port);
 			e.printStackTrace();
 			return false;
-		} 
+		}
+      
 	}
 	
 	private void executeClose()
@@ -268,8 +316,7 @@ public class AnolePublisherClient implements IAnolePublisherClient{
 		}finally{
 			if(!socketChannel.isActive())
 			{
-				logger.info("[:)] Anole client (clientId = {}) closed successfully !", clientId);			            	
-				started = false;
+				logger.info("[:)] Anole client (clientId = {}) closed successfully !", clientId);			         
 				connected = false;
 			}
 		}
@@ -307,7 +354,7 @@ public class AnolePublisherClient implements IAnolePublisherClient{
 	}
 
 	@Override
-	public boolean isConnected() {
+	public Boolean isConnected() {
 		return connected;
 	}
 	
@@ -319,5 +366,15 @@ public class AnolePublisherClient implements IAnolePublisherClient{
     private int getIntProerty(ClientProperties clientProperties){
     	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
     }
+
+	@Override
+	public void notifyConnectOver(boolean connected) {
+		 synchronized(this.connectProcedureLock){
+			 this.connected = connected;
+			 this.connectOver = true; 
+			 this.connectProcedureLock.notifyAll(); 
+		 }
+		
+	}
 		
 }

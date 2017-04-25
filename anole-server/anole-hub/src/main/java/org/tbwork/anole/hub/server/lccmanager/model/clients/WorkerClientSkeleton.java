@@ -1,31 +1,27 @@
 package org.tbwork.anole.hub.server.lccmanager.model.clients;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.tbwork.anole.common.message.s_2_c.boss._2_worker.B2WConfigChangeNotifyMessage;
-import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
-import org.tbwork.anole.common.model.ConfigModifyDTO;
-import org.tbwork.anole.hub.StaticConfiguration;
+import org.tbwork.anole.common.message.s_2_c.boss._2_worker.B2WConfigChangeNotifyMessage;  
+import org.tbwork.anole.common.model.ValueChangeDTO; 
 import org.tbwork.anole.hub.server.util.ChannelHelper;
-
-import lombok.AccessLevel;
+ 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data; 
+import lombok.NoArgsConstructor; 
 import io.netty.channel.socket.SocketChannel;
 
 /**
- * A worker client is also a server provides 
- * subscribing services.
+ * Used by boss server, a worker client is also a server  
+ * provides subscribing services.
  * @author tommy.tang
  */
 @Data
-public class WorkerClient extends LongConnectionClient{
+public class WorkerClientSkeleton extends LongConnectionClientSkeleton{
  
 	/**
 	 * The count of subscriber clients in the worker server.
@@ -47,9 +43,8 @@ public class WorkerClient extends LongConnectionClient{
 	
 	private volatile boolean giveup; 
 	
-	private volatile CustomerClient subscriber;
-	 
-	private Map<String,ConfigModifyDTO> unNotifiedChangeMap = new HashMap<String,ConfigModifyDTO>(); 
+	private volatile CustomerClient subscriber; 
+	private Map<String,ValueChangeDTO> unNotifiedChangeMap = new HashMap<String,ValueChangeDTO>(); 
 	
 	@Data
 	@NoArgsConstructor
@@ -61,32 +56,38 @@ public class WorkerClient extends LongConnectionClient{
 		private String lanIp;
 	}
 	
-	public WorkerClient(int token, SocketChannel socketChannel){
+	public WorkerClientSkeleton(int token, SocketChannel socketChannel){
 		super(token, socketChannel);  
 		this.subscriberClientCount = 0;
 		this.weight = 10;
 		processing = false;
 	}
 	
-	public void addNewChangeNotification(ConfigModifyDTO ccd){
-		ConfigModifyDTO old = unNotifiedChangeMap.get(ccd.getKey());
-		if(old != null && old.getTimestamp() >= ccd.getTimestamp())
+	public void addNewChangeNotification(ValueChangeDTO vcd){
+		ValueChangeDTO old = unNotifiedChangeMap.get(vcd.getKey());
+		if(old != null && old.getTimestamp() >= vcd.getTimestamp())
 			return;
-		unNotifiedChangeMap.put(ccd.getKey(), ccd);
-	}
+		unNotifiedChangeMap.put(vcd.getKey(), vcd);
+	} 
 	
 	public void sendAllChangeNotifications(){
-		Set<Entry<String,ConfigModifyDTO>> entrySet = unNotifiedChangeMap.entrySet();
-		for(Entry<String,ConfigModifyDTO> item : entrySet){
+		Set<Entry<String,ValueChangeDTO>> entrySet = unNotifiedChangeMap.entrySet();
+		for(Entry<String,ValueChangeDTO> item : entrySet){
 			B2WConfigChangeNotifyMessage message = new B2WConfigChangeNotifyMessage(item.getValue());
 			ChannelHelper.sendMessage(this, message);
 		}
 	}
 	
+	public void sendChangeNotification(ValueChangeDTO vcd){
+		B2WConfigChangeNotifyMessage message = new B2WConfigChangeNotifyMessage(vcd);
+		ChannelHelper.sendMessage(this, message); 
+	}
+	
 	public void ackChangeNotification(String key, long timestamp){ 
-		ConfigModifyDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
+		ValueChangeDTO changeNotificationItem =  unNotifiedChangeMap.get(key);
 		if(changeNotificationItem!=null || changeNotificationItem.getTimestamp() == timestamp){
 			unNotifiedChangeMap.remove(key);
 		} 
 	}
+	 
 }

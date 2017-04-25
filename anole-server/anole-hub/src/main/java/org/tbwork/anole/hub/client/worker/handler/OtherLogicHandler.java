@@ -14,7 +14,9 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage;
 import org.tbwork.anole.common.message.c_2_s.worker_2_boss.RegisterResultMessage;
+import org.tbwork.anole.common.message.c_2_s.worker_2_boss.W2BChangeNotifyAckMessage;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
+import org.tbwork.anole.common.message.s_2_c.boss._2_worker.B2WConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.boss._2_worker.RegisterClientMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
 import org.tbwork.anole.hub.StaticConfiguration;
@@ -26,6 +28,7 @@ import org.tbwork.anole.hub.client.worker.AnoleWorkerClient;
 import org.tbwork.anole.hub.server.AnoleServer;
 import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWorker;
 import org.tbwork.anole.hub.server.lccmanager.impl.WorkerClientManagerForBoss;
+import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterParameter;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest;
 import org.tbwork.anole.hub.server.lccmanager.model.response.RegisterResult;
 import org.tbwork.anole.hub.server.util.ClientInfoGenerator;
@@ -67,20 +70,33 @@ public class OtherLogicHandler  extends SimpleChannelInboundHandler<Message>{
 		 	case S2C_REGISTER_CLIENT:{
 		 		RegisterClientMessage rcm = (RegisterClientMessage) msg;
 		 		ClientType clientType = rcm.getClientType();
-		 		workerClient.sendMessage(generateRegisterResultMessage(clientType));
+		 		workerClient.sendMessage(generateRegisterResultMessage(clientType, rcm.getEnviroment()));
 		 	} break; 
+		 	
+		 	case S2C_CONFIG_CHANGE_NOTIFY_B_2_W:{
+		 		B2WConfigChangeNotifyMessage ccnm = (B2WConfigChangeNotifyMessage) msg;
+		 		subscriberClientManagerForWorker.notifyChange(ccnm.getValueChangeDTO());
+		 		//send ack
+		 		W2BChangeNotifyAckMessage w2BChangeNotifyAckMessage = new W2BChangeNotifyAckMessage();
+		 		w2BChangeNotifyAckMessage.setKey(ccnm.getValueChangeDTO().getKey());
+		 		w2BChangeNotifyAckMessage.setTimestamp(ccnm.getValueChangeDTO().getTimestamp());
+		 		workerClient.sendMessage(w2BChangeNotifyAckMessage);
+		 	} break;
 		 	default:{ 
 		 	} break; 
 		 }  
 	} 
 	
 	
-	private RegisterResultMessage generateRegisterResultMessage(ClientType clientType){
+	private RegisterResultMessage generateRegisterResultMessage(ClientType clientType, String environment){
 		RegisterResultMessage result = new RegisterResultMessage(); 
 		RegisterRequest rRequest = new RegisterRequest();
 		rRequest.setClientType(clientType);
+		RegisterParameter registerParameter = new RegisterParameter();
+		registerParameter.setEnv(environment);
+		rRequest.setRegisterParameter(registerParameter);
 		RegisterResult rResult = subscriberClientManagerForWorker.registerClient(rRequest); 
-		result.setResultClientId(rResult.getClientId());;
+		result.setResultClientId(rResult.getClientId());
 		result.setResultToken(rResult.getToken());
 		result.setResultPort(subscriberWorkerServer.getPort());
 		result.setResultIp(SystemUtil.getLanIp());

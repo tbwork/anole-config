@@ -13,8 +13,8 @@ import org.tbwork.anole.common.enums.ClientType;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
 import org.tbwork.anole.hub.StaticConfiguration;
 import org.tbwork.anole.hub.server.lccmanager.ILongConnectionClientManager;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.SubscriberClient;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClientSkeleton;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.SubscriberClientSkeleton;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterParameter;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest;
 import org.tbwork.anole.hub.server.lccmanager.model.requests.UnregisterRequest;
@@ -42,13 +42,13 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 
 	private static final Logger logger = LoggerFactory.getLogger(LongConnectionClientManager.class);
 	
-	public Map<Integer, LongConnectionClient> lcMap = new ConcurrentHashMap<Integer, LongConnectionClient>(); 
+	public Map<Integer, LongConnectionClientSkeleton> lcMap = new ConcurrentHashMap<Integer, LongConnectionClientSkeleton>(); 
 	 
 	private int validClientCount;
 	
 	@Override
 	public boolean validate(ValidateRequest request) { 
-		LongConnectionClient client = lcMap.get(request.getClientId());
+		LongConnectionClientSkeleton client = lcMap.get(request.getClientId());
 		if(client != null && request.getToken() == client.getToken())
 	       return true; 
 		return false;
@@ -57,13 +57,13 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 	/**
 	 * Create a client using input registerRequest.
 	 */
-	protected abstract LongConnectionClient createClient(int token, RegisterRequest registerRequest);
+	protected abstract LongConnectionClientSkeleton createClient(int token, RegisterRequest registerRequest);
 	 
 	@Override
 	public RegisterResult registerClient(RegisterRequest request) {  
 		RegisterParameter rp = request.getRegisterParameter();  
 		ClientInfo clientInfo =  ClientInfoGenerator.generate(request.getClientType());  
-		LongConnectionClient client = createClient(clientInfo.getToken(), request);
+		LongConnectionClientSkeleton client = createClient(clientInfo.getToken(), request);
 		lcMap.put(clientInfo.getClientId(), client); 
 		validClientCount ++;
 		return new RegisterResult(clientInfo.getToken(), clientInfo.getClientId(), true);  
@@ -81,7 +81,7 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 
 	@Override
 	public void ackPing(int clientId){
-		LongConnectionClient client = lcMap.get(clientId);
+		LongConnectionClientSkeleton client = lcMap.get(clientId);
 		if(client != null){
 			client.achievePingPromise();
 			PingAckMessage pam = new PingAckMessage(); 
@@ -94,12 +94,12 @@ public abstract class LongConnectionClientManager implements ILongConnectionClie
 	public void promisePingAndScavenge(String clientName){ 
 		synchronized(lcMap){
 				logger.debug("[:)] Start to add ping promise and sweep bad {} clients.", clientName); 
-				Set<Entry<Integer,LongConnectionClient>> entrySet = lcMap.entrySet();
+				Set<Entry<Integer,LongConnectionClientSkeleton>> entrySet = lcMap.entrySet();
 				int totalCnt = entrySet.size();
 				int badCnt = 0;
-				for(Entry<Integer,LongConnectionClient> item: entrySet)
+				for(Entry<Integer,LongConnectionClientSkeleton> item: entrySet)
 				{
-					LongConnectionClient client = item.getValue();
+					LongConnectionClientSkeleton client = item.getValue();
 					if(client.maxPromiseCount()){
 						unRegisterClient(item.getKey());
 						badCnt ++;

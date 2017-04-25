@@ -9,8 +9,8 @@ import lombok.Setter;
 import io.netty.channel.socket.SocketChannel;
 
 @Data
-public class PublisherClient extends LongConnectionClient{ 
-	public PublisherClient(int token, SocketChannel socketChannel){
+public class PublisherClientSkeleton extends LongConnectionClientSkeleton{ 
+	public PublisherClientSkeleton(int token, SocketChannel socketChannel){
 		super(token, socketChannel);
 	}
 	 

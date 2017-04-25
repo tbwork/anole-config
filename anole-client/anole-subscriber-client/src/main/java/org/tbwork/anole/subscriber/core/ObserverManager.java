@@ -25,7 +25,7 @@ public class ObserverManager {
 	
 	public void addPreObservers(String key, ConfigObserver ... pco){
 		if(logger.isDebugEnabled())
-			logger.debug("[:)] An pre-value-set observer is added to the key (={})", key);
+			logger.debug("[:)] An pre-value-set observer is added to the key (={})", key); 
 		addObservers(preObservers, key, pco); 
 	}
 	
@@ -57,6 +57,7 @@ public class ObserverManager {
 	
 	private void addObservers(Map<String, List<ConfigObserver>> obs, String key, ConfigObserver...cob){
 		List<ConfigObserver> tempObs = null;
+		AnoleConfig.getProperty(key);
 		if(!obs.containsKey(key) || obs.get(key) == null )
 		   tempObs = new ArrayList<ConfigObserver>();  
 		else

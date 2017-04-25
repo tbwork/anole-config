@@ -54,5 +54,7 @@ public interface IAnolePublisherClient {
     
     public void setConnected(boolean connected);
     
-    public boolean isConnected();
+    public Boolean isConnected();
+    
+    public void notifyConnectOver(boolean connected);
 }

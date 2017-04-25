@@ -5,11 +5,10 @@ import java.util.Map;
 import lombok.Data;
 
 @Data
-public class Config {
+public class ConfigInfo {
 
+	private String key;
 	private String project;
 	private Integer type;
-	private String desc;
-	private Map<String, String> values;
-	
+	private String desc; 
 }

@@ -4,9 +4,9 @@
   <form  ng-controller="ProjectSearchController as self">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>{{self.config_add_desc}}</h2>
+        <h2>{{self.config_add_desc}}-{{self.currentProject.projectName}}</h2>
         <span flex></span>
-        <md-button class="md-icon-button" ng-click="cancel()">
+        <md-button class="md-icon-button" ng-click="cancel();">
           <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
         </md-button>
       </div>
@@ -26,7 +26,7 @@
         		<label  style="height: 40px; line-height: 40px;">{{self.text_desc}}:</label>
         	</div>
         	<div class="inline detail_v"> 
-        		<textarea class="desc" rows="3" cols="47" ng-model="self.newConfig.desc"></textarea> 
+        		<textarea class="desc" rows="3" title="{{self.config_desc_note}}" cols="47" ng-model="self.newConfig.desc"></textarea> 
         	</div>
         </div>
         <div class="config_detail_item"  style="line-height: 40px;">
@@ -55,14 +55,14 @@
         	  	<textarea class="desc" rows="5" cols="47" ng-model="self.newConfig.value"></textarea> 
         	</div>
         </div>
-         <div class="config_detail_item">
+        <div class="config_detail_item">
              <div class="{{self.add_config_result_display}}">
             	<div style="display:inline-block;width:450px;line-height:30px;vertical-align:middle">{{self.add_config_result}}</div>
             	<div style="display:inline-block; height:30px;vertical-align:middle;cursor:pointer" ng-click="hiddenError('add_config')"><img src="/img/icons/ic_close_24px.svg" style="width:100%;height:100%" /></div>
            </div>
-         </div>
+        </div>
         <div  style="height:50px;width:100%;margin-top:10px;margin-bottom:10px">
-        		 <md-button class="md-raised md-primary" style="float: right; width: 200px;" ng-click="addConfig($event)">{{self.text_add_desc}}</md-button>
+        		<md-button class="md-raised md-primary" style="float: right; width: 200px;" ng-click="addConfig($event)">{{self.text_add_desc}}</md-button>
         </div>
     </md-dialog-content>
   </form>

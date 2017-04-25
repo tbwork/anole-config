@@ -15,4 +15,5 @@ public class RegisterClientMessage extends Message {
 	 }
 	 
 	 private ClientType clientType; 
+	 private String enviroment;
 }

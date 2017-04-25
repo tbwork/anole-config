@@ -21,19 +21,24 @@ public class LongConnectionMonitor implements ConnectionMonitor{
 	private IAnolePublisherClient client = AnolePublisherClient.instance();
 	private Timer timer = null;
 	private LongConnectionMonitor() { }
+	private volatile boolean started = false;
 	
 	public static LongConnectionMonitor instance(){
 		return lcMonitor;
 	}
 	
 	@Override
-	public void start() { 
-		timer = new Timer();
-		timer.schedule(new PingTask(), StaticClientConfig.PING_DELAY, StaticClientConfig.PING_INTERVAL);
+	public void start() {  
+		if(!started){ // no need to be thread-safe
+			timer = new Timer();
+			timer.schedule(new PingTask(), StaticClientConfig.PING_DELAY, StaticClientConfig.PING_INTERVAL);
+			started = true;
+		} 
 	}
 
 	@Override
 	public void stop() { 
+		started = false;
 		timer.cancel();
 		timer = null;
 	}

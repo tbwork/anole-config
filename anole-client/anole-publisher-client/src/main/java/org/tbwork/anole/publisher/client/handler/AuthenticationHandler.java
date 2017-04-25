@@ -62,7 +62,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 		 	case S2C_AUTH_PASS:{ 
 		 		logger.info ("[:)] Login successfully."); 
 		 		anolePublisher.saveToken(((AuthPassWithTokenMessage)msg).getClientId(), ((AuthPassWithTokenMessage)msg).getToken()); 
-		 		ReferenceCountUtil.release(msg);
+		 		anolePublisher.notifyConnectOver(true);
+		 		ReferenceCountUtil.release(msg); 
 		 	} break;
 		 	case S2C_MATCH_FAIL:{
 		 		logger.error("[:(] Connection is disabled by the server or becasuse of the network problem, automatically connect immediately.");

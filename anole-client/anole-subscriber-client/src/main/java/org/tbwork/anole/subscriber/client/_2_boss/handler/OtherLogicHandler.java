@@ -13,7 +13,7 @@ import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.s_2_c.PingAckMessage;
-import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2CConfigChangeNotifyMessage;
+import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.W2SConfigChangeNotifyMessage;
 import org.tbwork.anole.common.message.s_2_c.worker._2_subscriber.ReturnConfigMessage;
 import org.tbwork.anole.subscriber.client._2_worker.ConnectionMonitor;
 import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;

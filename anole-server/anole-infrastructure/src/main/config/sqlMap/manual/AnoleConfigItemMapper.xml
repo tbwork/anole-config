@@ -17,9 +17,9 @@
       `Value` = #{value,jdbcType=LONGVARCHAR},
       `UpdateTime` = #{updateTime, jdbcType=TIMESTAMP}
     where 
-    `Key` = #{key,jdbcType=VARCHAR}
+      `Key` = #{key,jdbcType=VARCHAR}
     AND
-    EnvName = #{env,jdbcType=VARCHAR} 
+      `EnvName` = #{envName,jdbcType=VARCHAR} 
   </update>
   
   <select id="selectConfigItemsByUpdatedTime" resultMap="BaseResultMap">

@@ -11,6 +11,7 @@ import org.anole.infrastructure.dao.AnoleConfigMapper;
 import org.anole.infrastructure.model.AnoleConfig;
 import org.anole.infrastructure.model.AnoleConfigItem;
 import org.anole.infrastructure.model.custom.AnoleConfigCombine;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -18,19 +19,19 @@ import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.gui.domain.cache.Cache;
 import org.tbwork.anole.gui.domain.config.IConfigSearchService;
 import org.tbwork.anole.gui.domain.config.IConfigService;
-import org.tbwork.anole.gui.domain.model.Config;
+import org.tbwork.anole.gui.domain.model.ConfigInfo;
 import org.tbwork.anole.gui.domain.model.ConfigBrief; 
 import org.tbwork.anole.gui.domain.model.demand.AddConfigDemand;
 import org.tbwork.anole.gui.domain.model.demand.DeleteConfigDemand; 
 import org.tbwork.anole.gui.domain.model.demand.GetConfigByKeyAndEnvDemand;
 import org.tbwork.anole.gui.domain.model.demand.GetConfigsByProjectAndEnvDemand;
-import org.tbwork.anole.gui.domain.model.demand.ModifyConfigDemand;
-import org.tbwork.anole.gui.domain.model.result.AddConfigResult;
+import org.tbwork.anole.gui.domain.model.demand.ModifyConfigDemand; 
 import org.tbwork.anole.gui.domain.model.result.DeleteConfigResult;
 import org.tbwork.anole.gui.domain.model.result.ModifyConfigResult;
 import org.tbwork.anole.gui.domain.permission.IPermissionService;
 import org.tbwork.anole.gui.domain.user.IUserService;
 import org.tbwork.anole.gui.domain.util.CacheKeys;
+import org.tbwork.anole.gui.domain.util.CommonTools;
 import org.tbwork.anole.publisher.core.AnolePublisher;
 import org.tbwork.anole.publisher.model.ConfigChangeRequest;
 import org.tbwork.anole.publisher.model.ConfigChangeResponse;
@@ -74,12 +75,19 @@ public class ConfigService implements IConfigService {
 			for(AnoleConfigCombine item : dbData ){
 				cachedData.add(convert2Config(item));
 			}
-			lc.set(cacheKey, cachedData);
+			lc.set(cacheKey, cachedData, 5*1000);// five second
 		}
 		int permission = pers.getUserRole(demand.getProject(), demand.getOperator(), demand.getEnv()); 
 		if(permission == 0){
 			for(ConfigBrief item: cachedData){
-				result.add(shiledValue(item)); 
+				ConfigBrief temp = new ConfigBrief(); 
+				temp.setDesc(item.getDesc());
+				temp.setEnv(item.getEnv());
+				temp.setKey(item.getKey());
+				temp.setLastModifier(item.getLastModifier());
+				temp.setType(item.getType());
+				temp.setValue(CommonTools.NO_RIGHT_DESCRIPTION);
+				result.add(temp.shiledValue()); 
 			} 
 		}
 		else
@@ -89,32 +97,35 @@ public class ConfigService implements IConfigService {
 	}
 
 	@Override
-	public AddConfigResult addConfig(AddConfigDemand config) {
-		AddConfigResult result = new AddConfigResult();
-		try{
-			config.preCheck(); 
-			ConfigChangeRequest ccr = new ConfigChangeRequest();
-			ConfigModifyDTO cmDto = new ConfigModifyDTO();
-			cmDto.setConfigType(ConfigType.configType(config.getDestConfigType()));
-			cmDto.setValue(config.getDestValue());
-			cmDto.setKey(config.getKey());
-			cmDto.setProject(config.getProject());
-			cmDto.setTimestamp(System.currentTimeMillis());
+	public ConfigBrief addConfig(AddConfigDemand config) {
+		ConfigBrief result = new ConfigBrief(); 
+		config.preCheck(); 
+		ConfigChangeRequest ccr = new ConfigChangeRequest();
+		ConfigModifyDTO cmDto = new ConfigModifyDTO();
+		cmDto.setConfigType(ConfigType.configType(config.getDestConfigType()));
+		cmDto.setValue(config.getDestValue());
+		cmDto.setKey(config.getKey());
+		cmDto.setProject(config.getProject());
+		cmDto.setTimestamp(System.currentTimeMillis());
+		if(!config.isAllEnvEnabled())
 			cmDto.setEnv(config.getEnv());
-			cmDto.setDescription(config.getDescription());
-			cmDto.setCreateNew(true);
-			ccr.setConfigChangeDTO(cmDto);
-			ccr.setOperator(config.getOperator());
-			ConfigChangeResponse response = AnolePublisher.add(ccr);
-			if(response == null)
-				throw new RuntimeException("Add failed.");
-			result.setSuccess(response.isSuccess());
-			result.setErrorMessage(response.getErrorMessage());
-		}
-		catch(Exception e){
-			result.setErrorMessage(e.getMessage());
-			result.setSuccess(false);
-		} 
+		else
+			cmDto.setEnv("all");
+		cmDto.setDescription(config.getDescription());
+		cmDto.setCreateNew(true);
+		ccr.setConfigChangeDTO(cmDto);
+		ccr.setOperator(config.getOperator());
+		ConfigChangeResponse response = AnolePublisher.add(ccr);
+		if(response == null)
+			throw new RuntimeException("Add failed, no response from the server.");
+		if(!response.isSuccess())
+			throw new RuntimeException(response.getErrorMessage());
+		result.setDesc(config.getDescription());
+		result.setEnv(config.getEnv()); 
+		result.setKey(config.getKey());
+		result.setLastModifier(config.getOperator());
+		result.setType(config.getDestConfigType());
+		result.setValue(config.getDestValue());
 		return result;
 	}
 
@@ -124,44 +135,45 @@ public class ConfigService implements IConfigService {
 	}
 	
 	@Override
-	public ModifyConfigResult modifyConfig(ModifyConfigDemand config) {
-		ModifyConfigResult result = new ModifyConfigResult();
-		try{
-			ConfigChangeRequest ccr = new ConfigChangeRequest();
-			ConfigModifyDTO cmDto = new ConfigModifyDTO(); 
-			cmDto.setConfigType(config.getConfigType());
-			cmDto.setValue(config.getValue());
-			cmDto.setKey(config.getKey());
-			cmDto.setProject(config.getProject());
-			cmDto.setTimestamp(System.currentTimeMillis());
-			cmDto.setCreateNew(false);
-			cmDto.setEnv(config.getEnv());
-			cmDto.setDescription(config.getDescription());
-			ccr.setConfigChangeDTO(cmDto);
-			ccr.setOperator(config.getOperator());
-			ConfigChangeResponse response = AnolePublisher.edit(ccr);
-			if(response == null)
-				throw new RuntimeException("Add failed.");
-			result.setSuccess(response.isSuccess());
-			result.setErrorMessage(response.getErrorMessage());
-		}
-		catch(Exception e){
-			result.setErrorMessage(e.getMessage());
-			result.setSuccess(false);
-		} 
+	public ConfigBrief modifyConfig(ModifyConfigDemand config) {
+		config.preCheck();
+		ConfigBrief result = new ConfigBrief(); 
+		ConfigChangeRequest ccr = new ConfigChangeRequest();
+		ConfigModifyDTO cmDto = new ConfigModifyDTO(); 
+		cmDto.setConfigType(ConfigType.configType(config.getConfigType().byteValue()));
+		cmDto.setValue(config.getValue());
+		cmDto.setKey(config.getKey());
+		cmDto.setProject(config.getProject());
+		cmDto.setTimestamp(System.currentTimeMillis());
+		cmDto.setCreateNew(false);
+		cmDto.setEnv(config.getEnv());
+		cmDto.setDescription(config.getDescription());
+		ccr.setConfigChangeDTO(cmDto);
+		ccr.setOperator(config.getOperator());
+		ConfigChangeResponse response = AnolePublisher.edit(ccr);
+		if(response == null)
+			throw new RuntimeException("Modify failed, no response from the server.");
+		if(!response.isSuccess())
+			throw new RuntimeException(response.getErrorMessage());
+		result.setDesc(config.getDescription());
+		result.setEnv(config.getEnv()); 
+		result.setKey(config.getKey());
+		result.setLastModifier(config.getOperator());
+		result.setType(config.getConfigType());
+		result.setValue(config.getValue());
 		return result;
 	}
 
 	@Override
-	public ConfigBrief getConfigByKeyAndEnv(GetConfigByKeyAndEnvDemand demand) { 
+	public ConfigBrief getConfigByKeyAndEnv(String key,String env) { 
 		ConfigBrief config = null;
-		AnoleConfigItem ci = anoleConfigItemMapper.selectByConfigKeyAndEnv(demand.getKey(), demand.getEnv());
-		AnoleConfig ac = anoleConfigMapper.selectByConfigKey(demand.getKey());
+		AnoleConfigItem ci = anoleConfigItemMapper.selectByConfigKeyAndEnv(key, env);
+		AnoleConfig ac = anoleConfigMapper.selectByConfigKey(key);
 		if(ci != null){
 			config = new ConfigBrief();
 			config.setDesc(ac.getDescription());
-			config.setEnv(demand.getEnv());
-			config.setKey(demand.getKey());
+			config.setEnv(env);
+			config.setKey(key);
 			config.setLastModifier(ci.getLastOperator());
 			config.setType(ac.getType());
 			config.setValue(ci.getValue());
@@ -181,16 +193,7 @@ public class ConfigService implements IConfigService {
 		return result;
 	}
 	
-	private ConfigBrief shiledValue(ConfigBrief org){
-		ConfigBrief result = new ConfigBrief();
-		result.setDesc(org.getDesc());
-		result.setEnv(org.getEnv());
-		result.setKey(org.getKey());
-		result.setLastModifier(org.getLastModifier());
-		result.setType(org.getType()); 
-		result.setValue("==NO RIGHT==");  
-		return result;
-	}
+	
 
 	@Override
 	public DeleteConfigResult deleteConfig(DeleteConfigDemand demand) { 
@@ -210,11 +213,11 @@ public class ConfigService implements IConfigService {
 	}
 
 	@Override
-	public Config getConfigByKeyCacheable(String key) {
-		String cacheKey = CacheKeys.buildConfigCacheKey(key);
-		Config result = lc.get(cacheKey);
+	public ConfigInfo getConfigInfoByKeyCacheable(String key) {
+		String cacheKey = CacheKeys.buildConfigInfoCacheKey(key);
+		ConfigInfo result = lc.get(cacheKey);
 		if(result != null) return result;
-		result = new Config();
+		result = new ConfigInfo();
 		AnoleConfig anoleConfig = anoleConfigMapper.selectByConfigKey(key);
 		if(anoleConfig == null)
 			return null;
@@ -227,8 +230,7 @@ public class ConfigService implements IConfigService {
 			for(AnoleConfigItem item : anoleConfigItems){
 				valueMap.put(item.getEnvName(), item.getValue());
 			}
-		}
-		result.setValues(valueMap);
+		} 
 		lc.set(cacheKey, result, 5*60*1000);
 		return result;
 	}

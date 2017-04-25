@@ -3,6 +3,7 @@ package org.tbwork.anole.hub.server.lccmanager.impl;
 import io.netty.channel.socket.SocketChannel;
 
 import java.util.Date;
+import java.util.Set;
 
 import org.anole.infrastructure.dao.AnoleConfigItemMapper;
 import org.anole.infrastructure.dao.AnoleConfigMapper;
@@ -13,15 +14,17 @@ import org.anole.infrastructure.model.AnoleEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service; 
+import org.springframework.stereotype.Service;
+import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.enums.Role;
 import org.tbwork.anole.common.model.ConfigModifyResultDTO;
 import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.hub.repository.EnvironmentRepository;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.PublisherClient; 
-import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest; 
+import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClientSkeleton;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.PublisherClientSkeleton; 
+import org.tbwork.anole.hub.server.lccmanager.model.requests.RegisterRequest;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Preconditions; 
 
 /**
@@ -55,8 +58,8 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 	}
 	
 	@Override
-	protected LongConnectionClient createClient(int token, RegisterRequest registerRequest) { 
-		return new PublisherClient(token, registerRequest.getSocketChannel());
+	protected LongConnectionClientSkeleton createClient(int token, RegisterRequest registerRequest) { 
+		return new PublisherClientSkeleton(token, registerRequest.getSocketChannel());
 	} 
 	
 	private void createConfigItem(AnoleConfigItem configItem){ 
@@ -71,24 +74,37 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 		}
 	}
 	
-	private void updateConfigItem(AnoleConfigItem configItem, String operator, String project){
+	private void updateConfigItem(AnoleConfigItem configItem, String operator, String project, Set<String> affectedEnvs){
 		Date now = new Date();
 		if("all".equals(configItem.getEnvName())){
-			for(AnoleEnvironment env : environmentRepository.getEnviroments()){
-				rightCheck(operator, project, Operation.MODIFY, env.getName());
-				configItem.setEnvName(env.getName());
-				anoleConfigItemMapper.updateByKeyAndEnv(configItem);
+			for(AnoleEnvironment env : environmentRepository.getEnviroments()){ 
+				configItem.setEnvName(env.getName()); 
+				updateConigItemSelective(configItem, operator, project, affectedEnvs);
 			}
 		}
 		else{
-			rightCheck(operator, project, Operation.MODIFY, configItem.getEnvName());
+			updateConigItemSelective(configItem, operator, project, affectedEnvs);
+		}
+	}
+	
+	private void updateConigItemSelective(AnoleConfigItem configItem, String operator, String project, Set<String> affectedEnvs){
+		rightCheck(operator, project, Operation.MODIFY, configItem.getEnvName());
+		AnoleConfigItem anoleConfigItem = anoleConfigItemMapper.selectByConfigKeyAndEnv(configItem.getKey(), configItem.getEnvName());
+		if(anoleConfigItem == null){
+			logger.warn("Could not find value for key <{}> in the enviroment <{}>. A new value will be inserted", configItem.getKey(), configItem.getEnvName());
 			anoleConfigItemMapper.insert(configItem);
+		}
+		else{
+			if(!anoleConfigItem.getValue().equals(configItem.getValue())){ 
+				affectedEnvs.add(configItem.getEnvName());
+				anoleConfigItemMapper.updateByKeyAndEnv(configItem);
+			}
 		}
 	}
 	
  
-	public ConfigModifyResultDTO motifyConfig(String operator, ConfigModifyDTO ccd){
-		ConfigModifyResultDTO result  = new ConfigModifyResultDTO();
+	public ConfigModifyResultDTO motifyConfig(String operator, ConfigModifyDTO ccd, Set<String> affectedEnvs){
+		ConfigModifyResultDTO result  = new ConfigModifyResultDTO(); 
 		try{  
 			Preconditions.checkArgument(operator!=null && !operator.isEmpty(), "The operator should not be null or empty.");
 			Preconditions.checkNotNull (ccd, "Config change content should not be null.");
@@ -96,6 +112,8 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 			basickPreCheck(operator, ccd); 
 			AnoleConfig anoleConfig = anoleConfigMapper.selectByConfigKey(ccd.getKey()); 
 			if(ccd.isCreateNew()){ //new configuration 
+				if(anoleConfig != null)
+					throw new RuntimeException("The config with key <"+ccd.getKey()+"> is already existed");
 				rightCheck(operator, ccd.getProject(), Operation.CREATE, null); 
 				if(anoleConfig != null){
 					throw new RuntimeException("The config with key <"+ccd.getKey()+"> is already existed");
@@ -109,7 +127,7 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 				anoleConfig.setKey(ccd.getKey());
 				anoleConfig.setLastOperator(operator);
 				anoleConfig.setProject(ccd.getProject());
-				anoleConfig.setType(ccd.getConfigType().index());
+				anoleConfig.setType(ccd.getConfigType().code());
 				anoleConfig.setUpdateTime(now);
 				anoleConfigMapper.insert(anoleConfig);
 				
@@ -128,11 +146,14 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 					throw new RuntimeException("The config with key <"+ccd.getKey()+"> is not existed");
 				}
 				Date now = new Date(); 
-				if(anoleConfig.getDescription() == null && !ccd.getDescription().isEmpty()
-				|| 	anoleConfig.getDescription() != null && anoleConfig.getDescription().equals(ccd.getDescription())
-						){
+				if(anoleConfig.getDescription() == null && ccd.getDescription()!=null && !ccd.getDescription().isEmpty()
+				|| 	anoleConfig.getDescription() != null && !anoleConfig.getDescription().equals(ccd.getDescription())
+				){ // main information of config
 					anoleConfig.setUpdateTime(now);
 					anoleConfig.setDescription(ccd.getDescription());
+					for(AnoleEnvironment env : environmentRepository.getEnviroments()){
+						affectedEnvs.add(env.getName());
+					} 
 					anoleConfigMapper.updateByPrimaryKey(anoleConfig);
 				}
 				
@@ -142,15 +163,16 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 				configItem.setValue(ccd.getValue());
 				configItem.setEnvName(ccd.getEnv());
 				configItem.setUpdateTime(now);
-				updateConfigItem(configItem, operator, ccd.getEnv());
+				updateConfigItem(configItem, operator, ccd.getEnv(), affectedEnvs);
 			}
 			result.setErrorMsg("OK");
 			result.setSuccess(true);
 		}
 		catch(Exception e){
-			logger.error("Add config failed, details: {}", e.getMessage());
+			String operation = ccd.isCreateNew()? "Add" : "Update";
+			logger.error("{} config failed, details: {}", operation, e.getMessage());
 			result.setSuccess(false);
-			result.setErrorMsg("Add config failed, details: " + e.getMessage());
+			result.setErrorMsg(operation+" config failed, details: " + e.getMessage());
 		}
 		return result;
 	} 
@@ -181,12 +203,31 @@ public class PublisherClientManagerForBoss  extends LongConnectionClientManager 
 		Preconditions.checkArgument(modifyDTO.getEnv()!=null && !modifyDTO.getEnv().isEmpty(), "Env must be specified!");
 		Preconditions.checkArgument(modifyDTO.getProject()!=null && !modifyDTO.getProject().isEmpty(), "Project must be specified!");
 		Preconditions.checkNotNull (modifyDTO.getConfigType(),"Config type must be specified!");  
+		// check the value and the type
+		validateValue(modifyDTO.getValue(), modifyDTO.getConfigType());
 	}
 	 
 	private void rightCheck(String operator, String project, Operation opeartion, String env){ 
 		Preconditions.checkArgument(validateRight(operator, project, opeartion, env), "The operator ("+operator+") has no right to this operation.");
 	}
 	
+	private void validateValue(String value, ConfigType configType){
+		switch(configType){
+			case STRING:{
+				
+			} break;
+			case BOOL:{
+				Boolean.parseBoolean(value);
+			} break;
+			case JSON:{
+				JSON.parse(value);
+			} break;
+			case NUMBER:{
+				Double.parseDouble(value);
+			} break;
+			default: throw new RuntimeException("Unknown config type.");
+		}
+	}
 }
 
 

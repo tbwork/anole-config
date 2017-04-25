@@ -1,4 +1,4 @@
-env=all
+#env:all
 ###Anole publisher client configuration###
 anole.client.publisher.boss.address=127.0.0.1:54321,127.0.0.1:54322
 anole.client.publisher.username=tangbo

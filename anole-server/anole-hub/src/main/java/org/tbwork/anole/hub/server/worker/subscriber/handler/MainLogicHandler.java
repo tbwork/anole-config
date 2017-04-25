@@ -73,13 +73,18 @@ public class MainLogicHandler  extends SimpleChannelInboundHandler<C2SMessage> {
 		 } 
 	}
  
-	private ReturnConfigMessage processGetConfigMessage(Message msg){ 
-		GetConfigMessage gcMsg = (GetConfigMessage) msg;
+	private ReturnConfigMessage processGetConfigMessage(Message msg){  
+		GetConfigMessage gcMsg = (GetConfigMessage) msg; 
  		String key = gcMsg.getKey();
  		String env = gcMsg.getEnv();
  		ConfigValueDO cvdo =   cr.retrieveConfigValueByKey(key, env);
  		String value = cvdo == null ? null : cvdo.getValue();
- 		return new ReturnConfigMessage(key, value, ConfigType.STRING);  
+ 		if(value!=null)
+ 			logger.info("Config (key={}, env={})'s value is {}", key, env, value); 
+ 		else
+ 			logger.info("Could not find value for the config (key={}, env={})", key, env);
+		scm.setCaredKey(gcMsg.getClientId(), gcMsg.getKey());
+ 		return new ReturnConfigMessage(key, value, cvdo.getConfigType());  
 	}
 	
 	

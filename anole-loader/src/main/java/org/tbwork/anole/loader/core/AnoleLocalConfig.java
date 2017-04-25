@@ -18,7 +18,11 @@ public class AnoleLocalConfig {
 	 * Indicates that local anole is loaded successfully.
 	 */
 	public static boolean initialized = false;
-	 
+	
+	public static String getCurrentEnvironment(){
+		return getProperty("anole.runtime.currentEnvironment");
+	}
+	
 	public static String getProperty(String key, String defaultValue){ 
 		 ConfigItem cItem = getConfig(key, cm);
 	 	 return cItem==null || cItem.isEmpty()? defaultValue : cItem.strValue();

@@ -38,7 +38,9 @@ public class LocalConfigManager implements ConfigManager{
 	protected static final Map<String, ConfigItem> configMap = new ConcurrentHashMap<String, ConfigItem>();  
 	
 	private static final Set<String> unknownConfigSet = new HashSet<String>();
-	 
+	
+	private String currentRunEnvironment;
+	
 	@Override
 	public void setConfigItem(String key, String value, ConfigType type){ 
 		if(logger.isDebugEnabled())
@@ -128,8 +130,8 @@ public class LocalConfigManager implements ConfigManager{
     	}
     	unknownConfigSet.add(key);
     	ConfigItem ci = extendibleGetConfigItem(key);
-    	if(ci == null) {
-    		String message = String.format("The config(key=%s is not existed", key);
+    	if(ci == null || ci.strValue() == null) {
+    		String message = String.format("There is no manual-set or default-set value for %s", key);
 			throw new ErrorSyntaxException(key, message);
     	} 
 		String [] variblesWithCloth = StringUtil.getVariables(ci.strValue(), key);

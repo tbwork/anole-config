@@ -15,7 +15,7 @@
     Description
     from anole_config
     where
-    `UpdateTime` >= #{updateTime, jdbcType=TIMESTAMP}
+    `UpdateTime` > #{updateTime, jdbcType=TIMESTAMP}
     limit 0, 500
   </select>
    

@@ -80,7 +80,7 @@ public class AnolePublisher extends AnoleLocalConfig{
 					return tempResult; 
 				} 
 			});  
-			ConfigChangeResponse futureResult = future.get(StaticClientConfig.WRITE_OPERATION_TIMEOUT_LIMIT*5, TimeUnit.SECONDS);  
+			ConfigChangeResponse futureResult = future.get(StaticClientConfig.WRITE_OPERATION_TIMEOUT_LIMIT, TimeUnit.SECONDS);  
 			return futureResult;
 		} catch(TimeoutException e){
 			logger.error("Timeout Exception, {}", e.getMessage());
@@ -98,5 +98,5 @@ public class AnolePublisher extends AnoleLocalConfig{
 				writeLock.notifyAll(); 
 			}
 		} 
-	} 
+	}  
 }

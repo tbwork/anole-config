@@ -26,4 +26,6 @@ public class StaticConfiguration {
 	public static final int WORKER_CLIENT_OPS_THREAD_POOL_SIZE = 5; 
 	
 	public static final int WORKER_RESPONSE_TIMEOUT = 5;// 5s
+	
+	public static final int CHANGE_NOTIFY_INTERVAL = 5 * 1000; // 5s
 }

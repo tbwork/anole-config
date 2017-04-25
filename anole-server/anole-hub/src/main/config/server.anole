@@ -1,4 +1,4 @@
-env=all
+#env:all
 ##the weight of one worker, this is a value <= 10.
 #Higher weight means high capacity to deal with subscribers.
 #If you start a worker on a high-performance server, you can

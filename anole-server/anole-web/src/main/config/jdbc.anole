@@ -1,4 +1,4 @@
-env=all
+#env:all
 jdbc.connectionString = jdbc:mariadb://localhost:3306/anole
 jdbc.username = root
 jdbc.password = 123456

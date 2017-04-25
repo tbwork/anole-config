@@ -7,5 +7,4 @@ public class LoginStatus {
 
 	private boolean status;
 	private String username;
-	
 }

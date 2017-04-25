@@ -7,11 +7,15 @@ import org.tbwork.anole.common.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.model.ConfigModifyDTO;
+import org.tbwork.anole.common.model.ValueChangeDTO;
 @Data
-@AllArgsConstructor
-public class W2CConfigChangeNotifyMessage  extends Message{
-	private ConfigModifyDTO configChangeDTO;
-	public W2CConfigChangeNotifyMessage(){
+public class W2SConfigChangeNotifyMessage  extends Message{
+	private ValueChangeDTO valueChangeDTO;
+	public W2SConfigChangeNotifyMessage(){
 		super(MessageType.S2C_CONFIG_CHANGE_NOTIFY_W_2_C);
+	} 
+	public W2SConfigChangeNotifyMessage(ValueChangeDTO valueChangeDTO){
+		super(MessageType.S2C_CONFIG_CHANGE_NOTIFY_W_2_C);
+		this.valueChangeDTO = valueChangeDTO;
 	} 
 }

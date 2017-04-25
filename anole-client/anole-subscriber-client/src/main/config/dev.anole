@@ -1,4 +1,4 @@
-env=dev
+#env:develop
 name=tangbo
 password = 123
 b:autologin = true

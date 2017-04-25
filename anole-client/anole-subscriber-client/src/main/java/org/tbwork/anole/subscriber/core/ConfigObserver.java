@@ -1,10 +1,10 @@
 package org.tbwork.anole.subscriber.core;
-
-import org.tbwork.anole.common.model.ConfigModifyDTO;
+ 
+import org.tbwork.anole.common.model.ValueChangeDTO;
 
 public interface ConfigObserver {
 
-	public void process(ConfigModifyDTO ccDto);
+	public void process(ValueChangeDTO ccDto);
 	
 	public boolean stopAfterProcess();
 	

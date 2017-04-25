@@ -50,7 +50,7 @@ public class MultiController {
 		 result.setResult(innerResult);
 		 result.setSuccess(true);  
 		 result.setErrorMessage("OK"); 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 }

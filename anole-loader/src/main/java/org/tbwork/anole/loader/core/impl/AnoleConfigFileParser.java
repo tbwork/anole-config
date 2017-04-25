@@ -67,7 +67,9 @@ public class AnoleConfigFileParser {
 	private void parseLine(String content){
 		if(content==null || content.isEmpty())
 			return;
-		else if(content.charAt(0) == '#')
+		else if(content.trim().startsWith("#env:")) {
+			configEnv = content.trim().replace("#env:", "").trim();
+		}else if(content.charAt(0) == '#')
 			return;
 		else
 			parseKV(content);
@@ -78,9 +80,6 @@ public class AnoleConfigFileParser {
 		String [] tkvArray = separateKV(content); 
 		String tk = tkvArray[0].trim();
 		String v = tkvArray[1].trim();
-		if("env".equals(tk)) {
-			configEnv = v;
-		}
 		if(sysEnv.equals(configEnv) || "all".equals(configEnv)){
 			String [] tkArray = tk.split(":");  
 			if(tkArray.length >2)
@@ -135,6 +134,7 @@ public class AnoleConfigFileParser {
 			String ifname = ifile.getName();
 			if(StringUtil.asteriskMatch("*.env", ifname)){
 				sysEnv = ifname.replace(".env", "");
+				lcm.setConfigItem("anole.runtime.currentEnvironment", sysEnv, ConfigType.STRING);
 				return;
 			}
 		}

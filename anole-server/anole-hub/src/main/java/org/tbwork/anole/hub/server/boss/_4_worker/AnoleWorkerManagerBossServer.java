@@ -41,7 +41,6 @@ public class AnoleWorkerManagerBossServer implements AnoleServer{
 
 	private int port;
 	
-	
 	volatile boolean started;
 	static final Logger logger = LoggerFactory.getLogger(AnoleWorkerManagerBossServer.class);
 	Channel channel = null;

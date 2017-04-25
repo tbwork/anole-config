@@ -51,7 +51,7 @@ public class UserController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	
@@ -73,7 +73,7 @@ public class UserController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/auth", method=RequestMethod.POST)
@@ -96,7 +96,7 @@ public class UserController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/status", method=RequestMethod.GET)
@@ -110,7 +110,7 @@ public class UserController {
 		 result.setResult(innerResult);
 		 result.setSuccess(true);  
 		 result.setErrorMessage("OK"); 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/logout", method=RequestMethod.GET)
@@ -123,17 +123,26 @@ public class UserController {
 		result.setResult(true);
 		result.setErrorMessage("OK");
 		result.setSuccess(true);
-		return result.toString();
+		return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@ResponseBody
 	@RequestMapping(value="/users", method=RequestMethod.GET)
-	public String getUsers(){
+	public String getUsers(@ModelAttribute("sessionBox") SessionBox sessionBox){
 		PostResponse<List<String>> result = new PostResponse<List<String>>(); 
-		result.setResult(us.getUsers());
-		result.setSuccess(true);
-		result.setErrorMessage("OK");
-		return result.toString();
+		 try{
+			 initializeCheck(0);
+			 loginCheck(sessionBox);
+			 result.setResult(us.getUsers());
+			 result.setSuccess(true);
+			 result.setErrorMessage("OK");
+		 }
+		 catch(Exception e){
+			 result.setErrorMessage(e.getMessage());
+			 result.setResult(null);
+			 result.setSuccess(false);
+		 } 
+		return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	

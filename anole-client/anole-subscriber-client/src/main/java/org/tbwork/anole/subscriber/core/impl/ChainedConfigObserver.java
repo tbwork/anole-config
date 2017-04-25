@@ -17,6 +17,10 @@ public abstract class ChainedConfigObserver implements ConfigObserver{
 		this.stopAfterProcess = stopAfterProcess;
 	}
 	
+	public ChainedConfigObserver(){
+		this.stopAfterProcess = false;
+	}
+	
 	@Override
 	public boolean stopAfterProcess(){
 		return false;

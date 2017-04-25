@@ -2,7 +2,7 @@
   <form  ng-controller="ProjectSearchController as self">
     <md-toolbar>
       <div class="md-toolbar-tools">
-        <h2>{{self.config_detail_desc}}</h2>
+        <h2>{{self.config_detail_desc}}-{{self.currentProject.projectName}}</h2>
         <span flex></span>
         <md-button class="md-icon-button" ng-click="cancel()">
           <md-icon md-svg-src="img/icons/ic_close_24px.svg" aria-label="Close dialog"></md-icon>
@@ -24,7 +24,7 @@
         		<label  style="height: 40px; line-height: 40px;">{{self.text_desc}}:</label>
         	</div>
         	<div class="inline detail_v"> 
-        		<label>{{self.currentConfig.desc}}</label>
+        		<textarea class="desc" rows="3" cols="47" disabled title="{{self.config_desc_note}}" ng-model="self.currentConfig.desc"></textarea> 
         	</div>
         </div>
         <div class="config_detail_item"  style="line-height: 40px;">
@@ -40,7 +40,8 @@
         		<label >{{self.text_type}}:</label>
         	</div> 
         	<div class="inline detail_v"  >  
-        		<label>{{self.currentConfig.type}}</label>
+        		<select ng-model="self.currentConfig.type" disabled ng-options="type.value as type.type for type in self.types" style="height:35px;width:400px"> 
+				</select>
         	</div>
         </div> 
         <div class="config_detail_item"  style="line-height: 120px; height: 120px;">
@@ -48,7 +49,7 @@
         		<label>{{self.config_value_desc}}:</label>
         	</div>
         	<div class="inline detail_v"> 
-        	  	<label>{{self.currentConfig.value}}</label> 
+        	  	<textarea class="desc" rows="5" disabled cols="47" ng-model="self.currentConfig.value"></textarea> 
         	</div>
         </div> 
         <div  style="height:50px;width:100%;margin-top:10px;margin-bottom:10px">

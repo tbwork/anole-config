@@ -10,15 +10,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
+import org.tbwork.anole.gui.domain.config.IConfigSearchService;
 import org.tbwork.anole.gui.domain.config.IConfigService;
 import org.tbwork.anole.gui.domain.model.ConfigBrief;
+import org.tbwork.anole.gui.domain.model.ConfigExtended;
 import org.tbwork.anole.gui.domain.model.demand.AddConfigDemand; 
 import org.tbwork.anole.gui.domain.model.demand.DeleteConfigDemand;
 import org.tbwork.anole.gui.domain.model.demand.FuzzyGetConfigByKeyDemand;
 import org.tbwork.anole.gui.domain.model.demand.GetConfigByKeyAndEnvDemand;
 import org.tbwork.anole.gui.domain.model.demand.GetConfigsByProjectAndEnvDemand;
-import org.tbwork.anole.gui.domain.model.demand.ModifyConfigDemand;
-import org.tbwork.anole.gui.domain.model.result.AddConfigResult; 
+import org.tbwork.anole.gui.domain.model.demand.ModifyConfigDemand; 
 import org.tbwork.anole.gui.domain.model.result.DeleteConfigResult;
 import org.tbwork.anole.gui.domain.model.result.ModifyConfigResult;
 import org.tbwork.anole.gui.domain.project.IProjectService;
@@ -40,18 +41,20 @@ public class ConfigController {
 	@Autowired
 	private IConfigService cs;
 	
+	@Autowired
+	private IConfigSearchService css;
 	
 	@RequestMapping(value="/create", method=RequestMethod.POST)
 	@ResponseBody
 	public String createConfig(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody AddConfigDemand config)
 	{  
-		 PostResponse<AddConfigResult> result = new PostResponse<AddConfigResult>();
-		 try{ 	
+		 PostResponse<ConfigBrief> result = new PostResponse<ConfigBrief>();
+		 try{
 			 initializeCheck(0);
 			 loginCheck(sessionBox);
 			 config.setOperator(sessionBox.getUsername());
 			 result.setResult(cs.addConfig(config));
-			 result.setSuccess(true);  
+			 result.setSuccess(true);
 			 result.setErrorMessage("OK");
 		 }
 		 catch(Exception e){
@@ -59,14 +62,14 @@ public class ConfigController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/modify", method=RequestMethod.POST)
 	@ResponseBody
 	public String modifyConfig(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody ModifyConfigDemand config)
 	{  
-		 PostResponse<ModifyConfigResult> result = new PostResponse<ModifyConfigResult>();
+		 PostResponse<ConfigBrief> result = new PostResponse<ConfigBrief>();
 		 try{ 
 			 initializeCheck(0);
 			 loginCheck(sessionBox);
@@ -80,7 +83,7 @@ public class ConfigController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/delete", method=RequestMethod.POST)
@@ -92,7 +95,9 @@ public class ConfigController {
 			 initializeCheck(0);
 			 loginCheck(sessionBox);
 			 demand.setOperator(sessionBox.getUsername());
+			 long currentTime = System.currentTimeMillis();
 			 result.setResult(cs.deleteConfig(demand));
+			 result.setCostTime(System.currentTimeMillis() - currentTime);
 			 result.setSuccess(true);  
 			 result.setErrorMessage("OK");
 		 }
@@ -101,7 +106,7 @@ public class ConfigController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	@RequestMapping(value="/getByProjectAndEnv", method=RequestMethod.POST)
@@ -110,7 +115,11 @@ public class ConfigController {
 	{  
 		 PostResponse<List<ConfigBrief>> result = new PostResponse<List<ConfigBrief>>();
 		 try{ 
-			 initializeCheck(0);
+			 initializeCheck(0); 
+			 if(demand.getOperator()!=null && !demand.getOperator().isEmpty()){
+				 loginCheck(sessionBox);
+				 usernameCheck(sessionBox, demand.getOperator());
+			 } 
 			 result.setResult(cs.getConfigsByProjectAndEnv(demand));
 			 result.setSuccess(true);  
 			 result.setErrorMessage("OK");
@@ -120,7 +129,7 @@ public class ConfigController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 
@@ -132,7 +141,8 @@ public class ConfigController {
 		 try{ 
 			 initializeCheck(0);
 			 loginCheck(sessionBox);
-			 result.setResult(cs.getConfigByKeyAndEnv(demand));
+			 demand.preCheck();
+			 result.setResult(cs.getConfigByKeyAndEnv(demand.getKey(), demand.getEnv()));
 			 result.setSuccess(true);  
 			 result.setErrorMessage("OK");
 		 }
@@ -141,18 +151,22 @@ public class ConfigController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	
-	@RequestMapping(value="/fuzzyGetByKey", method=RequestMethod.POST)
+	@RequestMapping(value="/fuzzyQueryConfig", method=RequestMethod.POST)
 	@ResponseBody
 	public String fuzzyGetByKey(@ModelAttribute("sessionBox") SessionBox sessionBox, @RequestBody FuzzyGetConfigByKeyDemand demand)
 	{  
-		 PostResponse<List<ConfigBrief>> result = new PostResponse<List<ConfigBrief>>();
+		 PostResponse<List<ConfigExtended>> result = new PostResponse<List<ConfigExtended>>();
 		 try{ 
-			 initializeCheck(0);
-			 //result.setResult(cs.fuzzyGetConfigsByKey(demand));
+			 initializeCheck(0); 
+			 if(demand.getOperator()!=null && !demand.getOperator().isEmpty()){
+				 loginCheck(sessionBox);
+				 usernameCheck(sessionBox, demand.getOperator());
+			 } 
+			 result.setResult(css.fuzzySearch(demand));
 			 result.setSuccess(true);  
 			 result.setErrorMessage("OK");
 		 }
@@ -161,7 +175,7 @@ public class ConfigController {
 			 result.setResult(null);
 			 result.setSuccess(false);
 		 } 
-		 return result.toString();
+		 return result.toStringForReturn(sessionBox.isLogined());
 	}
 	
 	
@@ -171,5 +185,9 @@ public class ConfigController {
 	}
 	private void loginCheck(SessionBox sessionBox) {
 		 if(!sessionBox.isLogined()) throw new RuntimeException("Please login first.");
+	}
+	
+	private void usernameCheck(SessionBox sessionBox, String operator) {
+		 if(!sessionBox.getUsername().equals(operator)) throw new RuntimeException("The operator is invalid.");
 	}
 }

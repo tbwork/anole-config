@@ -11,6 +11,7 @@ public class AddConfigDemand extends BaseOperationDemand{
 	private Byte destConfigType;
 	private String project;  
 	private String description;
+	private boolean allEnvEnabled;
 	private String env;
 	public void preCheck(){
 		if(key == null || key.isEmpty())

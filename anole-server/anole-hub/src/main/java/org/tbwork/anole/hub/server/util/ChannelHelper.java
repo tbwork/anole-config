@@ -3,7 +3,7 @@ package org.tbwork.anole.hub.server.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
-import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClient;
+import org.tbwork.anole.hub.server.lccmanager.model.clients.LongConnectionClientSkeleton;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -23,7 +23,7 @@ public class ChannelHelper {
 			}); 
 	}
 	
-	public static String getIp(final LongConnectionClient client){
+	public static String getIp(final LongConnectionClientSkeleton client){
 		return client.getSocketChannel().remoteAddress().getAddress().getHostAddress();
 	}
 	
@@ -42,7 +42,7 @@ public class ChannelHelper {
 	}
 	 
 	
-	public static void sendMessageSync(final LongConnectionClient lcc, Message msg)
+	public static void sendMessageSync(final LongConnectionClientSkeleton lcc, Message msg)
 	{ 
 			final ChannelFuture f =  writeAndFlush(lcc, msg); 
 			f.addListener(new ChannelFutureListener() {
@@ -52,7 +52,7 @@ public class ChannelHelper {
 			}); 
 	}
 	
-	public static void sendMessage(final LongConnectionClient ctx, Message msg){ 
+	public static void sendMessage(final LongConnectionClientSkeleton ctx, Message msg){ 
 		writeAndFlush(ctx, msg);
 	}
 
@@ -62,7 +62,7 @@ public class ChannelHelper {
 	}
 	
 	
-	private static ChannelFuture writeAndFlush(final LongConnectionClient sc, Message msg){
+	private static ChannelFuture writeAndFlush(final LongConnectionClientSkeleton sc, Message msg){
 		try{
 			if(sc != null && !sc.maxPromiseCount() && sc.getSocketChannel()!=null){ 
 				ChannelFuture result =  sc.getSocketChannel().writeAndFlush(msg);

@@ -18,7 +18,7 @@ import com.alibaba.fastjson.JSON;
  * Hello world!
  *
  */
-public class ClientStart 
+public class PublisherStart 
 {
     public static void main( String[] args ) throws InterruptedException
     { 

@@ -18,12 +18,12 @@ import org.tbwork.anole.publisher.client.impl.AnolePublisherClient;
 @SpringBootApplication
 @ImportResource("classpath*:spring/spring-*.xml")
 public class StartHere {
-
 	public static void main(String[] args) {
 		AnoleLoader anoleLoader = new AnoleClasspathLoader();
 	    anoleLoader.load(); 
 	    AnolePublisherClient apc = AnolePublisherClient.instance();
 	    apc.connect();
 		SpringApplication.run(StartHere.class, args);
-	} 
+	}
+	 
 }

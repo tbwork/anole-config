@@ -71,7 +71,7 @@ public class StringUtil {
 		 int p = 0;
 		 int vs = -1;
 		 if(value == null)
-			 throw new RuntimeException("");
+			 throw new RuntimeException("There is no manual-set or default-set value for " + key + ".");
 		 while( p < value.length())
 		 {
 			 char icl = p > 0 ? value.charAt(p-1) : ' ';
