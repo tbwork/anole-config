@@ -1,0 +1,3 @@
+内置变量：
+anole.runtime.currentEnvironment  当前运行环境
+anole.publisher.startup.connection.timeout = 5 Publisher启动超时时间
