@@ -6,11 +6,9 @@ It supports all properties file which are required in runtime, such as spring pr
 # How to use it
 1. Add this anole-loader to your build path by manual or maven dependency.
 2. Create an enviroment file in your disk.
-2.1 For windows: create a $env.anole file under `C://anole/`
-
-2.2 For Linux: create a $env.anole file under `/etc/anole/`
-
-2.3 For Max: create a $env.anole file under `/Users/anole/`
+ * For windows: create a $env.anole file under `C://anole/`
+ * For Linux: create a $env.anole file under `/etc/anole/`
+ * For Max: create a $env.anole file under `/Users/anole/`
 3. Create an anole config file in your classpath like
 ```
 #env:all
