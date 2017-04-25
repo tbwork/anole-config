@@ -10,8 +10,12 @@ It supports all properties file which are required in runtime, such as spring pr
  * For Linux: create a $env.anole file under `/etc/anole/`
  * For Max: create a $env.anole file under `/Users/anole/`
 3. Create an anole config file in your classpath like
+  ```
+  #env:all
+  key=value
+  ```
+  In the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
+4. In your java codes, use them like:
 ```
-#env:all
-key=value
+ AnoleLocalConfig.get("key");
 ```
-In the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
