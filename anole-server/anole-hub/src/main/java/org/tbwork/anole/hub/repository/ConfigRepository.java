@@ -1,6 +1,6 @@
 package org.tbwork.anole.hub.repository;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.hub.model.ConfigDO;
 import org.tbwork.anole.hub.model.ConfigValueDO;
 

@@ -9,7 +9,7 @@ import org.anole.infrastructure.model.AnoleConfig;
 import org.anole.infrastructure.model.AnoleConfigItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.hub.cache.Cache;
 import org.tbwork.anole.hub.exceptions.ConfigAlreadyExistsException; 
 import org.tbwork.anole.hub.exceptions.ConfigNotExistsException;

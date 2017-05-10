@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.common.model.ValueChangeDTO;
 import org.tbwork.anole.loader.core.AnoleLoader;

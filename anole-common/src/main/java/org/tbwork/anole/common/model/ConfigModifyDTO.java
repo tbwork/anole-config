@@ -4,9 +4,8 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-import org.tbwork.anole.common.ConfigType;
-
-
+import org.tbwork.anole.loader.types.ConfigType;
+   
 @Data
 public class ConfigModifyDTO implements Serializable{
 	private String key; 

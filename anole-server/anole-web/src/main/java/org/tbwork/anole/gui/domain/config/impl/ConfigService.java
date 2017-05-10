@@ -35,7 +35,7 @@ import org.tbwork.anole.gui.domain.util.CommonTools;
 import org.tbwork.anole.publisher.core.AnolePublisher;
 import org.tbwork.anole.publisher.model.ConfigChangeRequest;
 import org.tbwork.anole.publisher.model.ConfigChangeResponse;
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 
 @Service
 public class ConfigService implements IConfigService {

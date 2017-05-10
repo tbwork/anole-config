@@ -2,11 +2,10 @@ package org.tbwork.anole.loader.core.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Scanner;
-
+import java.util.Scanner; 
+import org.tbwork.anole.loader.types.ConfigType;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.tbwork.anole.common.ConfigType;
+import org.slf4j.LoggerFactory; 
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;

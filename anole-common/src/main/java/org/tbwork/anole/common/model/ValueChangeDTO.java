@@ -3,7 +3,7 @@ package org.tbwork.anole.common.model;
 import java.io.Serializable;
 import java.util.Set;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 
 import lombok.Data;
 

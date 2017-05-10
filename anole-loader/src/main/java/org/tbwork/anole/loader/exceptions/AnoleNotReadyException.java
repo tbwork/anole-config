@@ -1,6 +1,5 @@
 package org.tbwork.anole.loader.exceptions;
-
-import org.tbwork.anole.common.ConfigType;
+ 
  
 public class AnoleNotReadyException extends RuntimeException {
 

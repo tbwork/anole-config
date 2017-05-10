@@ -1,6 +1,6 @@
 package org.tbwork.anole.hub.model;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 
 import lombok.Data;
 

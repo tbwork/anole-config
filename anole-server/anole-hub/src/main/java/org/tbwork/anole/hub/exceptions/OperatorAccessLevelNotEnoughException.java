@@ -1,6 +1,6 @@
 package org.tbwork.anole.hub.exceptions;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
  
 public class OperatorAccessLevelNotEnoughException extends RuntimeException {
 

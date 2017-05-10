@@ -1,6 +1,6 @@
 package org.tbwork.anole.subscriber.exceptions;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 
 public class RetrieveConfigTimeoutException extends RuntimeException{
  

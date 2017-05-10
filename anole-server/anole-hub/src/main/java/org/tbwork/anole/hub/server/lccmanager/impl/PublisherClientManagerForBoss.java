@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.common.enums.Role;
 import org.tbwork.anole.common.model.ConfigModifyResultDTO;
 import org.tbwork.anole.common.model.ConfigModifyDTO;

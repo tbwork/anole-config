@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.crypto.KeyGenerator;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.common.model.ConfigModifyDTO;
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.loader.core.ConfigItem; 

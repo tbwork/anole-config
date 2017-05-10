@@ -3,7 +3,7 @@ package org.tbwork.anole.common.message.s_2_c.worker._2_subscriber;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.model.ConfigModifyDTO;

@@ -1,4 +1,4 @@
-package org.tbwork.anole.common;
+package org.tbwork.anole.loader.types;
 
 public enum ConfigType {
 

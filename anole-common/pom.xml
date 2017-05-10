@@ -15,6 +15,7 @@
     <netty.version>5.0.0.Alpha1</netty.version>
     <junit.version>4.12</junit.version>
     <lombok.version>1.16.8</lombok.version>
+    <anole.loader.version>0.0.1</anole.loader.version>
   </properties>
 
   <dependencies>
@@ -29,5 +30,10 @@
 		<artifactId>lombok</artifactId>
 		<version>${lombok.version}</version>
 	</dependency> 
+	<dependency>
+		<groupId>org.tbwork.anole</groupId>
+		<artifactId>anole-loader</artifactId>
+		<version>${anole.loader.version}</version>
+	</dependency>
   </dependencies>
 </project>

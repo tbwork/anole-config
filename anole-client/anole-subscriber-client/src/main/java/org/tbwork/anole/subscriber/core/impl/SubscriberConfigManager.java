@@ -19,7 +19,7 @@ import javax.crypto.KeyGenerator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory; 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.common.message.c_2_s.subscriber._2_worker.GetConfigMessage;
 import org.tbwork.anole.loader.core.ConfigItem;
 import org.tbwork.anole.loader.core.impl.LocalConfigManager;
