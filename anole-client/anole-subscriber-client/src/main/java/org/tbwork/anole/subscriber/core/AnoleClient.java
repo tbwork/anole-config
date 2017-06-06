@@ -1,25 +1,10 @@
 package org.tbwork.anole.subscriber.core;
  
-
-import java.security.NoSuchAlgorithmException;
-import java.security.Provider;
-import java.security.Security;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.crypto.KeyGenerator;
-
-import org.tbwork.anole.loader.types.ConfigType;
-import org.tbwork.anole.common.model.ConfigModifyDTO;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
-import org.tbwork.anole.loader.core.ConfigItem; 
+ 
+import org.tbwork.anole.loader.core.Anole; 
 import org.tbwork.anole.subscriber.core.impl.ChainedConfigObserver;
-import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager;
-import org.tbwork.anole.subscriber.exceptions.AnoleNotReadyException;
-
-import sun.misc.Unsafe;
+import org.tbwork.anole.subscriber.core.impl.SubscriberConfigManager; 
+ 
  
 /**
  * <p> Yes! It's an all-in-one tool. You can access
@@ -27,7 +12,7 @@ import sun.misc.Unsafe;
  * man always say? Anole in hand, World in pocket! :)
  * @author Tommy.Tang
  */ 
-public class AnoleConfig extends AnoleLocalConfig{ 
+public class AnoleClient extends Anole{ 
 	  
 	private static ObserverManager om = ObserverManager.instance();  
 	

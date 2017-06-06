@@ -4,21 +4,20 @@
 
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>0.0.1</version>
+  <version>1.0.3-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>anole-loader</name>
   <url>https://github.com/tbwork/anole-loader</url>
- 
+  <description>An awesome property or configuration loader for java.</description> 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-    <junit.version>4.12</junit.version> 
-    <logback.version>1.1.7</logback.version> 
-    <google.guava>19.0</google.guava> 
-    <anole.common.version>0.0.1-SNAPSHOT</anole.common.version>
+    <junit.version>4.12</junit.version>  
+    <google.guava>19.0</google.guava>
     <fastjson.version>1.1.15</fastjson.version>
     <servlet.api.version>2.5</servlet.api.version>
     <lombok.version>1.16.8</lombok.version>
+    <slf4j.api.version>1.7.12</slf4j.api.version>
   </properties>
    
   <licenses>
@@ -50,12 +49,7 @@
       <artifactId>junit</artifactId>
       <version>3.8.1</version>
       <scope>test</scope>
-    </dependency>
-    <dependency>
-		<groupId>ch.qos.logback</groupId>
-		<artifactId>logback-classic</artifactId>
-		<version>${logback.version}</version>
-	</dependency>
+    </dependency> 
 	<dependency>
 		<groupId>com.alibaba</groupId>
 		<artifactId>fastjson</artifactId>
@@ -75,7 +69,12 @@
 		<groupId>org.projectlombok</groupId>
 		<artifactId>lombok</artifactId>
 		<version>${lombok.version}</version>
-	</dependency> 
+	</dependency>
+	<dependency>
+		<groupId>org.slf4j</groupId>
+		<artifactId>slf4j-api</artifactId>
+		<version>${slf4j.api.version}</version>
+	</dependency>  
   </dependencies>
   
   <build>  

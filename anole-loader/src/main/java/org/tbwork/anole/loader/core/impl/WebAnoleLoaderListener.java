@@ -3,8 +3,7 @@ package org.tbwork.anole.loader.core.impl;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil; 
 
 /**
@@ -40,9 +39,8 @@ import org.tbwork.anole.loader.util.StringUtil;
  */ 
 public class WebAnoleLoaderListener extends AnoleClasspathLoader implements ServletContextListener{
 
-	private static Logger logger = LoggerFactory.getLogger(WebAnoleLoaderListener.class);
-  
-	
+	private AnoleLogger logger;
+   
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		 String configLocationString =  sce.getServletContext().getInitParameter("anoleConfigLocation");

@@ -26,7 +26,7 @@ import org.tbwork.anole.loader.core.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.util.StringUtil;
 import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.core.AnoleConfig;
+import org.tbwork.anole.subscriber.core.AnoleClient;
 import org.tbwork.anole.subscriber.exceptions.RetrieveConfigTimeoutException;
 import org.tbwork.anole.subscriber.util.GlobalConfig;
 
@@ -102,7 +102,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 					  try {  
 							 Future<Integer> getConfigResult = executorService.submit( new Callable<Integer>(){ 
 									public Integer call() throws Exception {  
-										  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getCurrentEnvironment()));
+										  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleClient.getCurrentEnvironment()));
 										  if(logger.isDebugEnabled())
 											  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
 										  synchronized(cItem.getKey())  {
@@ -146,7 +146,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 					  if(!cItem.isLoaded()){
 						  synchronized(cItem){ 
 							  if(!cItem.isLoaded()){
-								  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleConfig.getCurrentEnvironment()));
+								  anoleSubscriberClient.sendMessage( new GetConfigMessage(cItem.getKey(), AnoleClient.getCurrentEnvironment()));
 								  if(logger.isDebugEnabled())
 									  logger.debug("GetConfigMessage (key = {}) sent successfully. Enter waiting...", cItem.getKey());
 								  synchronized(cItem.getKey())  {
@@ -202,7 +202,7 @@ public class SubscriberConfigManager extends LocalConfigManager{
 	@Override
 	protected void initializeContext(){
 		anoleSubscriberClient.connect();   // start the anole subscriber client  
-		new AnoleConfig(); // call the codes in the static block. 
+		new AnoleClient(); // call the codes in the static block. 
     }
      
 }

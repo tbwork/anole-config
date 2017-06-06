@@ -6,11 +6,11 @@ import org.tbwork.anole.loader.util.SingletonFactory;
 import sun.misc.Unsafe;
  
 /**
- * <p> AnoleLocalConfig provides basic retrieving 
+ * <p> Anole provides basic retrieving 
  * operations on local configurations. 
  * @author Tommy.Tang
  */ 
-public class AnoleLocalConfig { 
+public class Anole { 
 	 
 	protected static volatile ConfigManager cm = SingletonFactory.getLocalConfigManager();
 	

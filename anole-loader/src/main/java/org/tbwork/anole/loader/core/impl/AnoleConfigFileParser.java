@@ -3,12 +3,11 @@ package org.tbwork.anole.loader.core.impl;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner; 
-import org.tbwork.anole.loader.types.ConfigType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory; 
+import org.tbwork.anole.loader.types.ConfigType; 
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.OsUtil;
 import org.tbwork.anole.loader.util.StringUtil;
 import org.tbwork.anole.loader.util.SingletonFactory;
@@ -19,7 +18,7 @@ public class AnoleConfigFileParser {
 
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 	
-	private static Logger logger = LoggerFactory.getLogger(AnoleConfigFileParser.class);
+	private AnoleLogger logger ;
 	private final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 	
 	private AnoleConfigFileParser(){
@@ -45,7 +44,7 @@ public class AnoleConfigFileParser {
 	}
 	
 	public void parse(File file) {
-		if(sysEnv== null || sysEnv.isEmpty())
+		if(sysEnv == null || sysEnv.isEmpty())
 			throw new EnvironmentNotSetException();
 		lineNumber = 0;
 		configEnv = "";

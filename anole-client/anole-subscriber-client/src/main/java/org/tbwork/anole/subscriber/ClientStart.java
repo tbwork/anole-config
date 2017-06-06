@@ -16,7 +16,7 @@ import org.tbwork.anole.subscriber.client._2_boss.IAnoleAuthenticationClient;
 import org.tbwork.anole.subscriber.client._2_boss.impl.AnoleAuthenticationClient;
 import org.tbwork.anole.subscriber.client._2_worker.IAnoleSubscriberClient;
 import org.tbwork.anole.subscriber.client._2_worker.impl.AnoleSubscriberClient;
-import org.tbwork.anole.subscriber.core.AnoleConfig; 
+import org.tbwork.anole.subscriber.core.AnoleClient; 
 import org.tbwork.anole.subscriber.core.impl.AnoleSubscriberClasspathLoader;
 import org.tbwork.anole.subscriber.core.impl.ChainedConfigObserver;
 
@@ -45,7 +45,7 @@ public class ClientStart
     	anoleLoader.load();  
     	Scanner scan = new Scanner(System.in);
     	int count = 0;
-    	AnoleConfig.registerPostObserver("key2", new ChainedConfigObserver() { 
+    	AnoleClient.registerPostObserver("key2", new ChainedConfigObserver() { 
 			@Override
 			public void process(ValueChangeDTO ccDto) {
 				 System.out.println("The config ( key = 'key2' ) changed!!!");
@@ -57,6 +57,6 @@ public class ClientStart
     	
     	AnoleLoader anoleLoader = new AnoleClasspathLoader();
     	anoleLoader.load();
-    	System.out.println(AnoleConfig.getProperty("cs")); 
+    	System.out.println(AnoleClient.getProperty("cs")); 
     }
 }

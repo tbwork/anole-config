@@ -57,7 +57,7 @@ public class ObserverManager {
 	
 	private void addObservers(Map<String, List<ConfigObserver>> obs, String key, ConfigObserver...cob){
 		List<ConfigObserver> tempObs = null;
-		AnoleConfig.getProperty(key);
+		AnoleClient.getProperty(key);
 		if(!obs.containsKey(key) || obs.get(key) == null )
 		   tempObs = new ArrayList<ConfigObserver>();  
 		else

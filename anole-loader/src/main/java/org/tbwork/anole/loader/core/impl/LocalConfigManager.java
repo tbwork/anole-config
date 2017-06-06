@@ -6,14 +6,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.tbwork.anole.loader.types.ConfigType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;  
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.types.ConfigType;  
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.loader.core.ConfigItem;
 import org.tbwork.anole.loader.core.ConfigManager;
 import org.tbwork.anole.loader.exceptions.CircularDependencyException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil; 
  
 /**
@@ -25,7 +24,7 @@ import org.tbwork.anole.loader.util.StringUtil;
  */
 public class LocalConfigManager implements ConfigManager{
 
-	static final Logger logger = LoggerFactory.getLogger(LocalConfigManager.class);
+	private AnoleLogger logger;
 	
 	protected static final Map<String, ConfigItem> configMap = new ConcurrentHashMap<String, ConfigItem>();  
 	
@@ -35,14 +34,15 @@ public class LocalConfigManager implements ConfigManager{
 	
 	@Override
 	public void setConfigItem(String key, String value, ConfigType type){ 
-		if(logger.isDebugEnabled())
+		if(AnoleLogger.anoleLogLevel != null && logger.isDebugEnabled())
 			logger.debug("New config found: key = {}, raw value = {}, type = {}", key, value, type);
-		if(!AnoleLocalConfig.initialized)//Add to JVM system properties for spring to read.
+		if(!Anole.initialized)//Add to JVM system properties for spring to read.
 			System.setProperty(key, value); 
 		ConfigItem cItem = configMap.get(key);
 		if(cItem == null)  
 			cItem = initialConfig(key);
-		cItem.setValue(value, type);   
+		cItem.setValue(value, type);
+		
 	}
 	
 	@Override
@@ -95,6 +95,14 @@ public class LocalConfigManager implements ConfigManager{
     	for(Entry<String,ConfigItem> item : entrySet){
     		rsc(item.getKey()); 
     	}
+    }
+    
+    /**
+     * With anole, you do not need to specify the properties files.
+     * Anole will rebuild all configuration
+     */
+    private void rebuildThirdpartyConfigurations(){
+    	
     }
     
     /**

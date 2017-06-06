@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;  
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage; 
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.subscriber.client._2_boss.IAnoleAuthenticationClient;
 import org.tbwork.anole.subscriber.client._2_boss.handler.AuthenticationHandler;
 import org.tbwork.anole.subscriber.client._2_boss.handler.ExceptionHandler;
@@ -308,11 +308,11 @@ public class AnoleAuthenticationClient implements IAnoleAuthenticationClient{
 	
 	
 	private String getProperty(ClientProperties clientProperties){
-    	return AnoleLocalConfig.getProperty(clientProperties.name, clientProperties.defaultValue);
+    	return Anole.getProperty(clientProperties.name, clientProperties.defaultValue);
 	}
 	    
     private int getIntProerty(ClientProperties clientProperties){
-    	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
+    	return Anole.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
     }
 	
 }
