@@ -5,17 +5,21 @@ An awesome congurations loader for java.
 It supports all properties file which are required in runtime, even those properties are used in the third-party frameworks.
 # How to use it
 1 Add this anole-loader to your build path by manual or maven dependency.
+
 2 Create an enviroment file in your disk.
+
  * For windows: create a $env.anole file under `C://anole/`
  * For Linux: create a $env.anole file under `/etc/anole/`
  * For Max: create a $env.anole file under `/Users/anole/`
-3 Create an anole config file in your **classpath** like
+3 Create an anole config file in your **classpath** like:
+
   ```
   #env:all
   key=value
   ```
   Within the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
 4 Start your java instance as an Anole application.
+
 (1) Use the annotation of **@AnoleConfigLocation**
 ```
   @AnoleConfigLocation()
@@ -52,6 +56,7 @@ Configure the below lines in web.xml
 **Tips**: Make sure to put the Anole listener to the top of all listener configurations so that the other frameworks can use the properties loaded by Anole. Those frameworks can be Spring, Log4j, Log4j2, Logback, etc.
 
 5 In your java codes, use them like:
+
 ```
     Anole.getProperty ("key-name");
 		Anole.getBoolProperty("key-name");
@@ -63,6 +68,7 @@ Configure the below lines in web.xml
 ```
 
 6 Spring support properties
+
 First, enable the Spring placeholder function by adding below codes to the spring configuration files(e.g. context.xml):
 ```
 <bean id="enableplaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />  	
@@ -73,6 +79,7 @@ Then, Use **"${}"** to reference your variables like:
 ```
 
 7 Support other frameworks
+
 Anole support all third-party frameworks via injecting the properties to the Java runtime system properties.
 So to support those frameworks, you just neet to use the method like referencing a system properties.
 For example, to Log4j, it would be like :
