@@ -113,7 +113,7 @@ Then, Use **"${}"** to reference your variables like:
 
 7 Support other frameworks
 
-Anole support all third-party frameworks via injecting the properties to the Java runtime system properties.
+Anole support popular third-party frameworks via injecting the properties to the Java runtime system properties.
 So to support those frameworks, you just neet to use the method like referencing a system properties.
 For example, to Log4j, it would be like :
 ```
