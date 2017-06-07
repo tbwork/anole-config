@@ -1,7 +1,7 @@
 # Anole-Loader
 # What it is
 An awesome congurations loader for java. 
-# what does it support
+# What does it support
 It supports all properties file which are required in runtime, even those properties are used in the third-party frameworks.
 # How to use it
 1 Add this anole-loader to your build path by manual or maven dependency.
