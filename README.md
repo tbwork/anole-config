@@ -63,13 +63,13 @@ Configure the below lines in web.xml
 5 In your java codes, use them like:
 
 ```
-    Anole.getProperty ("key-name");
-		Anole.getBoolProperty("key-name");
-		Anole.getDoubleProperty("key-name");
-		Anole.getFloatProperty("key-name");
-		Anole.getIntProperty("key-name");
-		Anole.getLongProperty("key-name");
-		Anole.getShortProperty("key-name");
+	Anole.getProperty ("key-name");
+	Anole.getBoolProperty("key-name");
+	Anole.getDoubleProperty("key-name");
+	Anole.getFloatProperty("key-name");
+	Anole.getIntProperty("key-name");
+	Anole.getLongProperty("key-name");
+	Anole.getShortProperty("key-name");
 ```
 
 6 Spring support properties
