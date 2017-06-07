@@ -26,7 +26,7 @@ import org.tbwork.anole.loader.util.StringUtil;
  *      &lt;/context-param&gt; 
  *      ...
  *      &lt;listener&gt;
- *            &lt;listener-class&gt;org.tbwork.anole.subscriber.core.impl.WebAnoleLoaderListener&lt;/listener-class&gt;
+ *            &lt;listener-class&gt;org.tbwork.anole.loader.core.impl.WebAnoleLoaderListener&lt;/listener-class&gt;
  *      &lt;/listener&gt; 
  * </pre> 
  * <p> <b>Tips:</b> If you use the default naming style of configuration
@@ -35,6 +35,9 @@ import org.tbwork.anole.loader.util.StringUtil;
  * <b>context-param</b> in the web.xml. This is due to that anole will 
  * search and read configurations from all anole-style files under the 
  * class-path folder if you do not set the <b>context-param</b>.
+ * <p> <b>Tips 2:</b> Make sure to put the Anole listener to the top of all
+ * listener configurations so that the other frameworks can use the properties
+ * loaded by Anole. Those frameworks can be Spring, Log4j, Log4j2, Logback, etc.
  *  @author Tommy.Tang
  */ 
 public class WebAnoleLoaderListener extends AnoleClasspathLoader implements ServletContextListener{

@@ -18,9 +18,8 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
  *    //or anoleLoader.load(file1);
  *    //use AnoleLocalConfig as you like.
  * </pre>
- * <p> <b>Tips:</b> Although Anole allows you to set configuration
- * locally, but we strongly recommend you put most of your 
- * configurations to the anole server.
+ * <p> <b>Tips:</b> In order to let the other framework (like Spring,
+ * Log4j, Log4j2, etc.) to load properties via Anole mechanism.
  * <p> <b>About LogLevel:</b> The anole does not use any log facade
  * in the startup stage, it only providers the standard output on the
  * console window. After startup, it would use SLF4J to print logs.
