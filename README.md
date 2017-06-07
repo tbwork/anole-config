@@ -32,7 +32,22 @@ For maven, import it using:
 
   ```
   #env:all
+  
+  ## define a string
   key=value
+  #or
+  s:key=value
+  #or
+  key          =      value
+  
+  ## define a number
+  n:num = 123
+  n:double = 123.1212
+  n:float = 123.0
+  
+  ## define a boolean
+  b:switch = true
+  
   ```
   Within the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
 4 Start your java instance as an Anole application.
