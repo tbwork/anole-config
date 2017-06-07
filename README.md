@@ -14,6 +14,14 @@ It supports many kinds of property-files which are required in runtime, even tho
 # How to use it
 
 1 Add this anole-loader to your build path by manual or maven dependency.
+For maven, import it using:
+```
+<dependency>
+  <groupId>org.tbwork.anole</groupId>
+  <artifactId>anole-loader</artifactId>
+  <version>1.0.3</version>
+</dependency>
+```
 
 2 Create an enviroment file in your disk.
 
