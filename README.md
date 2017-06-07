@@ -107,6 +107,11 @@ To Log4j2, it would be like:
 ```
 ${sys:key}
 ```
-
+8 Recursive variable reference
+You can define a variable by referencing another variable.
+```
+name = tangbo
+helloworld=hello, ${name}
+```
 
 
