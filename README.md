@@ -4,6 +4,10 @@
 
 An awesome congurations loader for java. 
 
+# Why we need it.
+In enterprise java development, we use different kinds of third-party frameworks like Spring, Log4j, etc. to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and file-name, it would be annoying if you manage those files together. 
+Futhermore, in no longer future, we will propose our web-server-version Anole system with which you can modify your configuration dynamically.
+
 # What does it support
 
 It supports many kinds of property-files which are required in runtime, even those properties are used in the third-party frameworks.
