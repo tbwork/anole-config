@@ -28,6 +28,7 @@ For maven, import it using:
  * For windows: create a $env.anole file under `C://anole/`
  * For Linux: create a $env.anole file under `/etc/anole/`
  * For Max: create a $env.anole file under `/Users/anole/`
+ 
 3 Create an anole config file in your **classpath** like:
 
   ```
