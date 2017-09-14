@@ -1,3 +1,6 @@
+* auto-gen TOC:
+{:toc}
+
 # Anole-Loader
 
 # What it is
