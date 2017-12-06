@@ -1,0 +1,130 @@
+package org.tbwork.anole.loader.util;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.tbwork.anole.loader.core.Anole;
+
+public class AnoleLogger {
+
+	public static volatile LogLevel anoleLogLevel;
+	
+	private static Logger logger = null;
+	
+	public static enum LogLevel{
+		DEBUG(0),
+		INFO(1),
+		WARN(2),
+		ERROR(3),
+		FATAL(4),
+		CLOSE(5);
+		
+		private int level;
+		
+		private LogLevel(int level){
+			this.level = level;
+		} 
+		
+		public int code(){
+			return level;
+		} 
+	}
+	
+	public static boolean isDebugEnabled(){
+		return anoleLogLevel.code() <= LogLevel.DEBUG.code();
+	}
+	
+	private static void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){
+		if(anoleLogLevel.code() >= logLevel.code() ){
+			String output = baseInfo; 
+			for(Object variable : variables){
+				int index = baseInfo.indexOf("{}");
+				if(index == -1){
+					break;
+				}
+				output = output.replaceFirst("\\{\\}", variable.toString());
+			}
+			System.out.println(output);
+		}
+	}
+	
+	public static void debug(String baseInfo, Object ... variables){
+		if(!Anole.initialized){
+			coreLog(LogLevel.DEBUG, baseInfo, variables);
+		}
+		else{
+			if(logger == null){
+				synchronized(AnoleLogger.class){
+					if(logger == null){
+						logger = LoggerFactory.getLogger(AnoleLogger.class);
+					}
+				}
+			}
+			logger.debug(baseInfo, variables);
+		}
+	}
+	
+	public static void info(String baseInfo, Object ... variables){
+		if(!Anole.initialized){
+			coreLog(LogLevel.INFO, baseInfo, variables);
+		}
+		else{
+			if(logger == null){
+				synchronized(AnoleLogger.class){
+					if(logger == null){
+						logger = LoggerFactory.getLogger(AnoleLogger.class);
+					}
+				}
+			}
+			logger.info(baseInfo, variables);
+		}
+	}
+
+	public static void warn(String baseInfo, Object ... variables){
+		if(!Anole.initialized){
+			coreLog(LogLevel.WARN, baseInfo, variables);
+		}
+		else{
+			if(logger == null){
+				synchronized(AnoleLogger.class){
+					if(logger == null){
+						logger = LoggerFactory.getLogger(AnoleLogger.class);
+					}
+				}
+			}
+			logger.warn(baseInfo, variables);
+		}
+	}
+
+	public static void error(String baseInfo, Object ... variables){
+		if(!Anole.initialized){
+			coreLog(LogLevel.ERROR, baseInfo, variables);
+		}
+		else{
+			if(logger == null){
+				synchronized(AnoleLogger.class){
+					if(logger == null){
+						logger = LoggerFactory.getLogger(AnoleLogger.class);
+					}
+				}
+			}
+			logger.error(baseInfo, variables);
+		}
+	}
+	
+	public static void fatal(String baseInfo, String ... variables){
+		if(!Anole.initialized){
+			coreLog(LogLevel.FATAL, baseInfo, variables);
+		}
+		else{
+			if(logger == null){
+				synchronized(AnoleLogger.class){
+					if(logger == null){
+						logger = LoggerFactory.getLogger(AnoleLogger.class);
+					}
+				}
+			}
+			logger.error(baseInfo, variables);
+		}
+	}
+	
+}

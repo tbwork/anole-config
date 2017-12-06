@@ -1,6 +1,6 @@
 package org.tbwork.anole.loader.exceptions;
 
-import org.tbwork.anole.common.ConfigType;
+import org.tbwork.anole.loader.types.ConfigType;
 
 public class BadTransformValueFormatException extends RuntimeException{
  

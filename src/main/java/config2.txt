@@ -1,0 +1,2 @@
+#env:all
+sex=man

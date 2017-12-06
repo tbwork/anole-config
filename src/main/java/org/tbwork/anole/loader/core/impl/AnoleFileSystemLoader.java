@@ -1,26 +1,25 @@
 package org.tbwork.anole.loader.core.impl;
 
 import java.io.File;
- 
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+  
 import org.tbwork.anole.loader.core.AnoleLoader;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.loader.core.ConfigManager;
 import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
 import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 import org.tbwork.anole.loader.util.SingletonFactory; 
 
-public class AnoleFileSystemLoader implements AnoleLoader{
-
-	private static final Logger logger = LoggerFactory.getLogger(AnoleFileSystemLoader.class);
+public class AnoleFileSystemLoader implements AnoleLoader{ 
 	
 	private AnoleConfigFileParser acfParser = AnoleConfigFileParser.instance();
 	
 	private ConfigManager cm;
+	
+	private LogLevel defaultLogLevel = LogLevel.INFO;
 	
 	public AnoleFileSystemLoader(){
 		cm = SingletonFactory.getLocalConfigManager();
@@ -30,52 +29,33 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 		this.cm = cm ;
 	}
 	
-	@Override
-	public void load(String... configLocations) {
-		
-		 for(String ifile : configLocations) 
-			 loadFile(ifile, logger); 
-		 AnoleLocalConfig.initialized = true; 
-		 cm.postProcess();
-		 logger.info("[:)] Anole configurations are loaded succesfully.");
-	} 
 
 	@Override
 	public void load() {
-		 throw new OperationNotSupportedException();
+		load(defaultLogLevel);
+	}  
+ 
+	@Override
+	public void load(LogLevel logLevel) { 
+		AnoleLogger.anoleLogLevel = logLevel; 
+	    throw new OperationNotSupportedException();
+	}
+
+	@Override
+	public void load(String... configLocations) {
+		load(defaultLogLevel, configLocations);
 	} 
 	
-	protected void loadFile(String fileFullPath, Logger logger){ 
-			String cl = fileFullPath.replaceAll("/+", "/"); 
-			int dirTailIndex = cl.length()-1;
-			for(; dirTailIndex>=0; dirTailIndex--)
-			   if(cl.charAt(dirTailIndex)=='/')
-				   break; 
-			String filename = cl.substring(dirTailIndex+1);
-			
-			if(!filename.contains("*"))
-			{
-				acfParser.parse(newFile(fileFullPath));
-			}
-			else
-			{ 
-				String dirPath = cl.substring(0, dirTailIndex+1);
-				if(dirPath.isEmpty())
-				   throw new ConfigFileNotExistException(fileFullPath);
-				File file=new File(dirPath);
-				if(!file.exists())
-				   throw new ConfigFileDirectoryNotExistException(dirPath);
-				File[] fileList = file.listFiles();
-				for (int i = 0; i < fileList.length; i++) {
-				   String tfname = fileList[i].getName();
-				   if(StringUtil.asteriskMatch(filename,tfname))
-				   {
-					   acfParser.parse(newFile(dirPath+tfname));
-				   }
-				}
-			}
+	@Override
+	public void load(LogLevel logLevel, String... configLocations) {
+		AnoleLogger.anoleLogLevel = logLevel; 
+		for(String ifile : configLocations) 
+			 loadFile(ifile); 
+		Anole.initialized = true; 
+		cm.postProcess();
+		AnoleLogger.info("[:)] Anole configurations are loaded succesfully.");
 	}
-	
+	  
 	private File newFile(String filepath){ 
 		File file = new File(filepath);
 		if(file.exists())
@@ -83,5 +63,35 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 		else
 			throw new ConfigFileNotExistException(filepath);
 	}
-	 
+	
+	protected void loadFile(String fileFullPath){ 
+		String cl = fileFullPath.replaceAll("/+", "/"); 
+		int dirTailIndex = cl.length()-1;
+		for(; dirTailIndex>=0; dirTailIndex--)
+		   if(cl.charAt(dirTailIndex)=='/')
+			   break; 
+		String filename = cl.substring(dirTailIndex+1);
+		
+		if(!filename.contains("*"))
+		{
+			acfParser.parse(newFile(fileFullPath));
+		}
+		else
+		{ 
+			String dirPath = cl.substring(0, dirTailIndex+1);
+			if(dirPath.isEmpty())
+			   throw new ConfigFileNotExistException(fileFullPath);
+			File file=new File(dirPath);
+			if(!file.exists())
+			   throw new ConfigFileDirectoryNotExistException(dirPath);
+			File[] fileList = file.listFiles();
+			for (int i = 0; i < fileList.length; i++) {
+			   String tfname = fileList[i].getName();
+			   if(StringUtil.asteriskMatch(filename,tfname))
+			   {
+				   acfParser.parse(newFile(dirPath+tfname));
+			   }
+			}
+		}
+	}
 }

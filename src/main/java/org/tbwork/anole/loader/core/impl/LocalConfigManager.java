@@ -4,36 +4,27 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory; 
-import org.tbwork.anole.common.ConfigType;
-import org.tbwork.anole.common.message.c_2_s.subscriber._2_worker.GetConfigMessage;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.types.ConfigType;  
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.loader.core.ConfigItem;
 import org.tbwork.anole.loader.core.ConfigManager;
 import org.tbwork.anole.loader.exceptions.CircularDependencyException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil; 
  
 /**
  * LocalConfigManager provides basic operations 
  * for local configurations.
  * @see #setConfigItem(String, String, ConfigType)
- * @see #checkAndInitialConfig(String)
+ * @see #getConfigItem(String)
  * @author Tommy.Tang
  */
 public class LocalConfigManager implements ConfigManager{
 
-	static final Logger logger = LoggerFactory.getLogger(LocalConfigManager.class);
+	private AnoleLogger logger;
 	
 	protected static final Map<String, ConfigItem> configMap = new ConcurrentHashMap<String, ConfigItem>();  
 	
@@ -43,14 +34,15 @@ public class LocalConfigManager implements ConfigManager{
 	
 	@Override
 	public void setConfigItem(String key, String value, ConfigType type){ 
-		if(logger.isDebugEnabled())
+		if(AnoleLogger.anoleLogLevel != null && logger.isDebugEnabled())
 			logger.debug("New config found: key = {}, raw value = {}, type = {}", key, value, type);
-		if(!AnoleLocalConfig.initialized)//Add to JVM system properties for spring to read.
+		if(!Anole.initialized)//Add to JVM system properties for spring to read.
 			System.setProperty(key, value); 
 		ConfigItem cItem = configMap.get(key);
 		if(cItem == null)  
 			cItem = initialConfig(key);
-		cItem.setValue(value, type);   
+		cItem.setValue(value, type);
+		
 	}
 	
 	@Override
@@ -106,6 +98,14 @@ public class LocalConfigManager implements ConfigManager{
     }
     
     /**
+     * With anole, you do not need to specify the properties files.
+     * Anole will rebuild all configuration
+     */
+    private void rebuildThirdpartyConfigurations(){
+    	
+    }
+    
+    /**
      * Clear all escape characters in the configuration value.
      */
     private void cleanEscapeCharacters(){
@@ -158,7 +158,7 @@ public class LocalConfigManager implements ConfigManager{
      * re-define the configuration retrieving way, for
      * example retrieving configurations from a remote 
      * server or other configuration repositories.
-     * @see {@link #recursionBuildConfigMap()}
+     * @param key the key 
      */
     protected ConfigItem extendibleGetConfigItem(String key){
     	return configMap.get(key);
