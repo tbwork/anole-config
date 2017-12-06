@@ -133,6 +133,8 @@ public class AnoleConfigFileParser {
 		if(!file.exists()){
 			//check if the environment is already set or not
 			sysEnv = System.getProperty("anole.runtime.currentEnvironment");
+			if(sysEnv == null)
+				sysEnv = System.getenv("anole.runtime.currentEnvironment");
 			if(sysEnv != null)
 				return ;
 			throw new EnvironmentNotSetException();
