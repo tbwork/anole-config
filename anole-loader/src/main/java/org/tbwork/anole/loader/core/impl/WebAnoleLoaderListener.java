@@ -17,7 +17,7 @@ import org.tbwork.anole.loader.util.StringUtil;
  * <p> In the <b>web.xml</b>:
  * <pre>
  *      &lt;context-param&gt;
- *    	&lt;param-name&gt;anoleConfigLocation&lt;/param-name&gt
+ *    	&lt;param-name&gt;anoleConfigLocation&lt;/param-name&gt;
  *    	&lt;param-value&gt;
  *    	    	dev.anole
  *    	    	prd.anole

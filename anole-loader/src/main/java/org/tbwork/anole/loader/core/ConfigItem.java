@@ -74,7 +74,7 @@ public class ConfigItem {
 			try{
 				this.type = type;
 				loaded = true;
-				if(value == null || value.isEmpty())
+				if(value == null)
 					return; 
 				value = value.trim();
 				this.strValue = value;
@@ -92,9 +92,13 @@ public class ConfigItem {
 							boolValue = false; 
 					}break;
 					case JSON: {// set strValue
+						 if(value.isEmpty())
+							 throw new BadTransformValueFormatException(value, ConfigType.JSON); 
 						 strValue = value; 
 					}break;
 					case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
+						 if(value.isEmpty())
+							 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
 						 try{
 							 BigDecimal a = new BigDecimal(value);
 							 intValue = a.toBigInteger().intValue();

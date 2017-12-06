@@ -27,7 +27,7 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
  * @see AnoleLoader#load()
  * @see AnoleLoader#load(String...)
  * @see AnoleLoader#load(LogLevel)
- * @see AnoleLoader#load(LogLevel, String)
+ * @see AnoleLoader#load(LogLevel, String...)
  */
 public interface AnoleLoader {
 	/**

@@ -10,9 +10,11 @@ import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.OsUtil;
 import org.tbwork.anole.loader.util.StringUtil;
-import org.tbwork.anole.loader.util.SingletonFactory;
 
 import com.google.common.collect.Lists;
+
+import org.tbwork.anole.loader.util.SingletonFactory;
+ 
 
 public class AnoleConfigFileParser {
 
@@ -47,7 +49,7 @@ public class AnoleConfigFileParser {
 		if(sysEnv == null || sysEnv.isEmpty())
 			throw new EnvironmentNotSetException();
 		lineNumber = 0;
-		configEnv = "";
+		configEnv = "all";//default environment is all
 		currentFileFullPath = file.getAbsolutePath();
 		try{
 			Scanner s = new Scanner(file);  
@@ -90,6 +92,8 @@ public class AnoleConfigFileParser {
 			}
 			switch(t){
 				case "s":{ 
+					if(v == null)
+						v = "";
 					lcm.setConfigItem(k, v, ConfigType.STRING);
 				}break;
 				case "b":{ 
@@ -125,8 +129,14 @@ public class AnoleConfigFileParser {
 	
 	private void setEnvFromPath(String directoryPath){
 		File file = new File(directoryPath);
-		if(!file.exists())
-		   throw new EnvironmentNotSetException();
+		// check the env file first
+		if(!file.exists()){
+			//check if the environment is already set or not
+			sysEnv = System.getProperty("anole.runtime.currentEnvironment");
+			if(sysEnv != null)
+				return ;
+			throw new EnvironmentNotSetException();
+		}  
 		File [] fileList = file.listFiles();
 		for(File ifile : fileList){
 			String ifname = ifile.getName();

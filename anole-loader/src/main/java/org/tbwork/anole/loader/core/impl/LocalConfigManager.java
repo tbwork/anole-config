@@ -19,7 +19,7 @@ import org.tbwork.anole.loader.util.StringUtil;
  * LocalConfigManager provides basic operations 
  * for local configurations.
  * @see #setConfigItem(String, String, ConfigType)
- * @see #checkAndInitialConfig(String)
+ * @see #getConfigItem(String)
  * @author Tommy.Tang
  */
 public class LocalConfigManager implements ConfigManager{
@@ -158,7 +158,7 @@ public class LocalConfigManager implements ConfigManager{
      * re-define the configuration retrieving way, for
      * example retrieving configurations from a remote 
      * server or other configuration repositories.
-     * @see {@link #recursionBuildConfigMap()}
+     * @param key the key 
      */
     protected ConfigItem extendibleGetConfigItem(String key){
     	return configMap.get(key);

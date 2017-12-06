@@ -2,6 +2,13 @@ package org.tbwork.anole.hub.util;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.tbwork.anole.loader.core.AnoleLocalConfig;
 
@@ -48,7 +55,6 @@ public class StringUtil {
     	} 
     }
     
-    public static void main(String[] args) {
-		System.out.println(md5("123456"));
-	}
+  
+    
 }
