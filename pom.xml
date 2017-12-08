@@ -2,9 +2,15 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+      <groupId>org.sonatype.oss</groupId>
+      <artifactId>oss-parent</artifactId>
+      <version>7</version>
+  </parent>
+
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <packaging>jar</packaging>
 
   <name>anole-loader</name>
@@ -120,9 +126,10 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-gpg-plugin</artifactId>
-			<version>1.5</version>
+			<version>1.6</version>
 			<executions>
 				<execution>
+				    <id>sign-artifacts</id>
 					<phase>verify</phase>
 					<goals>
 						<goal>sign</goal>

@@ -29,8 +29,8 @@ public class AnoleClasspathLoader extends AnoleFileSystemLoader{
 	}
 	
 	@Override
-	public void load(LogLevel logLevel, String... configLocations) {
-		 configLocations = StringUtil.prefixString(configLocations, ProjectUtil.classPath);
+	public void load(LogLevel logLevel, String... configLocations) { 
+		 configLocations = StringUtil.prefixString(configLocations, ProjectUtil.getClassPath());
 		 super.load(logLevel, configLocations);
 		 Anole.initialized = true;
 	}
