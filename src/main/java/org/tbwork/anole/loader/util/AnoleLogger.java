@@ -3,12 +3,17 @@ package org.tbwork.anole.loader.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.Anole;
+import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 public class AnoleLogger {
 
 	public static volatile LogLevel anoleLogLevel;
 	
 	private static Logger logger = null;
+	
+	public static LogLevel defaultLogLevel = LogLevel.INFO;
+	
+	private static char placeHolderChar = 26 ; //ASCII code: SUB
 	
 	public static enum LogLevel{
 		DEBUG(0),
@@ -35,13 +40,15 @@ public class AnoleLogger {
 	
 	private static void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){
 		if(anoleLogLevel.code() >= logLevel.code() ){
-			String output = baseInfo; 
+			String output = baseInfo.replace("{}", placeHolderChar+""); 
 			for(Object variable : variables){
-				int index = baseInfo.indexOf("{}");
+				if(variable == null)
+					variable = "null";
+				int index = output.indexOf(placeHolderChar);
 				if(index == -1){
 					break;
 				}
-				output = output.replaceFirst("\\{\\}", variable.toString());
+				output = output.replaceFirst(placeHolderChar+"", variable.toString());
 			}
 			System.out.println(output);
 		}

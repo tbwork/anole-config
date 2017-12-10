@@ -1,5 +1,8 @@
 package org.tbwork.anole.loader.core.impl;
  
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.loader.core.ConfigManager;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
@@ -30,9 +33,17 @@ public class AnoleClasspathLoader extends AnoleFileSystemLoader{
 	
 	@Override
 	public void load(LogLevel logLevel, String... configLocations) { 
-		 configLocations = StringUtil.prefixString(configLocations, ProjectUtil.getClassPath());
-		 super.load(logLevel, configLocations);
-		 Anole.initialized = true;
+		String currentClassPath;
+		try {
+			URL classPathUrl = Thread.currentThread().getContextClassLoader().getResource(""); 
+			currentClassPath = ProjectUtil.getUrlLocalPath(classPathUrl); 
+			configLocations = StringUtil.prefixString(configLocations, currentClassPath);
+			super.load(logLevel, configLocations);
+			Anole.initialized = true;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
   
 }
