@@ -1,5 +1,7 @@
 package org.tbwork.anole.loader.util;
 
+import java.util.regex.Matcher;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.Anole;
@@ -38,7 +40,7 @@ public class AnoleLogger {
 		return anoleLogLevel.code() <= LogLevel.DEBUG.code();
 	}
 	
-	private static void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){
+	private static void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){ 
 		if(anoleLogLevel.code() >= logLevel.code() ){
 			String output = baseInfo.replace("{}", placeHolderChar+""); 
 			for(Object variable : variables){
@@ -48,7 +50,7 @@ public class AnoleLogger {
 				if(index == -1){
 					break;
 				}
-				output = output.replaceFirst(placeHolderChar+"", variable.toString());
+				output = output.replaceFirst(placeHolderChar+"", Matcher.quoteReplacement(variable.toString()));
 			}
 			System.out.println(output);
 		}
