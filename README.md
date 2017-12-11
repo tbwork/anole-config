@@ -26,15 +26,15 @@ For maven, import it using:
 ```
 
 ## 2 Specify the runtime environment. There are 3 ways to specify the runtime enviroment.
-### Option 1: Create an enviroment file in your disk.
+Option 1: Create an enviroment file in your disk.**
  * For windows: create a $env.env (e.g. test.env) file under `C://anole/`
  * For Linux: create a $env.env (e.g. dev.env) file under `/etc/anole/`
  * For Max: create a $env.env (e.g. production.env) file under `/Users/anole/`
-### Option 2: Specify a VM parameter named **"anole.runtime.currentEnvironment"** when you start java application, for example:
+Option 2: Specify a VM parameter named **"anole.runtime.currentEnvironment"** when you start java application, for example:
 ```
   java -Danole.runtime.currentEnvironment=test -jar XXX.jar
 ```
-### Option 3: Set the operating system environment variable named **"anole.runtime.currentEnvironment"**
+Option 3: Set the operating system environment variable named **"anole.runtime.currentEnvironment"**
  
 ## 3 Create an anole config file in your **classpath** like:
 
