@@ -1,5 +1,3 @@
-#anole
-=======
 # Anole-Loader
 
 # What it is
