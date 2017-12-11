@@ -57,7 +57,7 @@ For maven, import it using:
   ```
   Within the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
   
-## 4 Start your java instance as an Anole application.
+## 4 Start your java program as an Anole application.
 
 (1) Use the annotation of **@AnoleConfigLocation**
 ```
