@@ -15,8 +15,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <junit.version>3.8.1</junit.version>
-    <anole.infrastructure.version>0.0.1-SNAPSHOT</anole.infrastructure.version>
-    <anole.loader.version>0.0.1-SNAPSHOT</anole.loader.version>
+    <anole.infrastructure.version>0.0.1-SNAPSHOT</anole.infrastructure.version> 
   </properties>
   <dependencies> 
     <dependency>
@@ -29,11 +28,6 @@
       <groupId>org.tbwork.anole</groupId>
       <artifactId>anole-infrastructure</artifactId>
       <version>${anole.infrastructure.version}</version>
-    </dependency>
-    <dependency>
-		<groupId>org.tbwork.anole</groupId>
-		<artifactId>anole-loader</artifactId>
-		<version>${anole.loader.version}</version>
-	</dependency> 
+    </dependency> 
   </dependencies>
 </project>

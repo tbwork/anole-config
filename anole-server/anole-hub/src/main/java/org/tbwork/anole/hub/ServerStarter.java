@@ -7,8 +7,8 @@ import org.tbwork.anole.hub.server.boss._4_publisher.BossServer4PublisherStarter
 import org.tbwork.anole.hub.server.boss._4_subscriber.BossServer4SubscriberStarter; 
 import org.tbwork.anole.hub.server.boss._4_worker.BossServer4WorkerStarter; 
 import org.tbwork.anole.hub.server.worker.subscriber.WorkerServer4SubscriberStarter;
+import org.tbwork.anole.loader.core.AnoleApp;
 import org.tbwork.anole.loader.core.AnoleLoader;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
 import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
 
 import com.alibaba.fastjson.parser.ParserConfig;
@@ -34,7 +34,7 @@ public class ServerStarter
     	BossServer4SubscriberStarter bossServer4SubscriberStarter = (BossServer4SubscriberStarter) context.getBean("bossServer4SubscriberStarter");
     	BossServer4PublisherStarter bossServer4PublisherStarter = (BossServer4PublisherStarter) context.getBean("bossServer4PublisherStarter");
  
-    	String serverName =  AnoleLocalConfig.getProperty("serverName");
+    	String serverName =  AnoleApp.getProperty("serverName");
         if(serverName == null || serverName.isEmpty())
         	serverName = AnoleLocalConfig.getProperty("anole.server.type");
         if(serverName == null || serverName.isEmpty()){

@@ -2,6 +2,7 @@ package org.tbwork.anole.loader.core.impl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Scanner; 
 import org.tbwork.anole.loader.types.ConfigType; 
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
@@ -39,28 +40,22 @@ public class AnoleConfigFileParser {
 	 */
 	private String configEnv;
 	
-	private String currentFileFullPath;
+	private String currentFileName;
 	
 	public static AnoleConfigFileParser instance(){
 		return anoleConfigFileParser;
 	}
 	
-	public void parse(File file) {
+	public void parse(InputStream is, String fileName) {
 		if(sysEnv == null || sysEnv.isEmpty())
 			throw new EnvironmentNotSetException();
 		lineNumber = 0;
-		configEnv = "all";//default environment is all
-		currentFileFullPath = file.getAbsolutePath();
-		try{
-			Scanner s = new Scanner(file);  
-			while(s.hasNextLine()){
-				lineNumber++;
-				parseLine(StringUtil.trim(s.nextLine()));
-			}
-		}
-		catch(FileNotFoundException e)
-		{
-			throw new ConfigFileNotExistException(file.getPath());
+		configEnv = "all";//default environment is all 
+		Scanner s = new Scanner(is);  
+		currentFileName = fileName;
+		while(s.hasNextLine()){
+			lineNumber++;
+			parseLine(StringUtil.trim(s.nextLine()));
 		} 
 	}
 	
@@ -83,7 +78,7 @@ public class AnoleConfigFileParser {
 		if(sysEnv.equals(configEnv) || "all".equals(configEnv)){
 			String [] tkArray = tk.split(":");  
 			if(tkArray.length >2)
-				throw new ErrorSyntaxException(lineNumber, currentFileFullPath, "To many ':' symbols in the line.");
+				throw new ErrorSyntaxException(lineNumber, currentFileName, "To many ':' symbols in the line.");
 			String t = "s";
 			String k = tk; 
 			if(tkArray.length == 2){
@@ -103,7 +98,7 @@ public class AnoleConfigFileParser {
 					lcm.setConfigItem(k, v, ConfigType.NUMBER);
 				}break;
 				default:{
-					throw new ErrorSyntaxException(lineNumber, currentFileFullPath, "Unknow value type : " + t);
+					throw new ErrorSyntaxException(lineNumber, currentFileName, "Unknow value type : " + t);
 				} 
 			} 
 		}   
@@ -133,6 +128,8 @@ public class AnoleConfigFileParser {
 		if(!file.exists()){
 			//check if the environment is already set or not
 			sysEnv = System.getProperty("anole.runtime.currentEnvironment");
+			if(sysEnv == null)
+				sysEnv = System.getenv("anole.runtime.currentEnvironment");
 			if(sysEnv != null)
 				return ;
 			throw new EnvironmentNotSetException();
@@ -153,7 +150,7 @@ public class AnoleConfigFileParser {
 	private String [] separateKV(String kvString){
 		int index = kvString.indexOf('='); 
 		if(index < 0 )
-			throw new ErrorSyntaxException(lineNumber, currentFileFullPath, "Could not find the '=' symbol.");
+			throw new ErrorSyntaxException(lineNumber, currentFileName, "Could not find the '=' symbol.");
 		else
 			return Lists.newArrayList(kvString.substring(0, index), kvString.substring(index+1)).toArray(new String[2]);
 	}

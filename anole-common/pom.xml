@@ -15,7 +15,7 @@
     <netty.version>5.0.0.Alpha1</netty.version>
     <junit.version>4.12</junit.version>
     <lombok.version>1.16.8</lombok.version>
-    <anole.loader.version>0.0.1</anole.loader.version>
+    <anole.loader.version>1.1.6</anole.loader.version>
   </properties>
 
   <dependencies>

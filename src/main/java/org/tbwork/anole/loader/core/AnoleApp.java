@@ -20,28 +20,21 @@ public class AnoleApp {
 	}
 	
 	public static void start(){
-		Class<?> runtimeClass = getRootClassByStackTrace();
-		AnoleLoader anoleLoader = new AnoleClasspathLoader(); 
-		if(runtimeClass!=null && runtimeClass.isAnnotationPresent(AnoleConfigLocation.class)){
-			AnoleConfigLocation anoleConfigFiles = runtimeClass.getAnnotation(AnoleConfigLocation.class); 
-			if(!anoleConfigFiles.locations().isEmpty()){
-				anoleLoader.load(anoleConfigFiles.locations().split(","));
-				return;
-			} 
-		}
-		anoleLoader.load();
+		start(AnoleLogger.defaultLogLevel);
 	}
 	
 	private static Class<?> getRootClassByStackTrace(){
-		StackTraceElement[] elements = Thread.currentThread().getStackTrace();
-		String className =  elements[elements.length-1].getClassName();
 		try {
-			return Class.forName(className);
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
+			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
+			for (StackTraceElement stackTraceElement : stackTrace) {
+				if ("main".equals(stackTraceElement.getMethodName())) {
+					return Class.forName(stackTraceElement.getClassName());
+				}
+			}
 		}
-	}
-	
+		catch (ClassNotFoundException ex) {
+			// Swallow and continue
+		}
+		return null;
+	} 
 }

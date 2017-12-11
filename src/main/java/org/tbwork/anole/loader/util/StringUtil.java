@@ -20,7 +20,7 @@ public class StringUtil {
 	  * return false;
 	  */
 	 public static boolean asteriskMatch(String asteriskString, String targetString){
-		  String asteriskRegex = asteriskString.replace("*", ".*");
+		  String asteriskRegex = asteriskString.replace(".", "\\.").replace("*", ".*");
 		  Pattern pattern = Pattern.compile(asteriskRegex);
 		  Matcher matcher = pattern.matcher(targetString);
 		  return matcher.matches(); 
@@ -135,6 +135,8 @@ public class StringUtil {
 //		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){
 //			 System.out.println(item);
 //		 } 
-		 System.out.println(replaceEscapeChars("\\@\\{\\}"));
+		// System.out.println(replaceEscapeChars("\\@\\{\\}"));
+		 System.out.println(asteriskMatch("/*/*.txt","/b/btxt")); 
+		
 	 }
 }
