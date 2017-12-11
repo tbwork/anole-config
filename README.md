@@ -108,7 +108,7 @@ Configure the below lines in web.xml
 	Anole.getShortProperty("key-name");
 ```
 
-## 6 Spring support properties
+## 6 Support Spring
 
 First, enable the Spring placeholder function by adding below codes to the spring configuration files(e.g. context.xml):
 ```
