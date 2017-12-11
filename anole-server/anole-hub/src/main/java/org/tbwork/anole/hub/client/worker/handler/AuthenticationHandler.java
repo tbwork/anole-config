@@ -18,8 +18,8 @@ import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
-import org.tbwork.anole.hub.client.IAnoleWorkerClient; 
-import org.tbwork.anole.loader.core.AnoleLocalConfig;  
+import org.tbwork.anole.hub.client.IAnoleWorkerClient;
+import org.tbwork.anole.loader.core.Anole;  
 @Sharable
 public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>  {
 
@@ -69,8 +69,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	
 	private CommonAuthenticationMessage getAuthInfo(){
 		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
-    	authBody.setUsername(AnoleLocalConfig.getProperty("worker.username", "tommy.tang"));
-    	authBody.setPassword(AnoleLocalConfig.getProperty("worker.password", "123456")); 
+    	authBody.setUsername(Anole.getProperty("worker.username", "tommy.tang"));
+    	authBody.setPassword(Anole.getProperty("worker.password", "123456")); 
     	return authBody;
 	}
     

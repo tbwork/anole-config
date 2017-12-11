@@ -15,8 +15,7 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
      <fastjson.version>1.1.15</fastjson.version>
-     <servlet.api.version>2.5</servlet.api.version>
-     <anole.loader.version>1.0.2-SNAPSHOT</anole.loader.version>
+     <servlet.api.version>2.5</servlet.api.version> 
   </properties>
   <dependencies>
     <dependency>
@@ -34,11 +33,6 @@
 		<groupId>javax.servlet</groupId>
 		<artifactId>servlet-api</artifactId>
 		<version>${servlet.api.version}</version>
-	</dependency> 
-	<dependency>
-		<groupId>org.tbwork.anole</groupId>
-		<artifactId>anole-loader</artifactId>
-		<version>${anole.loader.version}</version>
-	</dependency> 
+	</dependency>
   </dependencies>
 </project>

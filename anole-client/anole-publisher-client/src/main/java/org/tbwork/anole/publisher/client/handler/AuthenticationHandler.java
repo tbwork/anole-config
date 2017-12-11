@@ -18,7 +18,7 @@ import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.CommonAuthenticationMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthFailAndCloseMessage;
 import org.tbwork.anole.common.message.s_2_c.AuthPassWithTokenMessage;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.publisher.client.IAnolePublisherClient;
 import org.tbwork.anole.publisher.client.StaticClientConfig;
 import org.tbwork.anole.publisher.client.impl.AnolePublisherClient; 
@@ -34,8 +34,8 @@ public class AuthenticationHandler extends  SimpleChannelInboundHandler<Message>
 	} 
 	private CommonAuthenticationMessage getAuthInfo(){
 		CommonAuthenticationMessage authBody=new CommonAuthenticationMessage();
-		String username = AnoleLocalConfig.getProperty("anole.client.publisher.username", "tangbo");
-		String password = AnoleLocalConfig.getProperty("anole.client.publisher.password", "123");
+		String username = Anole.getProperty("anole.client.publisher.username", "tangbo");
+		String password = Anole.getProperty("anole.client.publisher.password", "123");
     	authBody.setUsername(username);
     	authBody.setPassword(password); 
     	authBody.setClientType(ClientType.PUBLISHER);

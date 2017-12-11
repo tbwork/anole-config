@@ -22,7 +22,6 @@
         <anole.common.version>0.0.1-SNAPSHOT</anole.common.version>
         <anole.infrastructure.version>0.0.1-SNAPSHOT</anole.infrastructure.version>
         <anole.publisher.version>0.0.1-SNAPSHOT</anole.publisher.version>
-        <anole.loader.version>0.0.1-SNAPSHOT</anole.loader.version>
         <aspectj.version>1.5.4</aspectj.version>
         <commons-codec.version>1.9</commons-codec.version>
     </properties>
@@ -53,12 +52,7 @@
         <groupId>org.tbwork.anole</groupId>
         <artifactId>anole-publisher-client</artifactId>
         <version>${anole.publisher.version}</version>
-    </dependency>
-    <dependency>
-        <groupId>org.tbwork.anole</groupId>
-        <artifactId>anole-loader</artifactId>
-        <version>${anole.loader.version}</version>
-    </dependency>
+    </dependency> 
      <dependency>
 		<groupId>org.projectlombok</groupId>
 		<artifactId>lombok</artifactId>

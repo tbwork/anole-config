@@ -14,7 +14,7 @@ import org.tbwork.anole.common.message.c_2_s.worker_2_boss.WorkerPingMessage;
 import org.tbwork.anole.hub.client.worker.AnoleWorkerClient;
 import org.tbwork.anole.hub.server.lccmanager.impl.WorkerClientManagerForBoss;
 import org.tbwork.anole.hub.server.worker.subscriber.AnoleSubscriberManagerWorkerServer;
-import org.tbwork.anole.loader.core.AnoleLocalConfig; 
+import org.tbwork.anole.loader.core.Anole;
 
 public class PingTask extends TimerTask {
 
@@ -45,7 +45,7 @@ public class PingTask extends TimerTask {
 		if(!client.isConnected())
 			client.connect();
 		WorkerPingMessage workerPingMessage = new WorkerPingMessage();
-		workerPingMessage.setWeight(AnoleLocalConfig.getIntProperty("worker.weight", WorkerClientConfig.WEIGHT));
+		workerPingMessage.setWeight(Anole.getIntProperty("worker.weight", WorkerClientConfig.WEIGHT));
 		workerPingMessage.setSubscriberClientCount(workerClientManagerForBoss.getClientCount());
 		if(logger.isInfoEnabled()){
 			client.sendMessageWithListeners(workerPingMessage, 

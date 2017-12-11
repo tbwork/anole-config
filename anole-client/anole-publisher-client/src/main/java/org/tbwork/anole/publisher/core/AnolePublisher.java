@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.c_2_s.publisher_2_boss.ModifyConfigMessage;
 import org.tbwork.anole.common.model.ConfigModifyResultDTO;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.publisher.client.IAnolePublisherClient;
 import org.tbwork.anole.publisher.client.StaticClientConfig;
 import org.tbwork.anole.publisher.client.impl.AnolePublisherClient;
@@ -24,7 +24,7 @@ import com.google.common.base.Preconditions;
  * Used in the web GUI.
  * @author tommy.tang
  */
-public class AnolePublisher extends AnoleLocalConfig{
+public class AnolePublisher extends Anole{
 	
 	private static final IAnolePublisherClient client = AnolePublisherClient.instance();
 	
@@ -33,7 +33,7 @@ public class AnolePublisher extends AnoleLocalConfig{
 	public static Object writeLock = new Object();
 	public static volatile boolean writing;
 	public static volatile ConfigModifyResultDTO operationResult;
-	public static ExecutorService executor = Executors.newFixedThreadPool(AnoleLocalConfig.getIntProperty("anole.client.publisher.write.thread.count", 20));
+	public static ExecutorService executor = Executors.newFixedThreadPool(Anole.getIntProperty("anole.client.publisher.write.thread.count", 20));
 	
 	public static ConfigChangeResponse edit(ConfigChangeRequest ccr){
 		Preconditions.checkArgument(ccr.getOperator()!=null && !ccr.getOperator().isEmpty(), "Operator must be specified.");

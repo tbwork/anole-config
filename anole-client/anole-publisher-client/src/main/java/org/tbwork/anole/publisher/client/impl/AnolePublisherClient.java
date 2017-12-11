@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.tbwork.anole.common.message.Message;
 import org.tbwork.anole.common.message.MessageType;
 import org.tbwork.anole.common.message.c_2_s.C2SMessage; 
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole;
 import org.tbwork.anole.publisher.client.AnoleClientConfig;
 import org.tbwork.anole.publisher.client.ConnectionMonitor;
 import org.tbwork.anole.publisher.client.IAnolePublisherClient;
@@ -360,11 +360,11 @@ public class AnolePublisherClient implements IAnolePublisherClient{
 	
 	 
 	private String getProperty(ClientProperties clientProperties){
-    	return AnoleLocalConfig.getProperty(clientProperties.name, clientProperties.defaultValue);
+    	return Anole.getProperty(clientProperties.name, clientProperties.defaultValue);
 	}
 	    
     private int getIntProerty(ClientProperties clientProperties){
-    	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
+    	return Anole.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
     }
 
 	@Override

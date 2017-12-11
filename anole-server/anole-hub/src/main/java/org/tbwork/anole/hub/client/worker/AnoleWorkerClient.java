@@ -25,7 +25,7 @@ import org.tbwork.anole.hub.server.boss._4_publisher.handler.MainLogicHandler;
 import org.tbwork.anole.hub.server.boss._4_publisher.handler.NewConnectionHandler;
 import org.tbwork.anole.hub.server.lccmanager.impl.SubscriberClientManagerForWorker;
 import org.tbwork.anole.hub.server.lccmanager.impl.WorkerClientManagerForBoss;
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -282,11 +282,11 @@ public class AnoleWorkerClient implements IAnoleWorkerClient{
 	}
 	 
 	private String getProperty(ClientProperties clientProperties){
-    	return AnoleLocalConfig.getProperty(clientProperties.name, clientProperties.defaultValue);
+    	return Anole.getProperty(clientProperties.name, clientProperties.defaultValue);
 	}
 	    
     private int getIntProerty(ClientProperties clientProperties){
-    	return AnoleLocalConfig.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
+    	return Anole.getIntProperty(clientProperties.name, Integer.valueOf(clientProperties.defaultValue));
     }
 	
     

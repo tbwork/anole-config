@@ -1,16 +1,8 @@
 package org.tbwork.anole.hub.util;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
-import org.tbwork.anole.loader.core.AnoleLocalConfig;
+import org.tbwork.anole.loader.core.Anole; 
 
 import com.google.common.hash.Hasher;
 import com.google.common.hash.Hashing;
@@ -34,7 +26,7 @@ public class StringUtil {
     
     public static String [] getPorts(String propertyName, String defaults){
     	try{
-    		String portsString = AnoleLocalConfig.getProperty(propertyName, defaults);
+    		String portsString = Anole.getProperty(propertyName, defaults);
         	String [] ports = portsString.split(","); 
     		ports[1] = ports[1];
     		return ports;

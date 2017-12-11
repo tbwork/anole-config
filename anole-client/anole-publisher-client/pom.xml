@@ -14,8 +14,7 @@
   <url>http://maven.apache.org</url>
   <properties>
      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
-     <fastjson.version>1.1.15</fastjson.version> 
-     <anole.loader.version>0.0.1-SNAPSHOT</anole.loader.version>
+     <fastjson.version>1.1.15</fastjson.version>
   </properties>
   <dependencies>
      <dependency>
@@ -28,11 +27,6 @@
 		<groupId>com.alibaba</groupId>
 		<artifactId>fastjson</artifactId>
 		<version>${fastjson.version}</version>
-	</dependency>  
-	<dependency>
-		<groupId>org.tbwork.anole</groupId>
-		<artifactId>anole-loader</artifactId>
-		<version>${anole.loader.version}</version>
-	</dependency> 
+	</dependency>
   </dependencies>
 </project>
