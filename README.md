@@ -5,7 +5,7 @@
 An awesome congurations loader for java. 
 
 # Why we need it.
-In enterprise java development, we use different kinds of third-party frameworks like Spring, Log4j, etc. to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and file-name, it would be annoying if you manage those files together. 
+In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc. to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and file-name, it would be annoying if you manage those files together. 
 Futhermore, in no longer future, we will propose our web-server-version Anole system (based on this local version) with which you can modify your configuration dynamically via a web UI.
 
 # What does it support
@@ -13,23 +13,28 @@ Futhermore, in no longer future, we will propose our web-server-version Anole sy
 It supports many kinds of property-files which are required in runtime, even those properties are used in the third-party frameworks.
 # How to use it
 
-1 Add this anole-loader to your build path by manual or maven dependency.
+##1 Add this anole-loader to your build path by manual or maven dependency.
 For maven, import it using:
 ```
 <dependency>
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.1.0</version>
+  <version>1.1.6</version>
 </dependency>
 ```
 
-2 Create an enviroment file in your disk.
-
- * For windows: create a $env.env file under `C://anole/`
- * For Linux: create a $env.env file under `/etc/anole/`
- * For Max: create a $env.env file under `/Users/anole/`
+##2 Specify the runtime environment. There are 3 ways to specify the runtime enviroment.
+###Option 1: Create an enviroment file in your disk.
+ * For windows: create a $env.env (e.g. test.env) file under `C://anole/`
+ * For Linux: create a $env.env (e.g. dev.env) file under `/etc/anole/`
+ * For Max: create a $env.env (e.g. production.env) file under `/Users/anole/`
+###Option 2: Specify a VM parameter named **"anole.runtime.currentEnvironment"** when you start your java application, for example:
+```
+  java -Danole.runtime.currentEnvironment=test -jar XXX.jar
+```
+###Option 3: Set the operating system environment variable named **"anole.runtime.currentEnvironment"**
  
-3 Create an anole config file in your **classpath** like:
+##3 Create an anole config file in your **classpath** like:
 
   ```
   #env:all
