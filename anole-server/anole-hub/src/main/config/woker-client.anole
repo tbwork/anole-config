@@ -1,3 +1,0 @@
-#env:all
-worker.username=worker1
-worker.password=123456
