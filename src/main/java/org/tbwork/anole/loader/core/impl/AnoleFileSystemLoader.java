@@ -121,8 +121,8 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 	
 	// input like : D://prject/a.jar!/BOOT-INF!/classes!/*.properties
 	private void loadFileFromJar(String fileFullPath){
-	    String jarPath = ProjectUtil.getJarPath(fileFullPath); 
-	    String directRelativePath = fileFullPath.replace(jarPath, "").replace("!/", "");
+		String jarPath = ProjectUtil.getJarPath(fileFullPath)+"/"; 
+	    String directRelativePath = fileFullPath.replace("!", "").replace(jarPath, "");
 	    JarFile file;
 		try {
 			file = new JarFile(jarPath);
@@ -140,4 +140,5 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			e.printStackTrace();
 		} 
 	}
+	 
 }

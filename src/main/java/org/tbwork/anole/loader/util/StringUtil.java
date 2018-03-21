@@ -136,7 +136,7 @@ public class StringUtil {
 //			 System.out.println(item);
 //		 } 
 		// System.out.println(replaceEscapeChars("\\@\\{\\}"));
-		 System.out.println(asteriskMatch("/*/*.txt","/b/btxt")); 
+		 System.out.println(asteriskMatch("/BOOT-INF/classes/*.properties","BOOT-INF/classes/env-dev.properties")); 
 		
 	 }
 }
