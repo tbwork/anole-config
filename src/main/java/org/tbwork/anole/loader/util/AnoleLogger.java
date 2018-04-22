@@ -11,7 +11,7 @@ public class AnoleLogger {
 
 	public static volatile LogLevel anoleLogLevel;
 	
-	private static Logger logger = null;
+	private static Logger logger = LoggerFactory.getLogger(AnoleLogger.class);;
 	
 	public static LogLevel defaultLogLevel = LogLevel.INFO;
 	
@@ -60,14 +60,7 @@ public class AnoleLogger {
 		if(!Anole.initialized){
 			coreLog(LogLevel.DEBUG, baseInfo, variables);
 		}
-		else{
-			if(logger == null){
-				synchronized(AnoleLogger.class){
-					if(logger == null){
-						logger = LoggerFactory.getLogger(AnoleLogger.class);
-					}
-				}
-			}
+		else{ 
 			logger.debug(baseInfo, variables);
 		}
 	}
@@ -76,14 +69,7 @@ public class AnoleLogger {
 		if(!Anole.initialized){
 			coreLog(LogLevel.INFO, baseInfo, variables);
 		}
-		else{
-			if(logger == null){
-				synchronized(AnoleLogger.class){
-					if(logger == null){
-						logger = LoggerFactory.getLogger(AnoleLogger.class);
-					}
-				}
-			}
+		else{ 
 			logger.info(baseInfo, variables);
 		}
 	}
@@ -92,14 +78,7 @@ public class AnoleLogger {
 		if(!Anole.initialized){
 			coreLog(LogLevel.WARN, baseInfo, variables);
 		}
-		else{
-			if(logger == null){
-				synchronized(AnoleLogger.class){
-					if(logger == null){
-						logger = LoggerFactory.getLogger(AnoleLogger.class);
-					}
-				}
-			}
+		else{ 
 			logger.warn(baseInfo, variables);
 		}
 	}
@@ -108,14 +87,7 @@ public class AnoleLogger {
 		if(!Anole.initialized){
 			coreLog(LogLevel.ERROR, baseInfo, variables);
 		}
-		else{
-			if(logger == null){
-				synchronized(AnoleLogger.class){
-					if(logger == null){
-						logger = LoggerFactory.getLogger(AnoleLogger.class);
-					}
-				}
-			}
+		else{ 
 			logger.error(baseInfo, variables);
 		}
 	}
@@ -124,14 +96,7 @@ public class AnoleLogger {
 		if(!Anole.initialized){
 			coreLog(LogLevel.FATAL, baseInfo, variables);
 		}
-		else{
-			if(logger == null){
-				synchronized(AnoleLogger.class){
-					if(logger == null){
-						logger = LoggerFactory.getLogger(AnoleLogger.class);
-					}
-				}
-			}
+		else{ 
 			logger.error(baseInfo, variables);
 		}
 	}
