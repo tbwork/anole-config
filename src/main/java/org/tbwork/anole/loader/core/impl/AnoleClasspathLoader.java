@@ -14,12 +14,25 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 public class AnoleClasspathLoader extends AnoleFileSystemLoader{ 
 	
 	private AnoleLogger logger;
-			
+	
+	private boolean testMode = false;
+	
 	private AnoleConfigFileParser acfParser = AnoleConfigFileParser.instance(); 
 	  
 	public AnoleClasspathLoader(){
 		super();
 	}
+	
+	
+	/**
+	 * Used to decide to load configuration files from test class-path.
+	 * @param testMode <b>true</b> if you want to load configuration files from test class-path,
+	 * <b>otherwise</b> from main class-path.
+	 */
+	public AnoleClasspathLoader(boolean testMode){
+		this.testMode = testMode;
+	}
+	
 	
 	public AnoleClasspathLoader(ConfigManager cm){
 		super(cm);
@@ -37,6 +50,7 @@ public class AnoleClasspathLoader extends AnoleFileSystemLoader{
 		try {
 			URL classPathUrl = Thread.currentThread().getContextClassLoader().getResource(""); 
 			currentClassPath = ProjectUtil.getUrlLocalPath(classPathUrl); 
+			if(!testMode) currentClassPath = currentClassPath.replace("test-classes", "classes");
 			configLocations = StringUtil.prefixString(configLocations, currentClassPath);
 			super.load(logLevel, configLocations);
 			Anole.initialized = true;
