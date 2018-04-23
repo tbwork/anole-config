@@ -11,7 +11,7 @@ public class AnoleLogger {
 
 	public static volatile LogLevel anoleLogLevel;
 	
-	private static Logger logger = LoggerFactory.getLogger(AnoleLogger.class);;
+	private static Logger logger = null;
 	
 	public static LogLevel defaultLogLevel = LogLevel.INFO;
 	
@@ -61,7 +61,7 @@ public class AnoleLogger {
 			coreLog(LogLevel.DEBUG, baseInfo, variables);
 		}
 		else{ 
-			logger.debug(baseInfo, variables);
+			getLogger().debug(baseInfo, variables);
 		}
 	}
 	
@@ -70,7 +70,7 @@ public class AnoleLogger {
 			coreLog(LogLevel.INFO, baseInfo, variables);
 		}
 		else{ 
-			logger.info(baseInfo, variables);
+			getLogger().info(baseInfo, variables);
 		}
 	}
 
@@ -79,7 +79,7 @@ public class AnoleLogger {
 			coreLog(LogLevel.WARN, baseInfo, variables);
 		}
 		else{ 
-			logger.warn(baseInfo, variables);
+			getLogger().warn(baseInfo, variables);
 		}
 	}
 
@@ -88,7 +88,7 @@ public class AnoleLogger {
 			coreLog(LogLevel.ERROR, baseInfo, variables);
 		}
 		else{ 
-			logger.error(baseInfo, variables);
+			getLogger().error(baseInfo, variables);
 		}
 	}
 	
@@ -97,8 +97,18 @@ public class AnoleLogger {
 			coreLog(LogLevel.FATAL, baseInfo, variables);
 		}
 		else{ 
-			logger.error(baseInfo, variables);
+			getLogger().error(baseInfo, variables);
 		}
 	}
 	
+	
+	private static Logger getLogger(){
+		if(logger == null){
+			synchronized(AnoleLogger.class){
+				if(logger == null)
+					logger = LoggerFactory.getLogger(AnoleLogger.class);
+			}
+		}
+		return logger; 
+	}
 }
