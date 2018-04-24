@@ -5,7 +5,9 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -16,9 +18,15 @@ import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
 import org.tbwork.anole.loader.util.StringUtil;
+
+import com.google.common.collect.Lists;
+
+import lombok.Data;
+
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.ProjectUtil;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
+import org.tbwork.anole.loader.util.FileUtil;
 import org.tbwork.anole.loader.util.SingletonFactory; 
 
 public class AnoleFileSystemLoader implements AnoleLoader{ 
@@ -71,7 +79,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 				// never goes here
 			}
 		}
-		
+		// get resource stream in jar
 		InputStream fileInJarStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(filepath);
 		if(fileInJarStream!=null)
 			return fileInJarStream;
@@ -88,36 +96,61 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			loadFileFromDirectory(fileFullPath);
 		}
 	} 
+	 
 	
-	private void loadFileFromDirectory(String fileFullPath){
-		String cl = fileFullPath.replaceAll("/+", "/"); 
-		int dirTailIndex = cl.length()-1;
-		for(; dirTailIndex>=0; dirTailIndex--)
-		   if(cl.charAt(dirTailIndex)=='/')
-			   break; 
-		String filename = cl.substring(dirTailIndex+1);
+	private static class AnoleFilePath {
+		private List<String> pathPartList;
 		
-		if(!filename.contains("*")){
-			acfParser.parse(newInputStream(fileFullPath), filename);
+		public AnoleFilePath(String fullPath){
+			pathPartList = Lists.newArrayList(fullPath.split("\\\\|/"));
+		}
+		
+		public boolean  isFuzzyDirectory(){
+			int i = 0;
+			for(i = 0; i < pathPartList.size(); i++){
+				if(pathPartList.get(i).contains("*")){
+					break;
+				}
+			}
+			return i < pathPartList.size()-1;
+		}
+		
+		public String getSolidDirectory(){
+			int i = 0;
+			for(i = 0; i < pathPartList.size(); i++){
+				if(pathPartList.get(i).contains("*")){
+					break;
+				}
+			}
+			return StringUtil.join("/", pathPartList.subList(0, Math.min(i, pathPartList.size()-1))) + "/";
+		}
+	}
+
+	
+	private void loadFileFromDirectory(String fileFullPath){ 
+		if(!fileFullPath.contains("*")){
+			acfParser.parse(newInputStream(fileFullPath), fileFullPath);
 		}
 		else
 		{ 
-			String dirPath = cl.substring(0, dirTailIndex+1);
-			if(dirPath.isEmpty())
-			   throw new ConfigFileNotExistException(fileFullPath); 
-			File file=new File(dirPath);
-			if(!file.exists())
-			   throw new ConfigFileDirectoryNotExistException(dirPath);
-			File[] fileList = file.listFiles();
-			for (int i = 0; i < fileList.length; i++) {
-			   String tfname = fileList[i].getName();
-			   if(StringUtil.asteriskMatch(filename,tfname))
-			   {
-				   acfParser.parse(newInputStream(dirPath+tfname), dirPath+tfname);
-			   }
+			AnoleFilePath afp = new AnoleFilePath(fileFullPath);
+			if(afp.isFuzzyDirectory()){
+				AnoleLogger.warn("Use asterisk in directory is not recomended, e.g., D://a/*/*.txt. We hope you know that it will cause plenty cost of time to seek every matched file.");
+			}
+			String solidDirectory = afp.getSolidDirectory();
+			File directory = new File(solidDirectory);
+			if(!directory.exists())
+			   throw new ConfigFileDirectoryNotExistException(fileFullPath);
+			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
+			for(File file : files){
+				if(StringUtil.asteriskMatch(fileFullPath, file.getAbsolutePath())){
+					 acfParser.parse(newInputStream(fileFullPath), fileFullPath);
+				}
 			}
 		}
 	}
+	
+	
 	
 	// input like : D://prject/a.jar!/BOOT-INF!/classes!/*.properties
 	private void loadFileFromJar(String fileFullPath){
@@ -140,5 +173,6 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			e.printStackTrace();
 		} 
 	}
-	 
+	
+
 }

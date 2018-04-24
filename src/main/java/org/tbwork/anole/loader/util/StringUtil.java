@@ -131,12 +131,37 @@ public class StringUtil {
 		return input.replace("\\~", "~").replace("\\!", "!").replace("\\@", "@").replace("\\#", "#").replace("\\$", "$").replace("\\{", "{").replace("\\}", "}");
 	 }
 	 
+	 public static String join(String delimiter, String ...strings){
+		 if(strings.length == 0)
+			 return "";
+		 StringBuilder sb = new StringBuilder();  
+		 sb.append(strings[0]);
+		 for(int i = 1; i < strings.length; i++){
+			 sb.append(delimiter).append(strings[i]);
+		 }
+		 return sb.toString();
+	 }
+	 
+	 
+	 public static String join(String delimiter, List<String> strings){
+		 if(strings.size() == 0)
+			 return "";
+		 StringBuilder sb = new StringBuilder(); 
+		 sb.append(strings.get(0));
+		 for(int i = 1; i < strings.size(); i++){
+			 sb.append(delimiter).append(strings.get(i));
+		 }
+		 return sb.toString();
+	 }
+	 
 	 public static void main(String[] args) { 
 //		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){
 //			 System.out.println(item);
 //		 } 
 		// System.out.println(replaceEscapeChars("\\@\\{\\}"));
-		 System.out.println(asteriskMatch("/BOOT-INF/classes/*.properties","BOOT-INF/classes/env-dev.properties")); 
+		 System.out.println(asteriskMatch("/BOOT-INF/*/*.properties","/BOOT-INF/classes/env-dev.properties")); 
+		 
+		 System.out.println(join("------"));
 		
 	 }
 }
