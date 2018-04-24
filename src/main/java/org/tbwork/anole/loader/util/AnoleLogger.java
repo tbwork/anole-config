@@ -37,11 +37,11 @@ public class AnoleLogger {
 	}
 	
 	public static boolean isDebugEnabled(){
-		return anoleLogLevel.code() <= LogLevel.DEBUG.code();
+		return anoleLogLevel.code() == LogLevel.DEBUG.code();
 	}
 	
 	private static void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){ 
-		if(anoleLogLevel.code() >= logLevel.code() ){
+		if(logLevel.code() >= anoleLogLevel.code()  ){
 			String output = baseInfo.replace("{}", placeHolderChar+""); 
 			for(Object variable : variables){
 				if(variable == null)
@@ -61,7 +61,7 @@ public class AnoleLogger {
 	 */
 	public static void debug(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.DEBUG, baseInfo, variables);
+			coreLog(LogLevel.DEBUG, "[DEBUG] "+baseInfo, variables);
 		}
 		else{ 
 			getLogger().debug(baseInfo, variables);
@@ -73,7 +73,7 @@ public class AnoleLogger {
 	 */
 	public static void info(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.INFO, baseInfo, variables);
+			coreLog(LogLevel.INFO, "[INFO] "+baseInfo, variables);
 		}
 		else{ 
 			getLogger().info(baseInfo, variables);
@@ -85,7 +85,7 @@ public class AnoleLogger {
 	 */
 	public static void warn(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.WARN, baseInfo, variables);
+			coreLog(LogLevel.WARN, "[WARN] "+baseInfo, variables);
 		}
 		else{ 
 			getLogger().warn(baseInfo, variables);
@@ -97,7 +97,7 @@ public class AnoleLogger {
 	 */
 	public static void error(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.ERROR, baseInfo, variables);
+			coreLog(LogLevel.ERROR, "[ERROR] "+baseInfo, variables);
 		}
 		else{ 
 			getLogger().error(baseInfo, variables);
@@ -109,7 +109,7 @@ public class AnoleLogger {
 	 */
 	public static void fatal(String baseInfo, String ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.FATAL, baseInfo, variables);
+			coreLog(LogLevel.FATAL, "[FATAL] "+baseInfo, variables);
 		}
 		else{ 
 			getLogger().error(baseInfo, variables);

@@ -34,7 +34,7 @@ public class StringUtil {
 	 public static String [] prefixString(String [] strs, String prefix){
 		List<String> result = new ArrayList<String>();
 		for(String str: strs){
-			result.add(prefix + str);
+			result.add(prefix + str.trim());
 		}
 		return result.toArray(strs);
 	 }
@@ -159,9 +159,8 @@ public class StringUtil {
 //			 System.out.println(item);
 //		 } 
 		// System.out.println(replaceEscapeChars("\\@\\{\\}"));
-		 System.out.println(asteriskMatch("/BOOT-INF/*/*.properties","/BOOT-INF/classes/env-dev.properties")); 
+		 System.out.println(asteriskMatch("/D:/Workspace/lcb/hapi-lcb-error-code.w/hapi-lcb-error-code/hapi-lcb-error-code/target/classes/config/*.*", "/D:/Workspace/lcb/hapi-lcb-error-code.w/hapi-lcb-error-code/hapi-lcb-error-code/target/classes/config/ip/application-dev.properties")); 
 		 
-		 System.out.println(join("------"));
-		
+		 
 	 }
 }

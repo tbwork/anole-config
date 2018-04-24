@@ -64,7 +64,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 	public void load(LogLevel logLevel, String... configLocations) {
 		AnoleLogger.anoleLogLevel = logLevel; 
 		for(String ifile : configLocations) 
-			 loadFile(ifile); 
+			 loadFile(ifile.trim()); 
 		Anole.initialized = true; 
 		cm.postProcess();
 		AnoleLogger.info("[:)] Anole configurations are loaded succesfully.");
@@ -88,6 +88,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 	}
 	
 	protected void loadFile(String fileFullPath){ 
+		fileFullPath = fileFullPath.trim();
 		AnoleLogger.debug("Loading config files matchs '{}'", fileFullPath);
 		if(fileFullPath.contains("!/")){ // For Spring Boot projects
 			loadFileFromJar(fileFullPath);
@@ -96,35 +97,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			loadFileFromDirectory(fileFullPath);
 		}
 	} 
-	 
-	
-	private static class AnoleFilePath {
-		private List<String> pathPartList;
-		
-		public AnoleFilePath(String fullPath){
-			pathPartList = Lists.newArrayList(fullPath.split("\\\\|/"));
-		}
-		
-		public boolean  isFuzzyDirectory(){
-			int i = 0;
-			for(i = 0; i < pathPartList.size(); i++){
-				if(pathPartList.get(i).contains("*")){
-					break;
-				}
-			}
-			return i < pathPartList.size()-1;
-		}
-		
-		public String getSolidDirectory(){
-			int i = 0;
-			for(i = 0; i < pathPartList.size(); i++){
-				if(pathPartList.get(i).contains("*")){
-					break;
-				}
-			}
-			return StringUtil.join("/", pathPartList.subList(0, Math.min(i, pathPartList.size()-1))) + "/";
-		}
-	}
+	  
 
 	
 	private void loadFileFromDirectory(String fileFullPath){ 
@@ -132,19 +105,18 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			acfParser.parse(newInputStream(fileFullPath), fileFullPath);
 		}
 		else
-		{ 
-			AnoleFilePath afp = new AnoleFilePath(fileFullPath);
-			if(afp.isFuzzyDirectory()){
+		{  
+			if(FileUtil.isFuzzyDirectory(fileFullPath)){
 				AnoleLogger.warn("Use asterisk in directory is not recomended, e.g., D://a/*/*.txt. We hope you know that it will cause plenty cost of time to seek every matched file.");
 			}
-			String solidDirectory = afp.getSolidDirectory();
+			String solidDirectory = FileUtil.getSolidDirectory(fileFullPath);
 			File directory = new File(solidDirectory);
 			if(!directory.exists())
 			   throw new ConfigFileDirectoryNotExistException(fileFullPath);
 			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
 			for(File file : files){
-				if(StringUtil.asteriskMatch(fileFullPath, file.getAbsolutePath())){
-					 acfParser.parse(newInputStream(fileFullPath), fileFullPath);
+				if(FileUtil.asteriskMatchPath(fileFullPath,  FileUtil.toLinuxStylePath(file.getAbsolutePath()))){
+					 acfParser.parse(newInputStream(file.getAbsolutePath()), file.getAbsolutePath());
 				}
 			}
 		}
@@ -163,7 +135,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			while(entrys.hasMoreElements()){
 		        JarEntry fileInJar = entrys.nextElement();
 		        String fileInJarName = fileInJar.getName();
-		        if(StringUtil.asteriskMatch(directRelativePath, fileInJarName)){
+		        if(FileUtil.asteriskMatchPath(directRelativePath, FileUtil.toLinuxStylePath(fileInJarName))){
 		        	AnoleLogger.debug("New config file ({}) was found. Parsing...", fileInJarName);
 					acfParser.parse(file.getInputStream(fileInJar), fileInJarName);
 				}

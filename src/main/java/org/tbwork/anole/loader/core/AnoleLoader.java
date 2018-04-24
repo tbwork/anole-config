@@ -20,9 +20,11 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
  * </pre>
  * <p> <b>Tips:</b> In order to let the other framework (like Spring,
  * Log4j, Log4j2, etc.) to load properties via Anole mechanism.
- * <p> <b>About LogLevel:</b> The anole does not use any log facade
+ * <p> <b>About LogLevel:</b> The anole does not use any log implement
  * in the startup stage, it only providers the standard output on the
- * console window. After startup, it would use SLF4J to print logs.
+ * console window. After startup, it would use SLF4J facade to print logs
+ * after when the logging framework (e.g., log4j,log4j2,log-back) you 
+ * configured will be used.
  * @author Tommy.Tang
  * @see AnoleLoader#load()
  * @see AnoleLoader#load(String...)
