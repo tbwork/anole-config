@@ -19,7 +19,7 @@ For maven, import it using:
 <dependency>
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.1.6</version>
+  <version>1.2.3</version>
 </dependency>
 ```
 

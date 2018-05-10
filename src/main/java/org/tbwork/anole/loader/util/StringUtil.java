@@ -154,6 +154,10 @@ public class StringUtil {
 		 return sb.toString();
 	 }
 	 
+	 public static boolean isNullOrEmpty(String inputString) {
+		 return inputString == null || inputString.isEmpty();
+	 }
+	 
 	 public static void main(String[] args) { 
 //		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){
 //			 System.out.println(item);

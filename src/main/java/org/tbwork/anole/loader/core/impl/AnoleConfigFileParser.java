@@ -130,7 +130,7 @@ public class AnoleConfigFileParser {
 			sysEnv = System.getProperty("anole.runtime.currentEnvironment");
 			if(sysEnv == null)
 				sysEnv = System.getenv("anole.runtime.currentEnvironment");
-			if(sysEnv != null)
+			if(sysEnv != null && !sysEnv.isEmpty())
 				return ;
 			throw new EnvironmentNotSetException();
 		}  

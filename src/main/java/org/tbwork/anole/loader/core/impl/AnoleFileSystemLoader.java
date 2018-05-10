@@ -5,9 +5,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Scanner;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -62,6 +65,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 	
 	@Override
 	public void load(LogLevel logLevel, String... configLocations) {
+		LogoUtil.decompress();
 		AnoleLogger.anoleLogLevel = logLevel; 
 		for(String ifile : configLocations) 
 			 loadFile(ifile.trim()); 
@@ -91,9 +95,11 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 		fileFullPath = fileFullPath.trim();
 		AnoleLogger.debug("Loading config files matchs '{}'", fileFullPath);
 		if(fileFullPath.contains("!/")){ // For Spring Boot projects
+			Anole.setRuningInJar(true);
 			loadFileFromJar(fileFullPath);
 		}
 		else{
+			Anole.setRuningInJar(false);
 			loadFileFromDirectory(fileFullPath);
 		}
 	} 
@@ -115,7 +121,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			   throw new ConfigFileDirectoryNotExistException(fileFullPath);
 			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
 			for(File file : files){
-				if(FileUtil.asteriskMatchPath(fileFullPath,  FileUtil.toLinuxStylePath(file.getAbsolutePath()))){
+				if(FileUtil.asteriskMatchPath(FileUtil.toLinuxStylePath(fileFullPath),  FileUtil.toLinuxStylePath(file.getAbsolutePath()))){
 					 acfParser.parse(newInputStream(file.getAbsolutePath()), file.getAbsolutePath());
 				}
 			}
@@ -135,7 +141,7 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			while(entrys.hasMoreElements()){
 		        JarEntry fileInJar = entrys.nextElement();
 		        String fileInJarName = fileInJar.getName();
-		        if(FileUtil.asteriskMatchPath(directRelativePath, FileUtil.toLinuxStylePath(fileInJarName))){
+		        if(FileUtil.asteriskMatchPath(FileUtil.toLinuxStylePath(directRelativePath), FileUtil.toLinuxStylePath(fileInJarName))){
 		        	AnoleLogger.debug("New config file ({}) was found. Parsing...", fileInJarName);
 					acfParser.parse(file.getInputStream(fileInJar), fileInJarName);
 				}
@@ -145,6 +151,41 @@ public class AnoleFileSystemLoader implements AnoleLoader{
 			e.printStackTrace();
 		} 
 	}
+	 
 	
+	
+	private static class  LogoUtil{
+		 public static void decompress(){
+			 InputStream in = AnoleFileSystemLoader.class.getResourceAsStream("/logo.cps"); 
+	    	 Scanner scanner = null;
+	    	 List<Integer> chars = new ArrayList<Integer>();
+			 try {
+				scanner = new Scanner(in); 
+				Integer width = Integer.valueOf(scanner.nextLine());
+				while(scanner.hasNextLine()){
+					String lineStr = scanner.nextLine();
+					String [] charAndRepeatCount = lineStr.split(",");
+					Integer targetChar =  Integer.valueOf(charAndRepeatCount[0]);
+					int repeatCount = Integer.valueOf(charAndRepeatCount[1]);
+					for(int i = 0; i < repeatCount ; i++){
+						chars.add(targetChar);
+					}
+				}
+				scanner.close();
+				print(chars, width);
+			 } catch (Exception e) {
+				AnoleLogger.debug("Can not paint logo due to {}", e.getMessage());
+			 } 
+		 }
+		    
+		    private static void print(List<Integer> chars, int length){
+		    	for(int i = 0 ; i< chars.size(); i++){
+		    		System.out.print(String.valueOf((char)chars.get(i).byteValue()));
+		    		if((i+1) % length ==0){
+		    			System.out.println("");
+		    		}
+		    	}
+		    }
+	}
 
 }

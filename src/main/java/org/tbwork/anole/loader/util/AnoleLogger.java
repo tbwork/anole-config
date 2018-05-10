@@ -9,7 +9,7 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 public class AnoleLogger {
 
-	public static volatile LogLevel anoleLogLevel;
+	public static volatile LogLevel anoleLogLevel = LogLevel.INFO; // default is INFO
 	
 	private static Logger logger = null;
 	

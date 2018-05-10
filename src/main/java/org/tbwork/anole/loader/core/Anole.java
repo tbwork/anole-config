@@ -2,6 +2,7 @@ package org.tbwork.anole.loader.core;
   
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
 import org.tbwork.anole.loader.util.SingletonFactory;
+import org.tbwork.anole.loader.util.StringUtil;
 
 import sun.misc.Unsafe;
  
@@ -19,8 +20,22 @@ public class Anole {
 	 */
 	public static boolean initialized = false;
 	
+	private static boolean runingInJar;
+	
 	public static String getCurrentEnvironment(){
 		return getProperty("anole.runtime.currentEnvironment");
+	}
+	
+	/**
+	 * Check whether the value of the key is existing and
+	 * not blank.
+	 * @param key the target key.
+	 * @return <b>true</b> if the corresponding value of the key is not existing 
+	 * or blank, otherwise return <b>false</b>.
+	 */
+	public static boolean isPropertyEmptyOrNotExist(String key) {
+		String value = getProperty(key);
+		return StringUtil.isNullOrEmpty(value);
 	}
 	
 	public static String getProperty(String key, String defaultValue){ 
@@ -91,6 +106,14 @@ public class Anole {
 	
 	public static boolean getBoolProperty(String key){
 		 return getBoolProperty(key, false);
+	}
+	
+	public static boolean runingInJar(){
+		return runingInJar;
+	}
+	
+	public static void setRuningInJar(boolean runingInJar){
+		Anole.runingInJar = runingInJar;
 	}
 	
 	protected static ConfigItem getConfig(String key, ConfigManager cm)

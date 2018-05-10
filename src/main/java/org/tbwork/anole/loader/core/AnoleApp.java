@@ -5,7 +5,8 @@ import org.tbwork.anole.loader.core.impl.AnoleClasspathLoader;
 import org.tbwork.anole.loader.util.AnoleLogger;
 
 public class AnoleApp {
-
+ 
+	
 	public static void start(AnoleLogger.LogLevel logLevel){
 		Class<?> runtimeClass =  getRootClassByStackTrace();
 		AnoleLoader anoleLoader = new AnoleClasspathLoader(); 
@@ -15,7 +16,7 @@ public class AnoleApp {
 				anoleLoader.load(logLevel, anoleConfigFiles.locations().split(","));
 				return;
 			}  
-		}
+		} 
 		anoleLoader.load(logLevel);
 	}
 	
