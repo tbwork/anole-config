@@ -28,7 +28,7 @@ public class Anole {
 	
 	/**
 	 * Check whether the value of the key is existing and
-	 * not blank.
+	 * not blank, or not.
 	 * @param key the target key.
 	 * @return <b>true</b> if the corresponding value of the key is not existing 
 	 * or blank, otherwise return <b>false</b>.
