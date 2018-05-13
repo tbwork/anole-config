@@ -1,15 +1,16 @@
-package org.tbwork.anole.loader.core.impl;
+package org.tbwork.anole.loader.core.manager.impl;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.tbwork.anole.loader.types.ConfigType;  
-import org.tbwork.anole.loader.core.Anole;
-import org.tbwork.anole.loader.core.ConfigItem;
-import org.tbwork.anole.loader.core.ConfigManager;
+import org.tbwork.anole.loader.types.ConfigType;
+import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.core.manager.ConfigManager;
+import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.exceptions.CircularDependencyException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.util.AnoleLogger;
@@ -68,6 +69,7 @@ public class LocalConfigManager implements ConfigManager{
     	initializeContext();
     	recursionBuildConfigMap();
     	cleanEscapeCharacters();
+    	registerProjectInfo();
     	if(!unknownConfigSet.isEmpty()){
     		logger.error("There are still some configurations could not be parsed rightly, they are: {} ", unknownConfigSet.toArray().toString() );
     	}
@@ -166,6 +168,17 @@ public class LocalConfigManager implements ConfigManager{
 
     protected void initializeContext(){
     	//nothing special for local configuration manager.
+    }
+    
+    private void registerProjectInfo() {
+    	// get current classpath which the application running in.
+    	URL url = Thread.currentThread().getContextClassLoader().getResource("/");
+    	if(url != null) {
+    		String classpathString = url.toString();
+    		if(classpathString.contains(".jar")) {// running in jar
+    			
+    		}
+    	}
     }
     
 }

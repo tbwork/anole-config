@@ -4,7 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.Lists;
+import org.tbwork.anole.loader.enums.OsCategory;
+ 
 
 public class FileUtil {
 
@@ -12,8 +13,8 @@ public class FileUtil {
 	public static class AnoleFilePath {
 		private List<String> pathPartList;
 		
-		public AnoleFilePath(String fullPath){
-			pathPartList = Lists.newArrayList(fullPath.split("\\\\|/"));
+		public AnoleFilePath(String fullPath){ 
+			pathPartList = SetUtil.newArrayList(fullPath.split("\\\\|/")); 
 		}
 		
 		public boolean  isFuzzyDirectory(){
@@ -69,11 +70,39 @@ public class FileUtil {
 	}
 	
 	public static String toLinuxStylePath(String path){
+		path = format2Slash(path);
 		if(!path.startsWith("/"))
 			path = "/"+path; 
-		return path.replace("\\\\", "/").replace("\\", "/");
+		return path;
 	}
 	 
+	public static String format2Slash(String path){ 
+		return path.replace("\\\\", "/").replace("\\", "/");
+	}
+	
+	public static String [] format2SlashPathes(String ... pathes) {
+		if(pathes == null)
+			return null;
+		String [] result = new String[pathes.length];
+		for(int i = 0; i < pathes.length; i++) {
+			result[i] = format2Slash(pathes[i]);
+		}
+		return result;
+	}
+	  
+	public static String getRealAbsolutePath(String absolutePath) {
+		return absolutePath.replace("file:/", "").replace("file:\\", "").replace("file:", "").replace("jar:/",	"").replace("jar:\\", "").replace("jar:", "");
+	}
+	
+	public static boolean isAbsolutePath(String path) {
+		if(OsUtil.getOsCategory().equals(OsCategory.WINDOWS)) {
+			return path.contains(":/") || path.contains(":\\");
+		}
+		else {
+			return path.startsWith("/") || path.startsWith("\\");
+		}
+	}
+	
 	/**
 	 * Match the asterisk file path and the target actual file path.
 	 * <p>The matched result should fulfill two conditions:<br>

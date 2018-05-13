@@ -15,5 +15,5 @@ public class OsUtil {
 		else{ // linux
 			return OsCategory.LINUX;
 		} 
-	} 
+	}
 }

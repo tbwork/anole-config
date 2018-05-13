@@ -1,4 +1,4 @@
-package org.tbwork.anole.loader.core;
+package org.tbwork.anole.loader.core.model;
 
 import java.math.BigDecimal;
 import org.tbwork.anole.loader.exceptions.BadTransformValueFormatException;

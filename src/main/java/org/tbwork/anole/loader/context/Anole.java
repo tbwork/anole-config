@@ -1,10 +1,11 @@
-package org.tbwork.anole.loader.core;
+package org.tbwork.anole.loader.context;
   
+import org.tbwork.anole.loader.core.manager.ConfigManager;
+import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
+import org.tbwork.anole.loader.util.ProjectUtil;
 import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
-
-import sun.misc.Unsafe;
  
 /**
  * <p> Anole provides basic retrieving 
@@ -22,9 +23,50 @@ public class Anole {
 	
 	private static boolean runingInJar;
 	
+	private static Class<?> mainClass;
+	
+	public static void setMainClass(Class<?> clazz) {
+		mainClass = clazz;
+	}
+	
+	public static Class<?> getMainClass(){ 
+		return mainClass; 
+	}
+	
 	public static String getCurrentEnvironment(){
 		return getProperty("anole.runtime.currentEnvironment");
 	}
+	
+	
+	/**
+	 * <p> For <b>maven</b> projects, this method will return the artifactId.
+	 * <p> For <b>other</b> projects, this method will return the value of 
+	 * variable named "anole.project.info.name", you should define it first in your
+	 * configuration files.
+	 * @return the project name
+	 */
+	public static String getProjectName() {
+		String projectName = Anole.getProperty("artifactId");
+		if(projectName == null)
+			projectName = Anole.getProperty("anole.project.info.name");
+		return projectName;
+	}
+	 
+	
+	/**
+	 * <p> For <b>maven</b> projects, this method will return the version.
+	 * <p> For <b>other</b> projects, this method will return the value of 
+	 * variable named "anole.project.info.version", you should define it first in your
+	 * configuration files.
+	 * @return the project version
+	 */
+	public static String getProjectVersion() {
+		String projectVersion = Anole.getProperty("version");
+		if(projectVersion == null)
+			projectVersion = Anole.getProperty("anole.project.info.version");
+		return projectVersion;
+	}
+
 	
 	/**
 	 * Check whether the value of the key is existing and

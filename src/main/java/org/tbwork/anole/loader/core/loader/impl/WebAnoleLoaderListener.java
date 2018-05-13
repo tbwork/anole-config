@@ -1,4 +1,4 @@
-package org.tbwork.anole.loader.core.impl;
+package org.tbwork.anole.loader.core.loader.impl;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -26,7 +26,7 @@ import org.tbwork.anole.loader.util.StringUtil;
  *      &lt;/context-param&gt; 
  *      ...
  *      &lt;listener&gt;
- *            &lt;listener-class&gt;org.tbwork.anole.loader.core.impl.WebAnoleLoaderListener&lt;/listener-class&gt;
+ *            &lt;listener-class&gt;org.tbwork.anole.loader.core.loader.impl.WebAnoleLoaderListener&lt;/listener-class&gt;
  *      &lt;/listener&gt; 
  * </pre> 
  * <p> <b>Tips:</b> If you use the default naming style of configuration

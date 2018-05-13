@@ -7,8 +7,6 @@ import java.util.regex.Pattern;
 
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 
-import com.google.common.collect.Lists;
-
 public class StringUtil {
 
 	 private final static char [] escapeChars = {'~','!','@','#','$'};
@@ -158,12 +156,29 @@ public class StringUtil {
 		 return inputString == null || inputString.isEmpty();
 	 }
 	 
+	 
+	 /**
+	  * <p> For example, <b>getRepeatCharString('a',3)</b> will 
+	  * return a string value of "aaa";
+	 * @param a the candidate char
+	 * @param count the repeat times
+	 * @return as one string.
+	 */
+	public static String getRepeatCharString(char a, int count){
+    	 int i = 0;
+    	 StringBuilder sb = new StringBuilder();
+    	 while( i ++ < count){
+    	 	 sb.append(a);
+    	 }
+    	 return sb.toString();
+     }
+	 
 	 public static void main(String[] args) { 
 //		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){
 //			 System.out.println(item);
 //		 } 
 		// System.out.println(replaceEscapeChars("\\@\\{\\}"));
-		 System.out.println(asteriskMatch("/D:/Workspace/lcb/hapi-lcb-error-code.w/hapi-lcb-error-code/hapi-lcb-error-code/target/classes/config/*.*", "/D:/Workspace/lcb/hapi-lcb-error-code.w/hapi-lcb-error-code/hapi-lcb-error-code/target/classes/config/ip/application-dev.properties")); 
+		 System.out.println(asteriskMatch("META-INF/*/*/pom.properties", "META-INF/maven/com.lcb.hapi/hapi-saas-fours/pom.properties")); 
 		 
 		 
 	 }

@@ -1,23 +1,21 @@
-package org.tbwork.anole.loader.core.impl;
+package org.tbwork.anole.loader.core.loader.impl;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.Scanner; 
-import org.tbwork.anole.loader.types.ConfigType; 
-import org.tbwork.anole.loader.exceptions.ConfigFileNotExistException;
+import java.util.Scanner;
+
+import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.OsUtil;
-import org.tbwork.anole.loader.util.StringUtil;
-
-import com.google.common.collect.Lists;
-
+import org.tbwork.anole.loader.util.SetUtil;
 import org.tbwork.anole.loader.util.SingletonFactory;
+import org.tbwork.anole.loader.util.StringUtil;
  
 
-public class AnoleConfigFileParser {
+class AnoleConfigFileParser {
 
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 	
@@ -152,6 +150,6 @@ public class AnoleConfigFileParser {
 		if(index < 0 )
 			throw new ErrorSyntaxException(lineNumber, currentFileName, "Could not find the '=' symbol.");
 		else
-			return Lists.newArrayList(kvString.substring(0, index), kvString.substring(index+1)).toArray(new String[2]);
+			return SetUtil.newArrayList(kvString.substring(0, index), kvString.substring(index+1)).toArray(new String[2]);
 	}
 }

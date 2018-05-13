@@ -67,7 +67,7 @@ For maven, import it using:
   {  
       public static void main(String[] args) {
        AnoleApp.start();
-    }
+     }
   }
 ```
 The anole will load all \*.anole files in the classpath directory. 
@@ -136,3 +136,19 @@ You can define a variable by referencing another variable.
 name = tangbo
 helloworld=hello, ${name}
 ```
+## 8 Integrate with JUnit
+
+It is very easy to integrate Anole with JUnit, for example:
+
+```
+public class XXXUnitTest{ 
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+		AnoleConfigContext acc = new AnoleClasspathConfigContext(LogLevel.INFO, "config.properties");
+		System.out.println(Anole.getProperty("variable.name"));
+	} 
+}
+```
+
+> Note: As we kown, test cases use `" ... /test-classes"` as the real classpath which is a mechanism provided by JDK. And by default Anole switched off the test mode which means the project's real classpath (like `"... /classes"`) would be used. If you want to switch on the test mode, just set another parameter as **true** like: `new AnoleClasspathConfigContext(LogLevel.INFO, true, "config.properties")`. 

@@ -1,5 +1,6 @@
-package org.tbwork.anole.loader.core;
+package org.tbwork.anole.loader.core.manager;
 
+import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.types.ConfigType;
 
 public interface ConfigManager {

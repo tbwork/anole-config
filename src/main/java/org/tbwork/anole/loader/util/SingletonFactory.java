@@ -1,6 +1,6 @@
 package org.tbwork.anole.loader.util;
 
-import org.tbwork.anole.loader.core.impl.LocalConfigManager;
+import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 
 public class SingletonFactory { 
 	
