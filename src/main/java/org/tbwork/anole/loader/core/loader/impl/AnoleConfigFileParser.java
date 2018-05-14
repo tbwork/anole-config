@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
@@ -23,7 +24,8 @@ class AnoleConfigFileParser {
 	private final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 	
 	private AnoleConfigFileParser(){
-		setEnv(); 
+		String env = setEnv(); 
+		Anole.setEnvironment(env);
 	}
 	
 	/**
@@ -105,44 +107,48 @@ class AnoleConfigFileParser {
 				
 	}
 	
-	private void setEnv(){
+	private String setEnv(){
 		switch(OsUtil.getOsCategory()){
 			case WINDOWS:{
-				setEnvFromPath("C://anole/");
-			} break;
+				return setEnvFromPath("C://anole/");
+			}
 			case LINUX:{
-				setEnvFromPath("/etc/anole/");;
-			}break;
+				return setEnvFromPath("/etc/anole/");
+			}
 			case MAC:{
-				setEnvFromPath("/Users/anole/");
-			}break;
-			default: break;
+				return setEnvFromPath("/Users/anole/");
+			}
+			default: return null;
 		}
 	}
 	
-	private void setEnvFromPath(String directoryPath){
-		File file = new File(directoryPath);
+	private String setEnvFromPath(String directoryPath){ 
+		// check by the following order
+		// 1. the system property
+		// 2. the JVM environment variable
+		// 3. the e
+		//check if the environment is already set or not
+		sysEnv = System.getProperty("anole.runtime.currentEnvironment");
+		if(sysEnv == null)
+			sysEnv = System.getenv("anole.runtime.currentEnvironment"); 
+		if(sysEnv != null && !sysEnv.isEmpty()) {
+			lcm.setConfigItem("anole.runtime.currentEnvironment", sysEnv, ConfigType.STRING);
+			return sysEnv; 
+		} 
 		// check the env file first
-		if(!file.exists()){
-			//check if the environment is already set or not
-			sysEnv = System.getProperty("anole.runtime.currentEnvironment");
-			if(sysEnv == null)
-				sysEnv = System.getenv("anole.runtime.currentEnvironment");
-			if(sysEnv != null && !sysEnv.isEmpty())
-				return ;
-			throw new EnvironmentNotSetException();
-		}  
-		File [] fileList = file.listFiles();
-		for(File ifile : fileList){
-			String ifname = ifile.getName();
-			if(StringUtil.asteriskMatch("*.env", ifname)){
-				sysEnv = ifname.replace(".env", "");
-				lcm.setConfigItem("anole.runtime.currentEnvironment", sysEnv, ConfigType.STRING);
-				return;
+		File file = new File(directoryPath);
+		if(file.exists()){
+			File [] fileList = file.listFiles();
+			for(File ifile : fileList){
+				String ifname = ifile.getName();
+				if(StringUtil.asteriskMatch("*.env", ifname)){
+					sysEnv = ifname.replace(".env", ""); 
+					return sysEnv;
+				}
 			}
-		}
-		if(sysEnv==null || sysEnv.isEmpty())
-			throw new EnvironmentNotSetException();
+		}  
+		throw new EnvironmentNotSetException();
+		
 	}
 	
 	private String [] separateKV(String kvString){

@@ -90,7 +90,7 @@ Configure the below lines in web.xml
       </context-param> 
       ...
       <listener>
-            <listener-class>org.tbwork.anole.loader.core.impl.WebAnoleLoaderListener</listener-class>
+            <listener-class>org.tbwork.anole.loader.core.loader.impl.WebAnoleLoaderListener</listener-class>
       </listener> 
 ```
 **Tips**: Make sure to put the Anole listener to the top of all listener configurations so that the other frameworks can use the properties loaded by Anole. Those frameworks can be Spring, Log4j, Log4j2, Logback, etc.

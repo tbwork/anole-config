@@ -1,12 +1,20 @@
 package org.tbwork.anole.loader.util;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.context.Anole; 
  
 
 public class ProjectUtil {
@@ -33,7 +41,7 @@ public class ProjectUtil {
 		return urlString;
 	}
 	
-	public static String getUserClasspath() {
+	public static String getMainclassClasspath() {
 		if(userClassPath != null && !userClassPath.isEmpty()) {
 			return userClassPath;
 		}
@@ -70,4 +78,15 @@ public class ProjectUtil {
 			return null;
 		} 
 	} 
+	
+	private static InputStream getInputStream(JarFile jf, JarEntry je) {
+		try {
+			return jf.getInputStream(je);
+		}
+		catch(Exception e) {
+			// never goes here if the previous file is ok 
+			return null;
+		}
+	} 
+
 }

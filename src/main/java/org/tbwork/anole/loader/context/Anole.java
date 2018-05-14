@@ -25,9 +25,19 @@ public class Anole {
 	
 	private static Class<?> mainClass;
 	
+	private static String environment;
+	
 	public static void setMainClass(Class<?> clazz) {
 		mainClass = clazz;
 	}
+	
+	public static void setEnvironment(String env) {
+		environment = env;
+	}
+	
+	public static String getEnvironment() {
+		return environment;
+	} 
 	
 	public static Class<?> getMainClass(){ 
 		return mainClass; 

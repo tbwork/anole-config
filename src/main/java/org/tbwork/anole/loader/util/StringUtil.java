@@ -164,7 +164,7 @@ public class StringUtil {
 	 * @param count the repeat times
 	 * @return as one string.
 	 */
-	public static String getRepeatCharString(char a, int count){
+	 public static String getRepeatCharString(char a, int count){
     	 int i = 0;
     	 StringBuilder sb = new StringBuilder();
     	 while( i ++ < count){
@@ -172,6 +172,15 @@ public class StringUtil {
     	 }
     	 return sb.toString();
      }
+	 
+	 public static String [] trimStrings(String ... strings) {
+		 String [] result = new String[strings.length];
+		 for(int i =0 ; i < strings.length; i++) {
+			 result[i] = strings[i].trim();
+		 }
+		 return result;
+	 }
+	 
 	 
 	 public static void main(String[] args) { 
 //		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){

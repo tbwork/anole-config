@@ -48,6 +48,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 	@Override
 	public Map<String,FileLoadStatus> load(LogLevel logLevel, String... configLocations) { 
 		Set<String> configLocationPathInALlClasspaths = getConfigLocationPathInAllClasspath(configLocations); 
+		configLocationPathInALlClasspaths.addAll(getConfigLocationPathInSpringBootJar(configLocations));
 		if(!testMode) filterTestClasspath(configLocationPathInALlClasspaths);    
 		Map<String,FileLoadStatus> loadResult = super.load(logLevel, CollectionUtil.set2StringArray(configLocationPathInALlClasspaths));
 		Anole.initialized = true;
@@ -55,9 +56,21 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 	}
    
 	
+	/**
+	 * For SpringBoot project.
+	 */
+	private static Set<String> getConfigLocationPathInSpringBootJar(String ... configLocations) {
+		Set<String> fullPathConfigLocations = new HashSet<String>();
+		String userClasspath = ProjectUtil.getMainclassClasspath(); 
+		for(String configLocation : configLocations) {
+			fullPathConfigLocations.add(userClasspath+"BOOT-INF/classes/"+configLocation);
+		}
+		return fullPathConfigLocations;
+	}
+	
 	private static Set<String> getConfigLocationPathInAllClasspath(String ... configLocations) {
 		Set<String> fullPathConfigLocations = new HashSet<String>();
-		String applicationClasspath = ProjectUtil.getApplicationClasspath(); 
+		String applicationClasspath = ProjectUtil.getApplicationClasspath();  
 	    //get all classpathes
 		String classPath = System.getProperty("java.class.path");
 		String  [] pathElements = classPath.split(System.getProperty("path.separator")); 
@@ -81,9 +94,9 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 				fullPathConfigLocations.add( path + configLocation); 
 			}
 		}
-	    // In the situation like Spring-Boot, the class-path is not the path where the jar is running under, but somewhere inner managed by the framework itself. 
+	    // In the situation that the class-path is not the path where the jar is running under, but somewhere inner the jar. 
 		for(String configLocation : configLocations) {
-			fullPathConfigLocations.add( ProjectUtil.getUserClasspath() + configLocation); 
+			fullPathConfigLocations.add( ProjectUtil.getMainclassClasspath() + configLocation); 
 		} 
 		return fullPathConfigLocations;
 	}

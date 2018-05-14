@@ -3,6 +3,7 @@ package org.tbwork.anole.loader.context;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.StringUtil;
 
 public class AnoleApp {
   
@@ -12,7 +13,8 @@ public class AnoleApp {
 		if(runtimeClass!=null && runtimeClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfigFiles = runtimeClass.getAnnotation(AnoleConfigLocation.class); 
 			if(!anoleConfigFiles.locations().isEmpty()){
-				accc = new AnoleClasspathConfigContext(logLevel, anoleConfigFiles.locations().split(",")); 
+				String [] path = anoleConfigFiles.locations().split(",");
+				accc = new AnoleClasspathConfigContext(logLevel, StringUtil.trimStrings(path)); 
 				return;
 			}  
 		}  
