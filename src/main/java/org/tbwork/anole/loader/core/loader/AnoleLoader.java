@@ -8,7 +8,7 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 public interface AnoleLoader {
 	/**
-	 * Load "*.anole" files within the class-path directories.
+	 * Load "*.anole" files under the class-path directories.
 	 * <p><b>Note:</b> Default log level is INFO.
 	 */
 	public Map<String,FileLoadStatus> load(); 

@@ -20,7 +20,7 @@ class AnoleConfigFileParser {
 
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 	
-	private AnoleLogger logger ;
+	private static AnoleLogger logger ;
 	private final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 	
 	private AnoleConfigFileParser(){
@@ -47,6 +47,7 @@ class AnoleConfigFileParser {
 	}
 	
 	public void parse(InputStream is, String fileName) {
+		AnoleLogger.debug("input stream is : {}", is.toString());
 		if(sysEnv == null || sysEnv.isEmpty())
 			throw new EnvironmentNotSetException();
 		lineNumber = 0;
@@ -60,6 +61,7 @@ class AnoleConfigFileParser {
 	}
 	
 	private void parseLine(String content){
+		AnoleLogger.debug("Found line: {}", content);
 		if(content==null || content.isEmpty())
 			return;
 		else if(content.trim().startsWith("#env:")) {

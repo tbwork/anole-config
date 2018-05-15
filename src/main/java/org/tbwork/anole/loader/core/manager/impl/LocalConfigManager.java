@@ -34,14 +34,17 @@ public class LocalConfigManager implements ConfigManager{
 	private String currentRunEnvironment;
 	
 	@Override
-	public void setConfigItem(String key, String value, ConfigType type){ 
-		if(AnoleLogger.anoleLogLevel != null && logger.isDebugEnabled())
-			logger.debug("New config found: key = {}, raw value = {}, type = {}", key, value, type);
+	public void setConfigItem(String key, String value, ConfigType type){  
 		if(!Anole.initialized)//Add to JVM system properties for spring to read.
 			System.setProperty(key, value); 
 		ConfigItem cItem = configMap.get(key);
+		String operation = "New";
 		if(cItem == null)  
 			cItem = initialConfig(key);
+		else
+			 operation = "Update";
+		if(AnoleLogger.anoleLogLevel != null && logger.isDebugEnabled())
+			logger.debug("{} config found: key = {}, raw value = {}, type = {}", operation, key, value, type);
 		cItem.setValue(value, type);
 		
 	}

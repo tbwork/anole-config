@@ -1,18 +1,11 @@
 package org.tbwork.anole.loader.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import org.tbwork.anole.loader.context.Anole; 
  
@@ -21,9 +14,14 @@ public class ProjectUtil {
 	
 	public static List<String> localResourceProtocals = SetUtil.newArrayList("file:", "jar:", "mailTo:");
 
-	private static String userClassPath;
+	private static String mainclassClasspath;
 	
-	private static String applicationClassPath;
+	private static String applicationClasspath;
+	
+	private static String programClasspath;
+	
+	private static String currentJarName;
+	
 	
 	public static String getJarPath(String fullPath){
 		int index = fullPath.indexOf("!/");
@@ -41,29 +39,49 @@ public class ProjectUtil {
 		return urlString;
 	}
 	
+	/**
+	 * The classpath where is the main class under.
+	 * @return
+	 */
 	public static String getMainclassClasspath() {
-		if(userClassPath != null && !userClassPath.isEmpty()) {
-			return userClassPath;
+		if(mainclassClasspath != null && !mainclassClasspath.isEmpty()) {
+			return mainclassClasspath;
 		}
 		Class<?> mainClass = Anole.getMainClass();
 		if(mainClass == null)
 			mainClass = getRootClassByStackTrace(); 
 		URL userClassLoadPathUrl = mainClass.getResource(""); 
 		String classRelativePath = mainClass.getPackage().getName().replace(".", "/")+"/";
-		userClassPath = FileUtil.getRealAbsolutePath(userClassLoadPathUrl.toString().replace(classRelativePath, ""));  
-		userClassPath = FileUtil.format2Slash(userClassPath);  
-		return userClassPath;
+		mainclassClasspath = FileUtil.getRealAbsolutePath(userClassLoadPathUrl.toString().replace(classRelativePath, ""));  
+		mainclassClasspath = FileUtil.format2Slash(mainclassClasspath);  
+		return mainclassClasspath;
 	} 
 
 	
 	public static String getApplicationClasspath() {
-		if(applicationClassPath!=null && !applicationClassPath.isEmpty())
-			return applicationClassPath;
-		
+		if(applicationClasspath!=null && !applicationClasspath.isEmpty())
+			return applicationClasspath;
 		URL applicationClassLoadPathUrl = Thread.currentThread().getContextClassLoader().getResource("");
-		applicationClassPath = FileUtil.getRealAbsolutePath(applicationClassLoadPathUrl.toString());  
-		applicationClassPath = FileUtil.format2Slash(applicationClassPath);  
-		return applicationClassPath;
+		applicationClasspath = FileUtil.getRealAbsolutePath(applicationClassLoadPathUrl.toString());  
+		applicationClasspath = FileUtil.format2Slash(applicationClasspath);  
+		return applicationClasspath;
+	} 
+	
+	public static String getProgramClasspath() {
+		if(programClasspath!=null && !programClasspath.isEmpty())
+			return programClasspath;
+		String mainclassClasspath = getMainclassClasspath();
+		if(mainclassClasspath.endsWith("/"))
+			mainclassClasspath = mainclassClasspath.substring(0, mainclassClasspath.length() -1);
+		String [] pathParts = mainclassClasspath.split("/");
+		if(pathParts[pathParts.length-1].endsWith(".jar!")) {  
+			String result = StringUtil.join("/", SetUtil.copyArray(pathParts, 0, pathParts.length-1));
+			programClasspath = result + "/"; 
+		}
+		else {
+			programClasspath = getMainclassClasspath();
+		} 
+		return programClasspath; 
 	} 
 	
 	public static Class<?> getRootClassByStackTrace(){
@@ -78,15 +96,6 @@ public class ProjectUtil {
 			return null;
 		} 
 	} 
-	
-	private static InputStream getInputStream(JarFile jf, JarEntry je) {
-		try {
-			return jf.getInputStream(je);
-		}
-		catch(Exception e) {
-			// never goes here if the previous file is ok 
-			return null;
-		}
-	} 
+	 
 
 }

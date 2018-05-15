@@ -11,10 +11,11 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 public class TestAnole {
 
 	public static void main(String[] args) throws IOException {
+		System.out.println("Application classpath:"+ProjectUtil.getApplicationClasspath());
+    	System.out.println("Mainclass classpath:"+ProjectUtil.getMainclassClasspath());
+    	System.out.println("Program classpath:"+ProjectUtil.getProgramClasspath());
 	   	AnoleApp.start(LogLevel.DEBUG) ;
-	   	System.out.println(Anole.getProjectName());
-		 
+	   	System.out.println(Anole.getProjectName()); 
 	}
-	 
- 
+	  
 }
