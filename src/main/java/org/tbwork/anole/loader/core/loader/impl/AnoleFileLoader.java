@@ -90,8 +90,7 @@ public class AnoleFileLoader implements AnoleLoader{
 			this.fileName = mapEntry.getKey();
 			this.is = mapEntry.getValue();
 			this.order = order;
-		}
-		
+		} 
 	}
 	
 	
@@ -112,7 +111,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	public Map<String,FileLoadStatus> load(LogLevel logLevel, String... configLocations) { 
 		AnoleLogger.anoleLogLevel = logLevel; 
 		Map<String,FileLoadStatus> result = new HashMap<String, FileLoadStatus>();  
-		Anole.setRuningInJar(ProjectUtil.getMainclassClasspath().contains(".jar!"));
+		Anole.setRuningInJar(ProjectUtil.getHomeClasspath().contains(".jar!"));
 		LogoUtil.decompress("===",  "https://github.com/tbwork/anole-loader", "Version: 1.2.4");
 		AnoleLogger.debug("Current enviroment is {}", Anole.getEnvironment());
 		Anole.setMainClass(getRootClassByStackTrace());   
@@ -165,13 +164,13 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 	private List<String> getFullPathForProjectInfoFiles() {
 		List<String> result = new ArrayList<String>();
-		String mainclassClasspath =  ProjectUtil.getMainclassClasspath();
+		String homeClasspath =  ProjectUtil.getHomeClasspath();
 		for(String projectInfoFile : projectInfoPropertiesFileList) {
-			result.add(mainclassClasspath + projectInfoFile); 
+			result.add(homeClasspath + projectInfoFile); 
 		}
 		return result;
 	}
-	  
+	   
 	private InputStream newInputStream(String filepath){ 
 		File file = new File(filepath);
 		if(file.exists()){
@@ -216,7 +215,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 	private LoadFileResult loadFileFromDirectory(CandidateConfigPath ccp){ 
 		LoadFileResult result = new LoadFileResult();
-		int uniOrder = ccp.getOrder();
+		int fileOrder = ccp.getOrder();
 		String fileFullPath = ccp.getFullPath();
 		if(!fileFullPath.contains("*")){
 			InputStream is = newInputStream(fileFullPath);
@@ -224,6 +223,7 @@ public class AnoleFileLoader implements AnoleLoader{
 				result.setFileLoadStatus(FileLoadStatus.NOT_FOUND);
 				return result;
 			}  
+			result.getCandidateStreams().add(new ConfigInputStreamUnit(fileFullPath, is, fileOrder));
 			result.setFileLoadStatus(FileLoadStatus.SUCCESS); 
 			return result;
 		}
@@ -243,7 +243,7 @@ public class AnoleFileLoader implements AnoleLoader{
 			for(File file : files){
 				String fileAbsolutePath = uniformAbsolutePath(file.getAbsolutePath());
 				if(FileUtil.asteriskMatchPath(fileFullPath,  fileAbsolutePath)){ 
-					 result.getCandidateStreams().add(new ConfigInputStreamUnit(fileAbsolutePath, newInputStream(fileAbsolutePath), uniOrder));
+					 result.getCandidateStreams().add(new ConfigInputStreamUnit(fileAbsolutePath, newInputStream(fileAbsolutePath), fileOrder));
 					 matched = true;
 				}
 			}

@@ -13,7 +13,8 @@ import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 import org.tbwork.anole.loader.util.CollectionUtil;
 import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.ProjectUtil; 
+import org.tbwork.anole.loader.util.ProjectUtil;
+import org.tbwork.anole.loader.util.SetUtil; 
 
 public class AnoleClasspathLoader extends AnoleFileLoader{ 
 	 
@@ -51,7 +52,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		// User specified classpath.
 		Set<String> configLocationsUnderUserSpecifiedClasspathes = getConfigLocationsUnderUserSpecifiedClasspath(configLocations);  
 		Set<String> configLocationUnderApplicationClasspathes = getConfigLocationUnderApplicationClasspath(configLocations);
-		Set<String> configLocationUnderMainclassClasspath = getConfigLocationUnderMainclassClasspath(configLocations);
+		Set<String> configLocationUnderMainclassClasspath = getConfigLocationUnderHomeClasspath(configLocations);
 		// integrate configLocationUnderApplicationClasspathes with configLocationUnderMainclassClasspath
 		configLocationUnderApplicationClasspathes.addAll(configLocationUnderMainclassClasspath);
 		// remove duplicate path
@@ -61,7 +62,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		List<String> orderedConfigLocations = new ArrayList<String>();  
 		orderedConfigLocations.addAll(configLocationsUnderUserSpecifiedClasspathes);
 		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes); 
-		if(!testMode) filterTestClasspath(orderedConfigLocations);    
+		if(!testMode) orderedConfigLocations = filterTestClasspath(orderedConfigLocations);    
 		Map<String,FileLoadStatus> loadResult = super.load(logLevel, CollectionUtil.list2StringArray(orderedConfigLocations));
 		Anole.initialized = true;
 		return loadResult;
@@ -88,11 +89,11 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 	 * For spring-boot or normal jar-file projects, it is "xxx.jar!/". <br>
 	 * For java-file projects(like debug in Eclipse), it is ".../classes" 
 	 */
-	private static Set<String> getConfigLocationUnderMainclassClasspath(String ... configLocations) {
+	private static Set<String> getConfigLocationUnderHomeClasspath(String ... configLocations) {
 		Set<String> fullPathConfigLocations = new HashSet<String>();
-		String mainclassClasspath = ProjectUtil.getMainclassClasspath(); 
+		String homeClasspath = ProjectUtil.getHomeClasspath(); 
 		for(String configLocation : configLocations) {
-			fullPathConfigLocations.add(mainclassClasspath+configLocation);
+			fullPathConfigLocations.add(homeClasspath+configLocation);
 		}
 		return fullPathConfigLocations;
 	}
@@ -132,11 +133,12 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		return fullPathConfigLocations;
 	}
 	
-	private void filterTestClasspath(List<String> classpathFullPaths) {
+	private static List<String> filterTestClasspath(List<String> classpathFullPaths) {
+		List<String> result = new ArrayList<String>();
 		for(String classpathFullPath : classpathFullPaths) {
-			classpathFullPath = classpathFullPath.replace("test-classes", "classes");
+			result.add(classpathFullPath.replace("test-classes", "classes"));
 		}
-	}
-	
-	
+		return result;
+	} 
+	 
 }

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import org.tbwork.anole.loader.context.Anole; 
+import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.enums.OsCategory; 
  
 
 public class ProjectUtil {
@@ -18,10 +19,9 @@ public class ProjectUtil {
 	
 	private static String applicationClasspath;
 	
-	private static String programClasspath;
+	private static String programClasspath; 
 	
-	private static String currentJarName;
-	
+	private static String homeClasspath;
 	
 	public static String getJarPath(String fullPath){
 		int index = fullPath.indexOf("!/");
@@ -40,8 +40,12 @@ public class ProjectUtil {
 	}
 	
 	/**
-	 * The classpath where is the main class under.
-	 * @return
+	 * The classpath where is the main class under. 
+	 * For <b>normal java-file application within IDE</b>, it returns: "/.../classes/".<br>
+	 * For <b>JUnit java-file application within IDE</b>, it returns the IDE JUnit test's running path like "D:/IDE/oxygen/configuration/org.eclipse.osgi/412/0/.cp/".<br>
+	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
+	 * For <b>normal jar-file application</b>, it returns: "/.../xxx.jar!/".<br>
+	 * For <b>spring jar-file application</b>, it returns: "/.../xxx.jar!/".<br>
 	 */
 	public static String getMainclassClasspath() {
 		if(mainclassClasspath != null && !mainclassClasspath.isEmpty()) {
@@ -57,7 +61,13 @@ public class ProjectUtil {
 		return mainclassClasspath;
 	} 
 
-	
+	/**
+	 * Return the classpath where the user's classes are running under.
+	 * For <b>java-file application within IDE</b>, it returns: ".../classes/".<br>
+	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
+	 * For <b>normal jar-file application</b>, it returns the parent directory of the jar.<br>
+	 * For <b>spring jar-file application</b>, it returns: ".../xxx.jar!/BOOT-INF/classes/".<br>
+	 */
 	public static String getApplicationClasspath() {
 		if(applicationClasspath!=null && !applicationClasspath.isEmpty())
 			return applicationClasspath;
@@ -67,22 +77,54 @@ public class ProjectUtil {
 		return applicationClasspath;
 	} 
 	
+	/**
+	 * The classpath where the user's classes running under.<br>
+	 * For <b>java-file application within IDE</b>, it returns: ".../classes/" or ".../test-classes/".<br>
+	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
+	 * For <b>normal jar-file application</b>, it returns: ".../xxx.jar!/".<br>
+	 * For <b>spring jar-file application</b>, it returns: ".../xxx.jar!/".<br>
+	 */
+	public static String getHomeClasspath() {
+		if(homeClasspath != null)
+			return homeClasspath;
+		String mainclassClasspath = getMainclassClasspath();
+		String applicationClasspath = getApplicationClasspath();
+		if(mainclassClasspath.startsWith(applicationClasspath) || applicationClasspath.startsWith(mainclassClasspath)) {
+			// corresponding with application classpath
+			homeClasspath = mainclassClasspath ;
+		}
+		else {
+			homeClasspath = applicationClasspath;
+		} 
+		return homeClasspath;
+	}
+	
+	
+	
+	/**
+	 * The classpath where the program is under.
+	 * For <b>java-file application within IDE</b>, it returns: ".../classes/".<br>
+	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
+	 * For <b>normal jar-file application</b>, it returns the parent directory of the jar.<br>
+	 * For <b>spring jar-file application</b>, it returns the parent directory of the jar.<br>
+	 */
 	public static String getProgramClasspath() {
 		if(programClasspath!=null && !programClasspath.isEmpty())
 			return programClasspath;
-		String mainclassClasspath = getMainclassClasspath();
-		if(mainclassClasspath.endsWith("/"))
-			mainclassClasspath = mainclassClasspath.substring(0, mainclassClasspath.length() -1);
-		String [] pathParts = mainclassClasspath.split("/");
+		String homeClasspath = getHomeClasspath();
+		if(homeClasspath.endsWith("/"))
+			homeClasspath = homeClasspath.substring(0, homeClasspath.length() -1);
+		String [] pathParts = homeClasspath.split("/");
 		if(pathParts[pathParts.length-1].endsWith(".jar!")) {  
 			String result = StringUtil.join("/", SetUtil.copyArray(pathParts, 0, pathParts.length-1));
 			programClasspath = result + "/"; 
 		}
 		else {
-			programClasspath = getMainclassClasspath();
-		} 
+			programClasspath = getHomeClasspath();
+		}  
 		return programClasspath; 
 	} 
+ 
 	
 	public static Class<?> getRootClassByStackTrace(){
 		try {
@@ -95,7 +137,5 @@ public class ProjectUtil {
 			// Swallow and continue
 			return null;
 		} 
-	} 
-	 
-
+	}  
 }

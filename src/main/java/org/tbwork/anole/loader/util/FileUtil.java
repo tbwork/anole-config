@@ -91,7 +91,7 @@ public class FileUtil {
 	}
 	  
 	public static String getRealAbsolutePath(String absolutePath) {
-		return absolutePath.replace("file:/", "").replace("file:\\", "").replace("file:", "").replace("jar:/",	"").replace("jar:\\", "").replace("jar:", "");
+		return absolutePath.replace("file:", "").replace("jar:","");
 	}
 	
 	public static boolean isAbsolutePath(String path) {
