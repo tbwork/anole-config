@@ -13,7 +13,7 @@ Futhermore, in no longer future, we will propose our web-server-version Anole sy
 It supports many kinds of property-files which are required in runtime, even those properties are used in the third-party frameworks.
 # How to use it
 
-## 1 Add anole-loader to your build path by manual or maven dependency.
+## 1 Add anole-loader to your build path manually or via maven dependency.
 For maven, import it using:
 ```
 <dependency>
