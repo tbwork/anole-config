@@ -2,7 +2,7 @@
 
 # What it is
 
-An awesome congurations loader for java. 
+An awesome configuration loader for java. 
 
 # Why we need it.
 In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc. to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and file-name, it would be annoying if you manage those files together. 
@@ -138,7 +138,7 @@ helloworld=hello, ${name}
 ```
 ## 8 Integrate with JUnit
 
-It is very easy to integrate Anole with JUnit, for example:
+It is very easy to integrate Anole with JUnit, for example (using JUnit 4):
 
 ```
 public class XXXUnitTest{ 
@@ -150,5 +150,3 @@ public class XXXUnitTest{
 	} 
 }
 ```
-
-> Note: As we kown, test cases use `" ... /test-classes"` as the real classpath which is a mechanism provided by JDK. And by default Anole switched off the test mode which means the project's real classpath (like `"... /classes"`) would be used. If you want to switch on the test mode, just set another parameter as **true** like: `new AnoleClasspathConfigContext(LogLevel.INFO, true, "config.properties")`. 

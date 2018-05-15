@@ -13,29 +13,14 @@ import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 import org.tbwork.anole.loader.util.CollectionUtil;
 import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.ProjectUtil;
-import org.tbwork.anole.loader.util.SetUtil; 
+import org.tbwork.anole.loader.util.ProjectUtil; 
 
 public class AnoleClasspathLoader extends AnoleFileLoader{ 
-	 
-	private boolean testMode = false; 
-	
-	
+	   
 	public AnoleClasspathLoader(){
 		super();
 	}
-	
-	
-	/**
-	 * Used to decide to load configuration files from test class-path.
-	 * @param testMode <b>true</b> if you want to load configuration files from test class-path,
-	 * <b>otherwise</b> from main class-path.
-	 */
-	public AnoleClasspathLoader(boolean testMode){
-		this.testMode = testMode;
-	}
-	
-	
+	  
 	public AnoleClasspathLoader(ConfigManager cm){
 		super(cm);
 	}
@@ -61,8 +46,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		}
 		List<String> orderedConfigLocations = new ArrayList<String>();  
 		orderedConfigLocations.addAll(configLocationsUnderUserSpecifiedClasspathes);
-		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes); 
-		if(!testMode) orderedConfigLocations = filterTestClasspath(orderedConfigLocations);    
+		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes);     
 		Map<String,FileLoadStatus> loadResult = super.load(logLevel, CollectionUtil.list2StringArray(orderedConfigLocations));
 		Anole.initialized = true;
 		return loadResult;

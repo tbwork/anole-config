@@ -21,17 +21,13 @@ public class AnoleClasspathConfigContext implements AnoleConfigContext{
 
 	private Map<String, Boolean> alreadyFoundOrMatchedMap;
 	
-	public AnoleClasspathConfigContext(LogLevel logLevel, boolean testMode, String ... configLocations) {
-		AnoleLoader anoleLoader = new AnoleClasspathLoader(testMode);
+	public AnoleClasspathConfigContext(LogLevel logLevel, String ... configLocations) {
+		AnoleLoader anoleLoader = new AnoleClasspathLoader();
 		String [] slashProcessedPathes = FileUtil.format2SlashPathes(configLocations);
 		initializeAlreadyFoundMap(slashProcessedPathes);
 		Map<String,FileLoadStatus> loadResult = anoleLoader.load(logLevel, slashProcessedPathes);
 		checkNotExist(loadResult); 
-	}
-	
-	public AnoleClasspathConfigContext(LogLevel logLevel, String ... configLocations) {
-		this(logLevel, false, configLocations);
-	}
+	} 
 	 
 	
 	public AnoleClasspathConfigContext(LogLevel logLevel) {
