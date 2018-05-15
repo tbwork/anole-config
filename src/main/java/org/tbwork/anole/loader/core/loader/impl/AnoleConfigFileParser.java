@@ -46,8 +46,7 @@ class AnoleConfigFileParser {
 		return anoleConfigFileParser;
 	}
 	
-	public void parse(InputStream is, String fileName) {
-		AnoleLogger.debug("input stream is : {}", is.toString());
+	public void parse(InputStream is, String fileName) { 
 		if(sysEnv == null || sysEnv.isEmpty())
 			throw new EnvironmentNotSetException();
 		lineNumber = 0;
@@ -60,8 +59,7 @@ class AnoleConfigFileParser {
 		} 
 	}
 	
-	private void parseLine(String content){
-		AnoleLogger.debug("Found line: {}", content);
+	private void parseLine(String content){ 
 		if(content==null || content.isEmpty())
 			return;
 		else if(content.trim().startsWith("#env:")) {
@@ -103,10 +101,7 @@ class AnoleConfigFileParser {
 					throw new ErrorSyntaxException(lineNumber, currentFileName, "Unknow value type : " + t);
 				} 
 			} 
-		}   
-		else if(logger.isDebugEnabled())
-			logger.debug("Configuration ignored! Current system environtment is {}, and env-scope of current configuration lines is {}", sysEnv, configEnv);
-				
+		}				
 	}
 	
 	private String setEnv(){

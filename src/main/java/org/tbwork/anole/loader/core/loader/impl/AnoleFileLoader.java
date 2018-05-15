@@ -118,12 +118,11 @@ public class AnoleFileLoader implements AnoleLoader{
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order
 		for(String configLocation : configLocations) { 
-			AnoleLogger.debug(configLocation);
-			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getMainclassClasspath())) {
+			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getHomeClasspath())) {
 				// outer jars
 				candidates.add(new CandidateConfigPath(1, configLocation.trim()));
 			}
-			else if(!configLocation.startsWith(ProjectUtil.getMainclassClasspath())){
+			else if(!configLocation.startsWith(ProjectUtil.getHomeClasspath())){
 				// outer directory
 				candidates.add(new CandidateConfigPath(3, configLocation.trim()));
 			}
@@ -133,7 +132,6 @@ public class AnoleFileLoader implements AnoleLoader{
 			}
 		} 
 		for(String projectInfoFile : getFullPathForProjectInfoFiles()) {
-			AnoleLogger.debug(projectInfoFile);
 			candidates.add(new CandidateConfigPath(4, projectInfoFile.trim()));
 		} 
 		List<ConfigInputStreamUnit> configInputStreamUnits = new ArrayList<ConfigInputStreamUnit>();
@@ -196,7 +194,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	 * @param ccp the absolute path of the configuration file.  
 	 */
 	protected LoadFileResult loadFile(CandidateConfigPath ccp){
-		AnoleLogger.debug("Loading config files matchs '{}'", ccp.getFullPath());
+		AnoleLogger.debug("Searching config files matchs '{}'", ccp.getFullPath());
 		if(ccp.getFullPath().contains("!/")){ // For Jar projects 
 			return loadFileFromJar(ccp);
 		}
@@ -253,7 +251,10 @@ public class AnoleFileLoader implements AnoleLoader{
 	}
 	
 	private String uniformAbsolutePath(String absolutePath) {
-		return FileUtil.getRealAbsolutePath(FileUtil.format2Slash(absolutePath));
+		String result =  FileUtil.getNakedAbsolutePath(FileUtil.format2Slash(absolutePath));
+		if(!result.startsWith("/"))
+			return "/"+result;
+		return result;
 	}
 	
 	private void parseFiles(List<ConfigInputStreamUnit> cisus) {

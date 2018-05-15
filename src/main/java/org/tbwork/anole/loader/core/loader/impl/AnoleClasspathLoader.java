@@ -126,6 +126,8 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 			} 
 			if(!path.endsWith("/"))
 				path = path + "/";
+			if(!path.startsWith("/")) //uniform the form of absolute path
+				path = "/" + path;
 			for(String configLocation : configLocations) {
 				fullPathConfigLocations.add( path + configLocation); 
 			}

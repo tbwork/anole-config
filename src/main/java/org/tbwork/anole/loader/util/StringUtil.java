@@ -182,13 +182,4 @@ public class StringUtil {
 	 }
 	 
 	 
-	 public static void main(String[] args) { 
-//		 for(String item : getVariables("#{\\#\\{ip}:!{port}", "key")){
-//			 System.out.println(item);
-//		 } 
-		// System.out.println(replaceEscapeChars("\\@\\{\\}"));
-		 System.out.println(asteriskMatch("META-INF/*/*/pom.properties", "META-INF/maven/com.lcb.hapi/hapi-saas-fours/pom.properties")); 
-		 
-		 
-	 }
 }

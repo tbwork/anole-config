@@ -56,7 +56,7 @@ public class ProjectUtil {
 			mainClass = getRootClassByStackTrace(); 
 		URL userClassLoadPathUrl = mainClass.getResource(""); 
 		String classRelativePath = mainClass.getPackage().getName().replace(".", "/")+"/";
-		mainclassClasspath = FileUtil.getRealAbsolutePath(userClassLoadPathUrl.toString().replace(classRelativePath, ""));  
+		mainclassClasspath = FileUtil.getNakedAbsolutePath(userClassLoadPathUrl.toString().replace(classRelativePath, ""));  
 		mainclassClasspath = FileUtil.format2Slash(mainclassClasspath);  
 		return mainclassClasspath;
 	} 
@@ -72,7 +72,7 @@ public class ProjectUtil {
 		if(applicationClasspath!=null && !applicationClasspath.isEmpty())
 			return applicationClasspath;
 		URL applicationClassLoadPathUrl = Thread.currentThread().getContextClassLoader().getResource("");
-		applicationClasspath = FileUtil.getRealAbsolutePath(applicationClassLoadPathUrl.toString());  
+		applicationClasspath = FileUtil.getNakedAbsolutePath(applicationClassLoadPathUrl.toString());  
 		applicationClasspath = FileUtil.format2Slash(applicationClasspath);  
 		return applicationClasspath;
 	} 

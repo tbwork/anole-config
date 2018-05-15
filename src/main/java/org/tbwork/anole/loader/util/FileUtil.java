@@ -90,7 +90,7 @@ public class FileUtil {
 		return result;
 	}
 	  
-	public static String getRealAbsolutePath(String absolutePath) {
+	public static String getNakedAbsolutePath(String absolutePath) {
 		return absolutePath.replace("file:", "").replace("jar:","");
 	}
 	
