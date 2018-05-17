@@ -47,8 +47,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		List<String> orderedConfigLocations = new ArrayList<String>();  
 		orderedConfigLocations.addAll(configLocationsUnderUserSpecifiedClasspathes);
 		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes);     
-		Map<String,FileLoadStatus> loadResult = super.load(logLevel, CollectionUtil.list2StringArray(orderedConfigLocations));
-		Anole.initialized = true;
+		Map<String,FileLoadStatus> loadResult = super.load(logLevel, CollectionUtil.list2StringArray(orderedConfigLocations)); 
 		return loadResult;
 	}
    

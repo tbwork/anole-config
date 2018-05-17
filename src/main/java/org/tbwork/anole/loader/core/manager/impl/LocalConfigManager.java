@@ -35,7 +35,7 @@ public class LocalConfigManager implements ConfigManager{
 	
 	@Override
 	public void setConfigItem(String key, String value, ConfigType type){  
-		if(!Anole.initialized)//Add to JVM system properties for spring to read.
+		if(!Anole.initialized)//Add to JVM system properties for other frameworks to read.
 			System.setProperty(key, value); 
 		ConfigItem cItem = configMap.get(key);
 		String operation = "New";
@@ -98,7 +98,9 @@ public class LocalConfigManager implements ConfigManager{
     private void recursionBuildConfigMap(){
     	Set<Entry<String,ConfigItem>> entrySet = configMap.entrySet();
     	for(Entry<String,ConfigItem> item : entrySet){
-    		rsc(item.getKey()); 
+    		rsc(item.getKey());
+    		if(!Anole.initialized)//Add to JVM system properties for other frameworks to read.
+				System.setProperty(item.getKey(), item.getValue().strValue()); 
     	}
     }
     
@@ -150,7 +152,7 @@ public class LocalConfigManager implements ConfigManager{
 				throw new ErrorSyntaxException(key, message);
 			} 
 			if(!realValue.equals(str)){ 
-				ci.setValue(ci.strValue().replace(str, realValue), ci.getType());
+				ci.setValue(ci.strValue().replace(str, realValue), ci.getType()); 
 			}
 			// else: real value is still not found, keep intact and do nothing
 		}  

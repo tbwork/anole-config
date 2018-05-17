@@ -141,8 +141,8 @@ public class AnoleFileLoader implements AnoleLoader{
 			result.put(configLocation.getFullPath(),  lfr.fileLoadStatus); 
 		}  
 		parseFiles(configInputStreamUnits);
+		cm.postProcess(); 
 		Anole.initialized = true; 
-		cm.postProcess();
 		AnoleLogger.info("[:)] Anole configurations are loaded succesfully.");
 		return result;
 	}
