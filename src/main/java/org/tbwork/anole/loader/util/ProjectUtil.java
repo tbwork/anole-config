@@ -40,29 +40,35 @@ public class ProjectUtil {
 	}
 	
 	/**
-	 * The classpath where is the main class under. 
+	 * The classpath where the root main class is running under.<br>
 	 * For <b>normal java-file application within IDE</b>, it returns: "/.../classes/".<br>
 	 * For <b>JUnit java-file application within IDE</b>, it returns the IDE JUnit test's running path like "D:/IDE/oxygen/configuration/org.eclipse.osgi/412/0/.cp/".<br>
 	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
 	 * For <b>normal jar-file application</b>, it returns: "/.../xxx.jar!/".<br>
 	 * For <b>spring jar-file application</b>, it returns: "/.../xxx.jar!/".<br>
 	 */
-	public static String getMainclassClasspath() {
+	public static String getRootMainclassClasspath() {
 		if(mainclassClasspath != null && !mainclassClasspath.isEmpty()) {
 			return mainclassClasspath;
 		}
 		Class<?> mainClass = Anole.getMainClass();
 		if(mainClass == null)
-			mainClass = getRootClassByStackTrace(); 
-		URL userClassLoadPathUrl = mainClass.getResource(""); 
-		String classRelativePath = mainClass.getPackage().getName().replace(".", "/")+"/";
-		mainclassClasspath = FileUtil.getNakedAbsolutePath(userClassLoadPathUrl.toString().replace(classRelativePath, ""));  
+			mainClass = getRootClassByStackTrace();  
+		System.out.println("用户主类："+mainClass.getName());
+		String fullClassName = mainClass.getName();
+		String packageName = mainClass.getPackage().getName();
+		String className = fullClassName.replace(packageName+".", "");
+		String classRelativePath = mainClass.getPackage().getName().replace(".", "/")+"/"+className+".class";
+		URL resourcePath = Thread.currentThread().getContextClassLoader().getResource(classRelativePath); 
+		mainclassClasspath = FileUtil.getNakedAbsolutePath(resourcePath.toString().replace(classRelativePath, ""));  
 		mainclassClasspath = FileUtil.format2Slash(mainclassClasspath);  
 		return mainclassClasspath;
-	} 
+	}
+	
+	 
 
 	/**
-	 * Return the classpath where the user's classes are running under.
+	 * Return the classpath where the user's main class is running under.
 	 * For <b>java-file application within IDE</b>, it returns: ".../classes/".<br>
 	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
 	 * For <b>normal jar-file application</b>, it returns the parent directory of the jar.<br>
@@ -78,7 +84,7 @@ public class ProjectUtil {
 	} 
 	
 	/**
-	 * The classpath where the user's classes running under.<br>
+	 * The classpath where the main class is running under.<br>
 	 * For <b>java-file application within IDE</b>, it returns: ".../classes/" or ".../test-classes/".<br>
 	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
 	 * For <b>normal jar-file application</b>, it returns: ".../xxx.jar!/".<br>

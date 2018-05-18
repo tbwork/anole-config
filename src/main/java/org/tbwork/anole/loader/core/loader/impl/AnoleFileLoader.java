@@ -114,7 +114,8 @@ public class AnoleFileLoader implements AnoleLoader{
 		Anole.setRuningInJar(ProjectUtil.getHomeClasspath().contains(".jar!"));
 		LogoUtil.decompress("===",  "https://github.com/tbwork/anole-loader", "Version: 1.2.4");
 		AnoleLogger.debug("Current enviroment is {}", Anole.getEnvironment());
-		Anole.setMainClass(getRootClassByStackTrace());   
+		Anole.setRootMainClass(getRootClassByStackTrace());   
+		Anole.setUserMainClass(getRootClassByStackTrace());   
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order
 		for(String configLocation : configLocations) { 
@@ -149,10 +150,38 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 	private static Class<?> getRootClassByStackTrace(){
 		try {
-			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace(); 
-			if(stackTrace.length > 0)
-				return Class.forName(stackTrace[stackTrace.length-1].getClassName());
+			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
+			if(stackTraces.length > 0)
+				return Class.forName(stackTraces[stackTraces.length-1].getClassName());
 			throw new ClassNotFoundException("Could not find the root class of current thread");
+		}
+		catch (ClassNotFoundException ex) {
+			// Swallow and continue
+			return null;
+		} 
+	} 
+	 
+	private static Class<?> getUserCallClassByStackTrace(){
+		try {
+			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
+			int anoleBootClassIndex = stackTraces.length;
+			for(int i= stackTraces.length - 1; i >=0 ; i++ ) {
+				String stackTraceClass = stackTraces[i].getClassName();
+				if(stackTraceClass.startsWith("org.tbwork.anole.loader.context.Anole")) {
+					anoleBootClassIndex = i;
+					break;
+				}
+			}
+			if(anoleBootClassIndex < stackTraces.length) {
+				int targetClassIndex = anoleBootClassIndex;
+				if( anoleBootClassIndex != (stackTraces.length-1)) { 
+					targetClassIndex = targetClassIndex + 1;
+				}
+				return Class.forName(stackTraces[targetClassIndex].getClassName());
+			}
+			else {
+				throw new ClassNotFoundException("Could not find any class calling Anole.");
+			}
 		}
 		catch (ClassNotFoundException ex) {
 			// Swallow and continue

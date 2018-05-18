@@ -23,24 +23,43 @@ public class Anole {
 	
 	private static boolean runingInJar;
 	
-	private static Class<?> mainClass;
+	private static Class<?> rootMainClass;
+	
+	private static Class<?> userMainClass;
 	
 	private static String environment;
 	
-	public static void setMainClass(Class<?> clazz) {
-		mainClass = clazz;
+	public static void setRootMainClass(Class<?> clazz) {
+		rootMainClass = clazz;
 	}
 	
 	public static void setEnvironment(String env) {
 		environment = env;
 	}
 	
+	public static void setUserMainClass(Class<?> clazz) {
+		userMainClass = clazz;
+	}
+	
 	public static String getEnvironment() {
 		return environment;
 	} 
 	
-	public static Class<?> getMainClass(){ 
-		return mainClass; 
+	/**
+	 * The root main class in Anole refers to the main class 
+	 * of current java application.
+	 */
+	public static Class<?> getRootMainClass(){ 
+		return rootMainClass; 
+	}
+	
+	/**
+	 * The user main class in Anole refers to the class which contains 
+	 * a main method calling the Anole boot class ({@link Anole},{@link AnoleConfigContext}, etc.)
+	 * directly.
+	 */
+	public static Class<?> getUserMainClass(){ 
+		return userMainClass; 
 	}
 	
 	public static String getCurrentEnvironment(){
