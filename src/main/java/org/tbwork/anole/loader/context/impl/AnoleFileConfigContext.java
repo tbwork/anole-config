@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.AnoleConfigContext;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;

@@ -1,13 +1,7 @@
 package org.tbwork.anole.loader.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.jar.JarFile;
-
-import com.alibaba.fastjson.JSON;
 
 public class SetUtil {
 
@@ -27,11 +21,5 @@ public class SetUtil {
 		}
 		return result;
 	}
-	
-	public static void main(String[] args) throws IOException {
-		
-		 String [] as = {"1","2","3"};
-		 System.out.println(JSON.toJSONString(copyArray(as,1,2)));
-	}
-	
+	 
 }

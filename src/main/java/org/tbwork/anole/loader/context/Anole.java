@@ -25,21 +25,14 @@ public class Anole {
 	
 	private static Class<?> rootMainClass;
 	
-	private static Class<?> userMainClass;
+	private static Class<?> callerClass;
 	
 	private static String environment;
-	
-	public static void setRootMainClass(Class<?> clazz) {
-		rootMainClass = clazz;
-	}
-	
+	 
 	public static void setEnvironment(String env) {
 		environment = env;
 	}
-	
-	public static void setUserMainClass(Class<?> clazz) {
-		userMainClass = clazz;
-	}
+	 
 	
 	public static String getEnvironment() {
 		return environment;
@@ -50,6 +43,9 @@ public class Anole {
 	 * of current java application.
 	 */
 	public static Class<?> getRootMainClass(){ 
+		if(rootMainClass == null) {
+			rootMainClass = getRootClassByStackTrace();
+		}
 		return rootMainClass; 
 	}
 	
@@ -58,8 +54,11 @@ public class Anole {
 	 * a main method calling the Anole boot class ({@link Anole},{@link AnoleConfigContext}, etc.)
 	 * directly.
 	 */
-	public static Class<?> getUserMainClass(){ 
-		return userMainClass; 
+	public static Class<?> getCallerClass(){ 
+		if(callerClass == null) {
+			callerClass = getCallerClassByStackTrace();
+		}
+		return callerClass; 
 	}
 	
 	public static String getCurrentEnvironment(){
@@ -192,5 +191,50 @@ public class Anole {
 		 if(!initialized)
 			 throw new AnoleNotReadyException();  
 		 return cm.getConfigItem(key);
+	} 
+	
+	
+	private static Class<?> getRootClassByStackTrace(){
+		try {
+			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
+			if(stackTraces.length > 0)
+				return Class.forName(stackTraces[stackTraces.length-1].getClassName());
+			throw new ClassNotFoundException("Could not find the root class of current thread");
+		}
+		catch (ClassNotFoundException ex) {
+			// Swallow and continue
+			return null;
+		} 
+	} 
+	 
+	private static Class<?> getCallerClassByStackTrace(){
+		try {
+			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
+			int anoleBootClassIndex = stackTraces.length;
+			for(int i= stackTraces.length - 1; i >=0 ; i-- ) {
+				String stackTraceClass = stackTraces[i].getClassName();
+				if(stackTraceClass.equals("org.tbwork.anole.loader.context.AnoleApp") 
+				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleFileConfigContext")
+				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext")
+				) {
+					anoleBootClassIndex = i;
+					break;
+				}
+			}
+			if(anoleBootClassIndex < stackTraces.length) {
+				int targetClassIndex = anoleBootClassIndex;
+				if( anoleBootClassIndex != (stackTraces.length-1)) { 
+					targetClassIndex = targetClassIndex + 1;
+				}
+				return Class.forName(stackTraces[targetClassIndex].getClassName());
+			}
+			else {
+				throw new ClassNotFoundException("Could not find any class calling Anole.");
+			}
+		}
+		catch (ClassNotFoundException ex) {
+			// Swallow and continue
+			return null;
+		} 
 	} 
 }

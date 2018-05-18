@@ -10,8 +10,8 @@ import org.tbwork.anole.loader.core.loader.impl.AnoleClasspathLoader;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.FileUtil;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
+import org.tbwork.anole.loader.util.FileUtil;
 
 /**
  * Configuration context which is loaded from files under the classpath.
@@ -24,7 +24,7 @@ public class AnoleClasspathConfigContext implements AnoleConfigContext{
 	public AnoleClasspathConfigContext(LogLevel logLevel, String ... configLocations) {
 		AnoleLoader anoleLoader = new AnoleClasspathLoader();
 		String [] slashProcessedPathes = FileUtil.format2SlashPathes(configLocations);
-		initializeAlreadyFoundMap(slashProcessedPathes);
+		initializeAlreadyFoundMap(slashProcessedPathes); 
 		Map<String,FileLoadStatus> loadResult = anoleLoader.load(logLevel, slashProcessedPathes);
 		checkNotExist(loadResult); 
 	} 

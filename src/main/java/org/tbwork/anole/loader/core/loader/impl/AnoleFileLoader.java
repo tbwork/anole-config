@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -41,11 +42,12 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 	private ConfigManager cm;
 	
-	private static final List<String> projectInfoPropertiesFileList  = new ArrayList<String>();
-	
+	private static final List<String> projectInfoPropertiesInJarPathList  = new ArrayList<String>();
+	private static final List<String> projectInfoPropertiesPathList  = new ArrayList<String>();
 	static {
-		projectInfoPropertiesFileList.add("../maven-archiver/pom.properties");
-		projectInfoPropertiesFileList.add("META-INF/maven/*/*/pom.properties");
+		projectInfoPropertiesPathList.add("../maven-archiver/pom.properties");
+		projectInfoPropertiesPathList.add("META-INF/maven/*/*/pom.properties");
+		projectInfoPropertiesInJarPathList.add("META-INF/maven/*/*/pom.properties");
 	}
 	
 	public AnoleFileLoader(){
@@ -111,21 +113,19 @@ public class AnoleFileLoader implements AnoleLoader{
 	public Map<String,FileLoadStatus> load(LogLevel logLevel, String... configLocations) { 
 		AnoleLogger.anoleLogLevel = logLevel; 
 		Map<String,FileLoadStatus> result = new HashMap<String, FileLoadStatus>();  
-		Anole.setRuningInJar(ProjectUtil.getHomeClasspath().contains(".jar!"));
+		Anole.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
 		LogoUtil.decompress("===",  "https://github.com/tbwork/anole-loader", "Version: 1.2.4");
 		AnoleLogger.debug("Current enviroment is {}", Anole.getEnvironment());
-		Anole.setRootMainClass(getRootClassByStackTrace());   
-		Anole.setUserMainClass(getRootClassByStackTrace());   
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order
 		for(String configLocation : configLocations) { 
-			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getHomeClasspath())) {
+			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getCallerClasspath())) {
 				// outer jars
 				candidates.add(new CandidateConfigPath(1, configLocation.trim()));
 			}
-			else if(!configLocation.startsWith(ProjectUtil.getHomeClasspath())){
+			else if(!configLocation.startsWith(ProjectUtil.getCallerClasspath())){
 				// outer directory
-				candidates.add(new CandidateConfigPath(3, configLocation.trim()));
+				candidates.add(new CandidateConfigPath(50, configLocation.trim()));
 			}
 			else {
 				// main classpath (in jar or in classes)
@@ -133,7 +133,7 @@ public class AnoleFileLoader implements AnoleLoader{
 			}
 		} 
 		for(String projectInfoFile : getFullPathForProjectInfoFiles()) {
-			candidates.add(new CandidateConfigPath(4, projectInfoFile.trim()));
+			candidates.add(new CandidateConfigPath(10, projectInfoFile.trim()));
 		} 
 		List<ConfigInputStreamUnit> configInputStreamUnits = new ArrayList<ConfigInputStreamUnit>();
 		for(CandidateConfigPath configLocation : candidates) {
@@ -148,53 +148,23 @@ public class AnoleFileLoader implements AnoleLoader{
 		return result;
 	}
 	
-	private static Class<?> getRootClassByStackTrace(){
-		try {
-			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
-			if(stackTraces.length > 0)
-				return Class.forName(stackTraces[stackTraces.length-1].getClassName());
-			throw new ClassNotFoundException("Could not find the root class of current thread");
-		}
-		catch (ClassNotFoundException ex) {
-			// Swallow and continue
-			return null;
-		} 
-	} 
-	 
-	private static Class<?> getUserCallClassByStackTrace(){
-		try {
-			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
-			int anoleBootClassIndex = stackTraces.length;
-			for(int i= stackTraces.length - 1; i >=0 ; i++ ) {
-				String stackTraceClass = stackTraces[i].getClassName();
-				if(stackTraceClass.startsWith("org.tbwork.anole.loader.context.Anole")) {
-					anoleBootClassIndex = i;
-					break;
-				}
-			}
-			if(anoleBootClassIndex < stackTraces.length) {
-				int targetClassIndex = anoleBootClassIndex;
-				if( anoleBootClassIndex != (stackTraces.length-1)) { 
-					targetClassIndex = targetClassIndex + 1;
-				}
-				return Class.forName(stackTraces[targetClassIndex].getClassName());
-			}
-			else {
-				throw new ClassNotFoundException("Could not find any class calling Anole.");
-			}
-		}
-		catch (ClassNotFoundException ex) {
-			// Swallow and continue
-			return null;
-		} 
-	} 
+
 	
 	private List<String> getFullPathForProjectInfoFiles() {
 		List<String> result = new ArrayList<String>();
-		String homeClasspath =  ProjectUtil.getHomeClasspath();
-		for(String projectInfoFile : projectInfoPropertiesFileList) {
-			result.add(homeClasspath + projectInfoFile); 
+		String projectInfoPath =  ProjectUtil.getCallerClasspath(); 
+		if(projectInfoPath.contains(".jar!/")) {
+			int index = projectInfoPath.indexOf(".jar!/");
+			projectInfoPath = projectInfoPath.substring(0, index+6);
+			for(String projectInfoFile : projectInfoPropertiesInJarPathList) {
+				result.add(projectInfoPath + projectInfoFile);  
+			} 
 		}
+		else {
+			for(String projectInfoFile : projectInfoPropertiesPathList) {
+				result.add(projectInfoPath + projectInfoFile);  
+			} 
+		} 
 		return result;
 	}
 	   
@@ -233,10 +203,14 @@ public class AnoleFileLoader implements AnoleLoader{
 	}  
 
 	private static boolean isProjectInfo(String fileFullPath) {
-		for(String path : projectInfoPropertiesFileList) {
+		for(String path : projectInfoPropertiesInJarPathList) {
 			if(fileFullPath.contains(path))
 				return true;
 		}
+		for(String path : projectInfoPropertiesPathList) {
+			if(fileFullPath.contains(path))
+				return true;
+		} 
 		return false;
 	}
 	
@@ -298,7 +272,7 @@ public class AnoleFileLoader implements AnoleLoader{
 		if(AnoleLogger.isDebugEnabled()) {
 			for(ConfigInputStreamUnit unit : streams)
 				AnoleLogger.debug(unit.fileName);
-		} 
+		}  
 		for(ConfigInputStreamUnit cisu : streams) {
 			AnoleLogger.debug("parsing : {}", cisu.getFileName());
 			acfParser.parse(cisu.getIs(), cisu.fileName);
