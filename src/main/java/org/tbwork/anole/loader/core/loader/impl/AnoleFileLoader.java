@@ -153,6 +153,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	private List<String> getFullPathForProjectInfoFiles() {
 		List<String> result = new ArrayList<String>();
 		String projectInfoPath =  ProjectUtil.getCallerClasspath(); 
+		projectInfoPath = projectInfoPath.replace("test-classes", "classes");
 		if(projectInfoPath.contains(".jar!/")) {
 			int index = projectInfoPath.indexOf(".jar!/");
 			projectInfoPath = projectInfoPath.substring(0, index+6);
