@@ -10,7 +10,7 @@
 
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.4-SNAPSHOT</version>
+  <version>1.2.4</version>
   <packaging>jar</packaging>
 
   <name>anole-loader</name>
