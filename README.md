@@ -58,6 +58,15 @@ For maven, import it using:
   ```
   Within the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
   
+### 3.1 Recursive variable reference
+
+You can define a variable by referencing another variable using “${}”, see
+
+```
+name = tangbo
+helloworld=hello, ${name}
+```
+  
 ## 4 Start your java program as an Anole application.
 
 (1) Use the annotation of **@AnoleConfigLocation**
@@ -130,12 +139,7 @@ To Log4j2, it would be like:
 ```
 ${sys:key}
 ```
-8 Recursive variable reference
-You can define a variable by referencing another variable.
-```
-name = tangbo
-helloworld=hello, ${name}
-```
+
 ## 8 Integrate with JUnit
 
 It is very easy to integrate Anole with JUnit, for example (using JUnit 4):
