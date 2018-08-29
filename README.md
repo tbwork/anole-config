@@ -1,4 +1,4 @@
-# Anole-Loader
+# Anole-Loader ![](https://img.shields.io/badge/version-1.2.4-green.svg)
 
 # What it is
 
