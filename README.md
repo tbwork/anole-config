@@ -154,3 +154,7 @@ public class XXXUnitTest{
 	} 
 }
 ```
+
+## 9 What is the principle
+
+Anole-loader's principle is simple. It based on a fact that a vast majority of common-used third-party frameworks retrieve properties first from the JVM system properties and then from their own mechanisms. So, what anole-loader does is resolving property resources from different locations and then register them to JVM system property table. However the part of resolving property resources efficiently could be a pretty chanllenge.
