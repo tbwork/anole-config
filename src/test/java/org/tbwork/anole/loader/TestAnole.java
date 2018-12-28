@@ -10,7 +10,7 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 @AnoleConfigLocation(locations="*.anole")
 public class TestAnole {
 	public static void main(String[] args) throws IOException {
-		AnoleApp.start(LogLevel.DEBUG);
-		System.out.println(Anole.getProjectName());
+		AnoleApp.start(LogLevel.WARN);
+		System.out.println(AnoleApp.getProjectName());
 	}
 }

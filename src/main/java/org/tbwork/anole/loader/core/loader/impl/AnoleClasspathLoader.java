@@ -26,14 +26,12 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 	}
 	
 	@Override
-	public Map<String,FileLoadStatus> load(LogLevel logLevel) { 
-		AnoleLogger.anoleLogLevel = logLevel; 
-		return load(logLevel, "*.anole"); 
+	public Map<String,FileLoadStatus> load() { 
+		return load("*.anole"); 
 	}
 	
 	@Override
-	public Map<String,FileLoadStatus> load(LogLevel logLevel, String... configLocations) { 
-		AnoleLogger.anoleLogLevel = logLevel;  
+	public Map<String,FileLoadStatus> load(String... configLocations) { 
 		// User specified classpath.
 		Set<String> configLocationsUnderUserSpecifiedClasspathes = getConfigLocationsUnderUserSpecifiedClasspath(configLocations);  
 		Set<String> configLocationUnderApplicationClasspathes = getConfigLocationUnderCallerClasspath(configLocations);  
@@ -44,7 +42,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		List<String> orderedConfigLocations = new ArrayList<String>();  
 		orderedConfigLocations.addAll(configLocationsUnderUserSpecifiedClasspathes);
 		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes);     
-		Map<String,FileLoadStatus> loadResult = super.load(logLevel, CollectionUtil.list2StringArray(orderedConfigLocations)); 
+		Map<String,FileLoadStatus> loadResult = super.load(CollectionUtil.list2StringArray(orderedConfigLocations)); 
 		return loadResult;
 	}
    

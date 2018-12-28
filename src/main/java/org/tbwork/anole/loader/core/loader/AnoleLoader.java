@@ -17,19 +17,4 @@ public interface AnoleLoader {
 	 */
 	public Map<String,FileLoadStatus> load(String ... configLocations);
  
-	/**
-	 * <p>You can control the log level of Anole's output in
-	 * the startup stage by setting <b>logLevel</b>
-	 * <p><b>Note:</b> This log level has no relationship
-	 * with other Log framework(e.g. log4j, log-back, etc.),
-	 * please do not mix up. :) 
-	 */
-	public Map<String,FileLoadStatus> load(LogLevel logLevel);
-	
-	/**
-	 * The most comprehensive parameter-set method.
-	 * @param logLevel {@link AnoleLoader#load(LogLevel)} 
-	 * @param configLocations {@link AnoleLoader#load(String...)}
-	 */
-	public Map<String,FileLoadStatus> load(LogLevel logLevel, String ... configLocations);
 }

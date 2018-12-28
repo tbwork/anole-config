@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.List;
 
 import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException; 
  
 
@@ -43,7 +44,7 @@ public class ProjectUtil {
 		if(callerClasspath != null && !callerClasspath.isEmpty()) {
 			return callerClasspath;
 		}
-		Class<?> mainClass = Anole.getCallerClass(); 
+		Class<?> mainClass = AnoleApp.getCallerClass(); 
 		String fullClassName = mainClass.getName(); 
 		String packageName = mainClass.getPackage().getName();
 		String className = fullClassName.replace(packageName+".", "");

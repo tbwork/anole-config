@@ -21,81 +21,8 @@ public class Anole {
 	 */
 	public static boolean initialized = false;
 	
-	private static boolean runingInJar;
 	
-	private static Class<?> rootMainClass;
-	
-	private static Class<?> callerClass;
-	
-	private static String environment;
-	 
-	public static void setEnvironment(String env) {
-		environment = env;
-	}
-	 
-	
-	public static String getEnvironment() {
-		return environment;
-	} 
-	
-	/**
-	 * The root main class in Anole refers to the main class 
-	 * of current java application.
-	 */
-	public static Class<?> getRootMainClass(){ 
-		if(rootMainClass == null) {
-			rootMainClass = getRootClassByStackTrace();
-		}
-		return rootMainClass; 
-	}
-	
-	/**
-	 * The user main class in Anole refers to the class which contains 
-	 * a main method calling the Anole boot class ({@link Anole},{@link AnoleConfigContext}, etc.)
-	 * directly.
-	 */
-	public static Class<?> getCallerClass(){ 
-		if(callerClass == null) {
-			callerClass = getCallerClassByStackTrace();
-		}
-		return callerClass; 
-	}
-	
-	public static String getCurrentEnvironment(){
-		return getProperty("anole.runtime.currentEnvironment");
-	}
-	
-	
-	/**
-	 * <p> For <b>maven</b> projects, this method will return the artifactId.
-	 * <p> For <b>other</b> projects, this method will return the value of 
-	 * variable named "anole.project.info.name", you should define it first in your
-	 * configuration files.
-	 * @return the project name
-	 */
-	public static String getProjectName() {
-		String projectName = Anole.getProperty("artifactId");
-		if(projectName == null)
-			projectName = Anole.getProperty("anole.project.info.name");
-		return projectName;
-	}
-	 
-	
-	/**
-	 * <p> For <b>maven</b> projects, this method will return the version.
-	 * <p> For <b>other</b> projects, this method will return the value of 
-	 * variable named "anole.project.info.version", you should define it first in your
-	 * configuration files.
-	 * @return the project version
-	 */
-	public static String getProjectVersion() {
-		String projectVersion = Anole.getProperty("version");
-		if(projectVersion == null)
-			projectVersion = Anole.getProperty("anole.project.info.version");
-		return projectVersion;
-	}
 
-	
 	/**
 	 * Check whether the value of the key is existing and
 	 * not blank, or not.
@@ -178,13 +105,7 @@ public class Anole {
 		 return getBoolProperty(key, false);
 	}
 	
-	public static boolean runingInJar(){
-		return runingInJar;
-	}
 	
-	public static void setRuningInJar(boolean runingInJar){
-		Anole.runingInJar = runingInJar;
-	}
 	
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
 	{ 
@@ -194,47 +115,4 @@ public class Anole {
 	} 
 	
 	
-	private static Class<?> getRootClassByStackTrace(){
-		try {
-			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
-			if(stackTraces.length > 0)
-				return Class.forName(stackTraces[stackTraces.length-1].getClassName());
-			throw new ClassNotFoundException("Could not find the root class of current thread");
-		}
-		catch (ClassNotFoundException ex) {
-			// Swallow and continue
-			return null;
-		} 
-	} 
-	 
-	private static Class<?> getCallerClassByStackTrace(){
-		try {
-			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
-			int anoleBootClassIndex = stackTraces.length;
-			for(int i= stackTraces.length - 1; i >=0 ; i-- ) {
-				String stackTraceClass = stackTraces[i].getClassName();
-				if(stackTraceClass.equals("org.tbwork.anole.loader.context.AnoleApp") 
-				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleFileConfigContext")
-				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext")
-				) {
-					anoleBootClassIndex = i;
-					break;
-				}
-			}
-			if(anoleBootClassIndex < stackTraces.length) {
-				int targetClassIndex = anoleBootClassIndex;
-				if( anoleBootClassIndex != (stackTraces.length-1)) { 
-					targetClassIndex = targetClassIndex + 1;
-				}
-				return Class.forName(stackTraces[targetClassIndex].getClassName());
-			}
-			else {
-				throw new ClassNotFoundException("Could not find any class calling Anole.");
-			}
-		}
-		catch (ClassNotFoundException ex) {
-			// Swallow and continue
-			return null;
-		} 
-	} 
 }

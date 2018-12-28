@@ -38,16 +38,12 @@ public class AnoleFileConfigContext{
   
 	private Map<String, Boolean> alreadyFoundOrMatchedMap;
 	
-	public AnoleFileConfigContext(LogLevel logLevel, String ... configLocations) {
+	public AnoleFileConfigContext(String ... configLocations) {
 		AnoleLoader anoleLoader = new AnoleFileLoader();
 		String [] slashProcessedPathes = FileUtil.format2SlashPathes(configLocations);
 		initializeAlreadyFoundMap(slashProcessedPathes);
-		Map<String,FileLoadStatus> loadResult = anoleLoader.load(logLevel, slashProcessedPathes);
+		Map<String,FileLoadStatus> loadResult = anoleLoader.load(slashProcessedPathes);
 		checkNotExist(loadResult); 
-	}
-	
-	public AnoleFileConfigContext(String ... configLocations) {
-		this(AnoleLogger.defaultLogLevel, configLocations);
 	}
 	
 	private void initializeAlreadyFoundMap(String ... configLocations) {

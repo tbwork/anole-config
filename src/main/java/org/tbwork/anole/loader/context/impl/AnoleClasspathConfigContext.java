@@ -37,22 +37,19 @@ public class AnoleClasspathConfigContext{
 
 	private Map<String, Boolean> alreadyFoundOrMatchedMap;
 	
-	public AnoleClasspathConfigContext(LogLevel logLevel, String ... configLocations) {
+	public AnoleClasspathConfigContext(String ... configLocations) {
 		AnoleLoader anoleLoader = new AnoleClasspathLoader();
 		String [] slashProcessedPathes = FileUtil.format2SlashPathes(configLocations);
 		initializeAlreadyFoundMap(slashProcessedPathes); 
-		Map<String,FileLoadStatus> loadResult = anoleLoader.load(logLevel, slashProcessedPathes);
+		Map<String,FileLoadStatus> loadResult = anoleLoader.load(slashProcessedPathes);
 		checkNotExist(loadResult); 
 	} 
 	 
 	
-	public AnoleClasspathConfigContext(LogLevel logLevel) {
-		this(logLevel, "*.anole");
+	public AnoleClasspathConfigContext() {
+		this("*.anole");
 	}
 	
-	public AnoleClasspathConfigContext(String ... configLocations) {
-		this(AnoleLogger.defaultLogLevel);
-	}
 	
 	private void initializeAlreadyFoundMap(String ... configLocations) {
 		if(alreadyFoundOrMatchedMap == null)

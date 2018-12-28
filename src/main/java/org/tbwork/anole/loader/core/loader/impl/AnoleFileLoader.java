@@ -20,6 +20,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
@@ -60,20 +61,9 @@ public class AnoleFileLoader implements AnoleLoader{
 
 	@Override
 	public Map<String,FileLoadStatus> load() {
-		return load(AnoleLogger.defaultLogLevel);
+		 throw new OperationNotSupportedException();
 	}  
  
-	@Override
-	public Map<String,FileLoadStatus> load(LogLevel logLevel) { 
-		AnoleLogger.anoleLogLevel = logLevel; 
-	    throw new OperationNotSupportedException();
-	}
-
-	@Override
-	public Map<String,FileLoadStatus> load(String... configLocations) {
-		return load(AnoleLogger.defaultLogLevel, configLocations);
-	}
-	
 	@Data
 	private static class ConfigInputStreamUnit{
 		private String fileName;
@@ -109,12 +99,11 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 	
 	@Override
-	public Map<String,FileLoadStatus> load(LogLevel logLevel, String... configLocations) { 
-		AnoleLogger.anoleLogLevel = logLevel; 
+	public Map<String,FileLoadStatus> load(String... configLocations) { 
 		Map<String,FileLoadStatus> result = new HashMap<String, FileLoadStatus>();  
-		Anole.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
-		LogoUtil.decompress("===",  "https://github.com/tbwork/anole-loader", "v1.2.5");
-		AnoleLogger.debug("Current enviroment is {}", Anole.getEnvironment());
+		AnoleApp.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
+		LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.6)");
+		AnoleLogger.debug("Current enviroment is {}", AnoleApp.getEnvironment());
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order
 		for(String configLocation : configLocations) { 
@@ -379,14 +368,13 @@ public class AnoleFileLoader implements AnoleLoader{
 		 private static void println(char khar) {
 			 System.out.println(khar);
 		 }
-		 
-		 public static void decompress(String line1, String line2, String line3){
-			    InputStream in = AnoleFileLoader.class.getResourceAsStream("/logo.cps");  
+		    
+		 public static void decompress(String filePath, String message){
+			    InputStream in = AnoleFileLoader.class.getResourceAsStream(filePath);  
 		    	Scanner scanner = null;
 		    	List<Integer> chars = new ArrayList<Integer>();
 				try {
 					scanner = new Scanner(in); 
-					Integer width = Integer.valueOf(scanner.nextLine());
 					while(scanner.hasNextLine()){
 						String lineStr = scanner.nextLine();
 						String [] charAndRepeatCount = lineStr.split(",");
@@ -397,23 +385,21 @@ public class AnoleFileLoader implements AnoleLoader{
 						}
 					}
 					scanner.close();
-					setFrameChar(chars, '+');
-					addCustomContet(chars, '-', line1, '=');
-					addCustomContet(chars, '#', line2, ' ');
-					addCustomContet(chars, '?', line3, ' '); 
-					print(chars, width);
+					setFrameChar(chars, '*');
+					addCustomContet(chars, '?', message, ' ');
+					print(chars);
 				} catch (Exception e) {
 					e.printStackTrace();
 				} 
 		    }
 		    
-		  
-		    
-		    private static void print(List<Integer> chars, int length){
+		    private static void print(List<Integer> chars){
 		    	for(int i = 0 ; i< chars.size(); i++){
-		    		print(String.valueOf((char)chars.get(i).byteValue()));
-		    		if((i+1) % length ==0){
-		    			println("");
+		    		String temp = String.valueOf((char)chars.get(i).byteValue()); 
+		    		if(temp.contains("\n")) {
+		    			System.out.println("");
+		    		}else {
+		    			System.out.print(temp);
 		    		}
 		    	}
 		    }
@@ -446,14 +432,15 @@ public class AnoleFileLoader implements AnoleLoader{
 		    
 		    private static void setFrameChar(List<Integer> chars, char targetChar){
 		    	if(targetChar == '-' || targetChar == '#' || targetChar == '?'){
-		    		AnoleLogger.info("Invalid frame char. It can not be '-', '#' or '?'"); 
+		    	   System.out.println("Invalid frame char. It can not be '-', '#' or '?'"); 
 		    	}
 		    	for(int i=0; i<chars.size() ; i++){
-		    		if(chars.get(i)=='.'){
+		    		if(chars.get(i)=='*'){
 		    			chars.set(i, (int)targetChar);
 		    		}
 		    	}
-		    } 
+		    }  
+		
 	}
 
 }

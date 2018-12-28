@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Scanner;
 
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
@@ -25,7 +25,7 @@ class AnoleConfigFileParser {
 	
 	private AnoleConfigFileParser(){
 		String env = setEnv(); 
-		Anole.setEnvironment(env);
+		AnoleApp.setEnvironment(env);
 	}
 	
 	/**
