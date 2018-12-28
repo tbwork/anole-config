@@ -25,6 +25,7 @@
 	    <lombok.version>1.16.8</lombok.version>
 	    <slf4j.api.version>1.7.12</slf4j.api.version>
 	    <gpg.skip>false</gpg.skip>
+	    <javadoc.opts>-Xdoclint:none</javadoc.opts>
   </properties>
    
   <licenses>
@@ -117,6 +118,9 @@
 					<goals>
 						<goal>jar</goal>
 					</goals>
+					<configuration>
+                        <additionalparam>${javadoc.opts}</additionalparam>
+                    </configuration>
 				</execution>
 			</executions>
 		</plugin>
