@@ -1,4 +1,4 @@
-# Anole-Loader ![](https://badgen.net/badge/release/1.2.5/orange)
+# Anole-Loader ![](https://badgen.net/badge/release/1.2.6/orange)
 
 # What it is
 
