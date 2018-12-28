@@ -1,4 +1,4 @@
-package org.tbwork.anole.loader.util;
+package org.tbwork.anole.loader;
 
 import java.io.IOException;
 
@@ -11,7 +11,6 @@ import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 public class TestAnole {
 	public static void main(String[] args) throws IOException {
 		AnoleApp.start(LogLevel.DEBUG);
-		System.out.println(Anole.getProperty("a"));
-		System.out.println(Anole.getProperty("b"));
+		System.out.println(Anole.getProjectName());
 	}
 }

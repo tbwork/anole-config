@@ -113,7 +113,7 @@ public class AnoleFileLoader implements AnoleLoader{
 		AnoleLogger.anoleLogLevel = logLevel; 
 		Map<String,FileLoadStatus> result = new HashMap<String, FileLoadStatus>();  
 		Anole.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
-		LogoUtil.decompress("===",  "https://github.com/tbwork/anole-loader", "Version: 1.2.4");
+		LogoUtil.decompress("===",  "https://github.com/tbwork/anole-loader", "v1.2.5");
 		AnoleLogger.debug("Current enviroment is {}", Anole.getEnvironment());
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order

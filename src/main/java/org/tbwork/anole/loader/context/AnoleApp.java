@@ -9,16 +9,19 @@ public class AnoleApp {
   
 	public static void start(AnoleLogger.LogLevel logLevel){
 		Class<?> runtimeClass =  getAnoleRootClassByStackTrace(); 
-		AnoleConfigContext accc = null;
-		if(runtimeClass!=null && runtimeClass.isAnnotationPresent(AnoleConfigLocation.class)){
-			AnoleConfigLocation anoleConfigFiles = runtimeClass.getAnnotation(AnoleConfigLocation.class); 
+		start(runtimeClass, logLevel);
+	}
+	
+	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel) {
+		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
+			AnoleConfigLocation anoleConfigFiles = targetRootClass.getAnnotation(AnoleConfigLocation.class); 
 			if(!anoleConfigFiles.locations().isEmpty()){
 				String [] path = anoleConfigFiles.locations().split(",");
-				accc = new AnoleClasspathConfigContext(logLevel, StringUtil.trimStrings(path)); 
+				new AnoleClasspathConfigContext(logLevel, StringUtil.trimStrings(path)); 
 				return;
 			}  
 		}  
-		accc = new AnoleClasspathConfigContext(logLevel, "*.anole"); 
+		new AnoleClasspathConfigContext(logLevel, "*.anole"); 
 	}
 	
 	public static void start(){

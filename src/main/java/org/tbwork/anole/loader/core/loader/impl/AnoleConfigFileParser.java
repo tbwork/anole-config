@@ -122,17 +122,18 @@ class AnoleConfigFileParser {
 	private String setEnvFromPath(String directoryPath){ 
 		// check by the following order
 		// 1. the system property
-		// 2. the JVM environment variable
-		// 3. the e
+		// 2. the JVM boot variable
+		// 3. the environment file
 		//check if the environment is already set or not
 		sysEnv = System.getProperty("anole.runtime.currentEnvironment");
 		if(sysEnv == null)
 			sysEnv = System.getenv("anole.runtime.currentEnvironment"); 
+		
 		if(sysEnv != null && !sysEnv.isEmpty()) {
 			lcm.setConfigItem("anole.runtime.currentEnvironment", sysEnv, ConfigType.STRING);
 			return sysEnv; 
 		} 
-		// check the env file first
+		
 		File file = new File(directoryPath);
 		if(file.exists()){
 			File [] fileList = file.listFiles();
@@ -144,7 +145,11 @@ class AnoleConfigFileParser {
 				}
 			}
 		}  
-		throw new EnvironmentNotSetException();
+		//throw new EnvironmentNotSetException();
+		// from 1.2.5 use warning instead and return "all" environment.
+		AnoleLogger.info("Cound not decide current environment, 'all' environment will be used.");
+		sysEnv = "all";
+		return sysEnv;
 		
 	}
 	
