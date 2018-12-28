@@ -1,4 +1,4 @@
-# Anole-Loader ![](https://img.shields.io/badge/version-1.2.4-green.svg)
+# Anole-Loader ![](https://badgen.net/badge/release/1.2.5/orange)
 
 # What it is
 
@@ -19,7 +19,7 @@ For maven, import it using:
 <dependency>
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.4</version>
+  <version>1.2.5</version>
 </dependency>
 ```
 
