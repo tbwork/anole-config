@@ -24,6 +24,9 @@ For maven, import it using:
 ```
 
 ## 2 Specify the runtime environment. There are 3 ways to specify the runtime enviroment.
+
+> If you just want to use Anole-Loader's basic function for retrieving properties without distinguishing the environments, you can skip this step. And the default environment would be 'all'.
+
 **Option 1**: Create an enviroment file in your disk.**
  * For windows: create a $env.env (e.g. test.env) file under `C://anole/`
  * For Linux: create a $env.env (e.g. dev.env) file under `/etc/anole/`
