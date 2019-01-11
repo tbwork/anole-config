@@ -2,6 +2,7 @@ package org.tbwork.anole.loader.context;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
+import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
 
@@ -18,8 +19,9 @@ public class AnoleApp {
 	/**
 	 * Start an anole application.
 	 * @param logLevel the logLevel of anole itself.
+	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
-	public static void start(AnoleLogger.LogLevel logLevel){
+	public static void start(AnoleLogger.LogLevel logLevel, String ... scanJarPatterns){
 		Class<?> runtimeClass =  getAnoleRootClassByStackTrace(); 
 		start(runtimeClass, logLevel);
 	}
@@ -28,9 +30,11 @@ public class AnoleApp {
 	 * Start an Anole application with specified root class.
 	 * @param targetRootClass the root start class.
 	 * @param logLevel the logLevel of Anole itself.
+	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
-	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel) {
-		AnoleLogger.anoleLogLevel = logLevel; 
+	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel, String ... scanJarPatterns) {
+		AnoleLogger.anoleLogLevel = logLevel;
+		AnoleFileLoader.includedJarFilters = scanJarPatterns;
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfigFiles = targetRootClass.getAnnotation(AnoleConfigLocation.class); 
 			if(!anoleConfigFiles.locations().isEmpty()){
@@ -41,7 +45,15 @@ public class AnoleApp {
 		}  
 		new AnoleClasspathConfigContext(); 
 	}
-	
+
+	/**
+	 * Start an Anole application with default log level.
+	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
+	 */
+	public static void start(String ... scanJarPatterns){
+		start(AnoleLogger.defaultLogLevel);
+	}
+
 	/**
 	 * Start an Anole application with default log level.
 	 */

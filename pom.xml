@@ -10,7 +10,7 @@
 
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.6</version>
+  <version>1.2.7</version>
   <packaging>jar</packaging>
 
   <name>anole-loader</name>
@@ -96,7 +96,6 @@
 			<artifactId>maven-source-plugin</artifactId>
 			<version>2.4</version>
 			<configuration>
-				<encoding>${project.build.sourceEncoding}</encoding>
 			</configuration>
 			<executions>
 				<execution>

@@ -1,19 +1,12 @@
 package org.tbwork.anole.loader.core.loader.impl;
  
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 import org.tbwork.anole.loader.util.CollectionUtil;
 import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.ProjectUtil; 
+import org.tbwork.anole.loader.util.ProjectUtil;
+
+import java.util.*;
 
 public class AnoleClasspathLoader extends AnoleFileLoader{ 
 	   
@@ -59,7 +52,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		return fullPathConfigLocations;
 	}
 	
-	private static Set<String> getConfigLocationsUnderUserSpecifiedClasspath(String ... configLocations) {
+	private Set<String> getConfigLocationsUnderUserSpecifiedClasspath(String ... configLocations) {
 		Set<String> fullPathConfigLocations = new HashSet<String>();
 		String programPath = ProjectUtil.getProgramPath();  
 	    //get all classpathes
@@ -67,6 +60,9 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		String  [] pathElements = classPath.split(System.getProperty("path.separator")); 
 		for(String path : pathElements) {
 			path = FileUtil.format2Slash(path);
+			if(!isInValidScanJar(path)){
+				continue;
+			}
 			if(!FileUtil.isAbsolutePath(path)){
 				// Suffix with the root path if the current path is not an absolute path
 				if(path.equals("./") || path.equals(".")) { 
@@ -76,7 +72,7 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 					} 
 					else {
 						path = programPath + path; 
-					} 
+					}
 				} 
 				else {
 					path = programPath + path; 

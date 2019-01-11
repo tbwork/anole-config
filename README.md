@@ -1,4 +1,4 @@
-# Anole-Loader ![](https://badgen.net/badge/release/1.2.6/orange)
+# Anole-Loader ![](https://badgen.net/badge/release/1.2.7/orange)
 
 # What it is
 
@@ -19,7 +19,7 @@ For maven, import it using:
 <dependency>
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.6</version>
+  <version>1.2.7</version>
 </dependency>
 ```
 
@@ -45,18 +45,13 @@ For maven, import it using:
   
   ## define a string
   key=value
-  #or
-  s:key=value
-  #or
-  key          =      value
-  
   ## define a number
-  n:num = 123
-  n:double = 123.1212
-  n:float = 123.0
+  num = 123
+  double = 123.1212
+  float = 123.0
   
   ## define a boolean
-  b:switch = true
+  switch = true
   
   ```
   Within the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.

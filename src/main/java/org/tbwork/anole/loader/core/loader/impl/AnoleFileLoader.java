@@ -1,24 +1,6 @@
 package org.tbwork.anole.loader.core.loader.impl;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Scanner;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
+import lombok.Data;
 import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
@@ -26,21 +8,23 @@ import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.exceptions.BadJarFileException;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
-import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.IOUtil;
-import org.tbwork.anole.loader.util.ProjectUtil;
-import org.tbwork.anole.loader.util.SingletonFactory;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.*;
 
-import lombok.Data; 
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 public class AnoleFileLoader implements AnoleLoader{ 
 	
 	private AnoleConfigFileParser acfParser = AnoleConfigFileParser.instance();
 	
 	private ConfigManager cm;
+
+	public static String [] includedJarFilters = null;
 	
 	private static final List<String> projectInfoPropertiesInJarPathList  = new ArrayList<String>();
 	private static final List<String> projectInfoPropertiesPathList  = new ArrayList<String>();
@@ -96,6 +80,7 @@ public class AnoleFileLoader implements AnoleLoader{
 		}
 	}
 
+
 	
 	
 	@Override
@@ -106,7 +91,8 @@ public class AnoleFileLoader implements AnoleLoader{
 		AnoleLogger.debug("Current enviroment is {}", AnoleApp.getEnvironment());
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order
-		for(String configLocation : configLocations) { 
+		for(String configLocation : configLocations) {
+			if(!isInValidScanJar(configLocation)) continue;
 			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getCallerClasspath())) {
 				// outer jars
 				candidates.add(new CandidateConfigPath(1, configLocation.trim()));
@@ -137,7 +123,18 @@ public class AnoleFileLoader implements AnoleLoader{
 	}
 	
 
-	
+	protected boolean isInValidScanJar(String configLocation){
+		if(!configLocation.contains(".jar"))
+			return true;
+		for(String item : includedJarFilters){
+			item = StringUtil.concat("*", item, ".jar*");
+			if(StringUtil.asteriskMatch(item, configLocation)){
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private List<String> getFullPathForProjectInfoFiles() {
 		List<String> result = new ArrayList<String>();
 		String projectInfoPath =  ProjectUtil.getCallerClasspath(); 
@@ -270,9 +267,6 @@ public class AnoleFileLoader implements AnoleLoader{
 	 
 	/**
 	 * Input like : /D://prject/a.jar!/BOOT-INF!/classes!/*.properties
-	 * @param fileFullPath the full path of the configuration file.
-	 * @param ignoreJarInJar whether ignore the jars inner the main jar.
-	 * @return
 	 */
 	private static LoadFileResult loadFileFromJar(CandidateConfigPath ccp){
 		LoadFileResult result = new LoadFileResult();

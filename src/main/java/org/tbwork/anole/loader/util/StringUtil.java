@@ -1,11 +1,11 @@
 package org.tbwork.anole.loader.util;
 
+import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 
 public class StringUtil {
 
@@ -108,7 +108,8 @@ public class StringUtil {
 	  * @param str the input str
 	  */
 	 public static String trim(String str){  
-		 return str.replaceAll("\\s", "") ;
+		 //return str.replaceAll("\\s", "") ;
+		 return str.trim();
 	 }
 	  
 	 
@@ -139,6 +140,16 @@ public class StringUtil {
 		 }
 		 return sb.toString();
 	 }
+
+	public static String concat(String ...strings){
+		if(strings.length == 0)
+			return "";
+		StringBuilder sb = new StringBuilder();
+		for(int i = 0; i < strings.length; i++){
+			sb.append(strings[i]);
+		}
+		return sb.toString();
+	}
 	 
 	 
 	 public static String join(String delimiter, List<String> strings){

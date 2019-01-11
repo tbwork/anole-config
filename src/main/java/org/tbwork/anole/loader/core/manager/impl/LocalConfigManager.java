@@ -1,20 +1,20 @@
 package org.tbwork.anole.loader.core.manager.impl;
 
+import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.core.manager.ConfigManager;
+import org.tbwork.anole.loader.core.model.ConfigItem;
+import org.tbwork.anole.loader.exceptions.CircularDependencyException;
+import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import org.tbwork.anole.loader.types.ConfigType;
+import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.StringUtil;
+
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.tbwork.anole.loader.types.ConfigType;
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.core.manager.ConfigManager;
-import org.tbwork.anole.loader.core.model.ConfigItem;
-import org.tbwork.anole.loader.exceptions.CircularDependencyException;
-import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.StringUtil; 
  
 /**
  * LocalConfigManager provides basic operations 
@@ -72,6 +72,7 @@ public class LocalConfigManager implements ConfigManager{
     	initializeContext();
     	recursionBuildConfigMap();
     	cleanEscapeCharacters();
+    	calculateExpression();
     	registerProjectInfo();
     	if(!unknownConfigSet.isEmpty()){
     		logger.error("There are still some configurations could not be parsed rightly, they are: {} ", unknownConfigSet.toArray().toString() );
@@ -103,15 +104,47 @@ public class LocalConfigManager implements ConfigManager{
 				System.setProperty(item.getKey(), item.getValue().strValue()); 
     	}
     }
-    
-    /**
-     * With anole, you do not need to specify the properties files.
-     * Anole will rebuild all configuration
-     */
-    private void rebuildThirdpartyConfigurations(){
-    	
-    }
-    
+
+
+    private String parseThreeElementExpression(String key, String value){
+
+    	String [] firstElements = value.split(" \\? ");
+    	if(firstElements.length == 2){
+			String firstElement = firstElements[0].trim();
+			String [] secondELements = firstElements[1].split(" : ");
+			if(secondELements.length == 2){
+				String secondElement = secondELements[0];
+				String thirdElement = secondELements[1];
+				if("true".equals(firstElement)){
+					return secondElement;
+				}
+				else if("false".equals(firstElement)) {
+					return thirdElement;
+				}
+			}
+		}
+
+		String message = String.format("The right three-element-expression should be '${boolean_value} ? ${true_result} : ${false_result}' while yours is '%s'", value);
+		throw new ErrorSyntaxException(key, message);
+
+	}
+
+	/**
+	 * Anole support the three element expression like `boolean ? a : b`
+	 */
+    private void calculateExpression(){
+		Set<Entry<String,ConfigItem>> entrySet = configMap.entrySet();
+		for(Entry<String,ConfigItem> item : entrySet){
+			String value = item.getValue().strValue().trim();
+			if(value != null && ( value.startsWith("@@@") || value.startsWith("```"))){
+				item.getValue().setValue(parseThreeElementExpression(item.getKey(), value.substring(3)), item.getValue().getType());
+				if(!Anole.initialized)//Add to JVM system properties for other frameworks to read.
+					System.setProperty(item.getKey(), item.getValue().strValue());
+			}
+		}
+	}
+
+
     /**
      * Clear all escape characters in the configuration value.
      */
