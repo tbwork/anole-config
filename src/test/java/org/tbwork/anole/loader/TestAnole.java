@@ -10,7 +10,8 @@ import java.io.IOException;
 @AnoleConfigLocation(locations="*.anole")
 public class TestAnole {
 	public static void main(String[] args) throws IOException {
+		AnoleApp.putLocalProperty("num", "123");
 		AnoleApp.start(LogLevel.WARN, "anole-*");
-		System.out.println(Anole.getProperty("test"));
+		System.out.println(Anole.getIntProperty("num"));
 	}
 }

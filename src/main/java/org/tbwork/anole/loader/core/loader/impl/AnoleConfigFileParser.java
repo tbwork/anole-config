@@ -1,19 +1,15 @@
 package org.tbwork.anole.loader.core.loader.impl;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Scanner;
-
 import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.types.ConfigType;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.OsUtil;
-import org.tbwork.anole.loader.util.SetUtil;
-import org.tbwork.anole.loader.util.SingletonFactory;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.*;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Scanner;
  
 
 class AnoleConfigFileParser {
@@ -21,7 +17,7 @@ class AnoleConfigFileParser {
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 	
 	private static AnoleLogger logger ;
-	private final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
+	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 	
 	private AnoleConfigFileParser(){
 		String env = setEnv(); 

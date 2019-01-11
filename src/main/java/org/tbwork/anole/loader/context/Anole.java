@@ -3,7 +3,6 @@ package org.tbwork.anole.loader.context;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
-import org.tbwork.anole.loader.util.ProjectUtil;
 import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
  
@@ -14,7 +13,7 @@ import org.tbwork.anole.loader.util.StringUtil;
  */ 
 public class Anole { 
 	 
-	protected static volatile ConfigManager cm = SingletonFactory.getLocalConfigManager();
+	protected static final ConfigManager cm = SingletonFactory.getLocalConfigManager();
 	
 	/**
 	 * Indicates that local anole is loaded successfully.

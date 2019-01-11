@@ -3,7 +3,10 @@ package org.tbwork.anole.loader.context;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
+import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
+import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
 
 public class AnoleApp {
@@ -15,7 +18,9 @@ public class AnoleApp {
 	private static Class<?> callerClass;
 	
 	private static String environment;
-	
+
+	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
+
 	/**
 	 * Start an anole application.
 	 * @param logLevel the logLevel of anole itself.
@@ -92,7 +97,7 @@ public class AnoleApp {
 	
 	/**
 	 * The user main class in Anole refers to the class which contains 
-	 * a main method calling the Anole boot class ({@link Anole},{@link AnoleConfigContext}, etc.)
+	 * a main method calling the Anole boot class ({@link AnoleApp}, etc.)
 	 * directly.
 	 */
 	public static Class<?> getCallerClass(){ 
@@ -135,7 +140,9 @@ public class AnoleApp {
 		return projectVersion;
 	}
 
-	
+	public static void putLocalProperty(String key, String value){
+		lcm.setConfigItem(key, value, ConfigType.STRING);
+	}
 
 	private static Class<?> getRootClassByStackTrace(){
 		try {

@@ -105,12 +105,28 @@ public class LocalConfigManager implements ConfigManager{
     	}
     }
 
+    private String judgeEqual(String key, String expression){
+    	if("true".contains(expression) || "false".contains(expression))
+    		return expression;
+    	String [] subExpressions = expression.split("=");
+    	if(subExpressions.length == 2){
+			if(subExpressions[0].trim().equals(subExpressions[1].trim())){
+				return "true";
+			}
+			else{
+				return "false";
+			}
+		}
+		String message = String.format("The right equal-expression should be '${value_1}=${value_2}' while yours is '%s'", expression);
+		throw new ErrorSyntaxException(key, message);
+	}
 
     private String parseThreeElementExpression(String key, String value){
 
     	String [] firstElements = value.split(" \\? ");
     	if(firstElements.length == 2){
 			String firstElement = firstElements[0].trim();
+			firstElement = judgeEqual(key, firstElement);
 			String [] secondELements = firstElements[1].split(" : ");
 			if(secondELements.length == 2){
 				String secondElement = secondELements[0];
@@ -124,7 +140,7 @@ public class LocalConfigManager implements ConfigManager{
 			}
 		}
 
-		String message = String.format("The right three-element-expression should be '${boolean_value} ? ${true_result} : ${false_result}' while yours is '%s'", value);
+		String message = String.format("The right three-element-expression should be '${boolean_value} ? ${true_result} : ${false_result}' or '${value_1}=${value_2} ? ${true_result} : ${false_result}' while yours is '%s'", value);
 		throw new ErrorSyntaxException(key, message);
 
 	}
