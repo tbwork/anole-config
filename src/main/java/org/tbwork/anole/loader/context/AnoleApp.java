@@ -6,8 +6,12 @@ import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.CollectionUtil;
 import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AnoleApp {
   
@@ -21,6 +25,8 @@ public class AnoleApp {
 
 	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 
+	private static final List<String> preSetLocations = new ArrayList<String>();
+
 	/**
 	 * Start an anole application.
 	 * @param logLevel the logLevel of anole itself.
@@ -28,7 +34,7 @@ public class AnoleApp {
 	 */
 	public static void start(AnoleLogger.LogLevel logLevel, String ... scanJarPatterns){
 		Class<?> runtimeClass =  getAnoleRootClassByStackTrace(); 
-		start(runtimeClass, logLevel);
+		start(runtimeClass, logLevel, scanJarPatterns);
 	}
 	
 	/**
@@ -43,12 +49,13 @@ public class AnoleApp {
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfigFiles = targetRootClass.getAnnotation(AnoleConfigLocation.class); 
 			if(!anoleConfigFiles.locations().isEmpty()){
-				String [] path = anoleConfigFiles.locations().split(",");
-				new AnoleClasspathConfigContext(StringUtil.trimStrings(path)); 
+				String [] paths = anoleConfigFiles.locations().split(",");
+				paths = CollectionUtil.mergeArray(CollectionUtil.list2StringArray(preSetLocations), paths);
+				new AnoleClasspathConfigContext(StringUtil.trimStrings(paths));
 				return;
 			}  
 		}  
-		new AnoleClasspathConfigContext(); 
+		new AnoleClasspathConfigContext(StringUtil.trimStrings(CollectionUtil.list2StringArray(preSetLocations)));
 	}
 
 	/**
@@ -56,7 +63,7 @@ public class AnoleApp {
 	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
 	public static void start(String ... scanJarPatterns){
-		start(AnoleLogger.defaultLogLevel);
+		start(AnoleLogger.defaultLogLevel, scanJarPatterns);
 	}
 
 	/**
@@ -117,6 +124,10 @@ public class AnoleApp {
 	 * <p> For <b>other</b> projects, this method will return the value of 
 	 * variable named "anole.project.info.name", you should define it first in your
 	 * configuration files.
+	 * <p>Note: If you want to use this method successfully, you should better
+	 * guarantee that the XXXClass.main(...) method need to be put in the target
+	 * project.
+	 * </p>
 	 * @return the project name
 	 */
 	public static String getProjectName() {
@@ -144,6 +155,13 @@ public class AnoleApp {
 		lcm.setConfigItem(key, value, ConfigType.STRING);
 	}
 
+
+
+	public static void preAddConfigFileLocation(String ... locations){
+		for(String location : locations){
+			preSetLocations.add(location);
+		}
+	}
 	private static Class<?> getRootClassByStackTrace(){
 		try {
 			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
@@ -162,21 +180,14 @@ public class AnoleApp {
 			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
 			int anoleBootClassIndex = stackTraces.length;
 			for(int i= stackTraces.length - 1; i >=0 ; i-- ) {
-				String stackTraceClass = stackTraces[i].getClassName();
-				if(stackTraceClass.equals("org.tbwork.anole.loader.context.AnoleApp") 
-				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleFileConfigContext")
-				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext")
-				) {
+				String methodName = stackTraces[i].getMethodName();
+				if(methodName.equals("main")) {
 					anoleBootClassIndex = i;
 					break;
 				}
 			}
 			if(anoleBootClassIndex < stackTraces.length) {
-				int targetClassIndex = anoleBootClassIndex;
-				if( anoleBootClassIndex != (stackTraces.length-1)) { 
-					targetClassIndex = targetClassIndex + 1;
-				}
-				return Class.forName(stackTraces[targetClassIndex].getClassName());
+				return Class.forName(stackTraces[anoleBootClassIndex].getClassName());
 			}
 			else {
 				throw new ClassNotFoundException("Could not find any class calling Anole.");

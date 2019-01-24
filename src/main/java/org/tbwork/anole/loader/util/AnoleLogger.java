@@ -1,11 +1,10 @@
 package org.tbwork.anole.loader.util;
 
-import java.util.regex.Matcher;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
+
+import java.util.regex.Matcher;
 
 public class AnoleLogger {
 
@@ -125,5 +124,11 @@ public class AnoleLogger {
 			}
 		}
 		return logger; 
+	}
+
+	public static void flush(){
+		if(!Anole.initialized){
+			System.out.flush();
+		}
 	}
 }

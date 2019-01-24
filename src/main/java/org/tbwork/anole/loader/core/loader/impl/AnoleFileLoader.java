@@ -25,7 +25,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	private ConfigManager cm;
 
 	public static String [] includedJarFilters = null;
-	
+
 	private static final List<String> projectInfoPropertiesInJarPathList  = new ArrayList<String>();
 	private static final List<String> projectInfoPropertiesPathList  = new ArrayList<String>();
 	static {
@@ -88,6 +88,7 @@ public class AnoleFileLoader implements AnoleLoader{
 		Map<String,FileLoadStatus> result = new HashMap<String, FileLoadStatus>();  
 		AnoleApp.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
 		LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.6)");
+		AnoleLogger.flush();
 		AnoleLogger.debug("Current enviroment is {}", AnoleApp.getEnvironment());
 		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
 	    // set loading order
@@ -180,6 +181,14 @@ public class AnoleFileLoader implements AnoleLoader{
 	 */
 	protected LoadFileResult loadFile(CandidateConfigPath ccp){
 		AnoleLogger.debug("Searching config files matchs '{}'", ccp.getFullPath());
+		if(ccp.getFullPath().contains("jar!/") && ccp.getFullPath().contains("*")){
+			String fullpath = ccp.getFullPath();
+			String solidDirectory = FileUtil.getSolidDirectory(fullpath);
+			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
+			files.addAll(files);
+
+
+		}
 		if(ccp.getFullPath().contains("!/")){ // For Jar projects 
 			return loadFileFromJar(ccp);
 		}
@@ -217,14 +226,14 @@ public class AnoleFileLoader implements AnoleLoader{
 		else
 		{  
 			if(!isProjectInfo(fileFullPath) && FileUtil.isFuzzyDirectory(fileFullPath)){
-				AnoleLogger.warn("Use asterisk in directory is not recomended, e.g., D://a/*/*.txt. We hope you know that it will cause plenty cost of time to seek every matched file.");
+				AnoleLogger.info("Use asterisk in directory is not recommended, e.g., D://a/*/*.txt. We hope you know that it will cause plenty cost of time to seek every matched file.");
 			}
 			String solidDirectory = FileUtil.getSolidDirectory(fileFullPath);
 			File directory = new File(solidDirectory);
 			if(!directory.exists()) {
 				result.setFileLoadStatus(FileLoadStatus.NOT_MATCHED);
 				return result;
-			} 
+			}
 			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
 			boolean matched = false;
 			for(File file : files){
@@ -313,7 +322,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	        	String fullPath = jarPath+fileInJarName; 
 	        	result.getCandidateStreams().add(new ConfigInputStreamUnit(fullPath, tempStream, pathOrder)); 
 			}
-		}      
+		}
 		try {
 			file.close();
 		} catch (IOException e) {

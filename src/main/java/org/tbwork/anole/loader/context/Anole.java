@@ -18,7 +18,7 @@ public class Anole {
 	/**
 	 * Indicates that local anole is loaded successfully.
 	 */
-	public static boolean initialized = false;
+	public volatile static boolean initialized = false;
 	
 	
 

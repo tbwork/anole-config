@@ -10,7 +10,7 @@
 
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.7</version>
+  <version>1.2.9-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>anole-loader</name>
@@ -67,6 +67,7 @@
 		<groupId>javax.servlet</groupId>
 		<artifactId>servlet-api</artifactId>
 		<version>${servlet.api.version}</version>
+		<scope>provided</scope>
 	</dependency>  
 	<dependency>
 		<groupId>org.projectlombok</groupId>
@@ -118,7 +119,6 @@
 						<goal>jar</goal>
 					</goals>
 					<configuration>
-					    <skip>true</skip>
                         <additionalparam>${javadoc.opts}</additionalparam>
                     </configuration>
 				</execution>

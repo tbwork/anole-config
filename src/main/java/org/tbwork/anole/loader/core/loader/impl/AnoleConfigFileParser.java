@@ -140,7 +140,11 @@ class AnoleConfigFileParser {
 					return sysEnv;
 				}
 			}
-		}  
+		}
+		if(!StringUtil.isNullOrEmpty(AnoleApp.getEnvironment())){
+			sysEnv = AnoleApp.getEnvironment();
+			return sysEnv;
+		}
 		//throw new EnvironmentNotSetException();
 		// from 1.2.5 use warning instead and return "all" environment.
 		AnoleLogger.info("Cound not decide current environment, 'all' environment will be used.");

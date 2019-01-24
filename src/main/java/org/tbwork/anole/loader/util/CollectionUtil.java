@@ -28,4 +28,17 @@ public class CollectionUtil {
 	public static Boolean [] set2BooleanArray(Set<Boolean> set){
 		return set.toArray(new Boolean[set.size()]);  
 	}
+
+	public static String [] mergeArray(String [] arr1, String [] arr2){
+		int size = arr1.length + arr2.length;
+		String [] result = new String[size];
+		int p = 0;
+		for(String str : arr1){
+			result[p++] = str;
+		}
+		for(String str : arr2){
+			result[p++] = str;
+		}
+		return result;
+	}
 }

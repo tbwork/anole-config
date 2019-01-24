@@ -13,11 +13,22 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 	public AnoleClasspathLoader(){
 		super();
 	}
-	  
+
+	public AnoleClasspathLoader(boolean recursiveLoad){
+		super();
+		this.recursiveLoad = recursiveLoad;
+	}
+
 	public AnoleClasspathLoader(ConfigManager cm){
 		super(cm);
 	}
-	
+	public AnoleClasspathLoader(ConfigManager cm, boolean recursiveLoad){
+		super(cm);
+		this.recursiveLoad = recursiveLoad;
+	}
+
+	private volatile boolean recursiveLoad;
+
 	@Override
 	public Map<String,FileLoadStatus> load() { 
 		return load("*.anole"); 
@@ -34,12 +45,23 @@ public class AnoleClasspathLoader extends AnoleFileLoader{
 		}
 		List<String> orderedConfigLocations = new ArrayList<String>();  
 		orderedConfigLocations.addAll(configLocationsUnderUserSpecifiedClasspathes);
-		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes);     
+		orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes);
+		if(recursiveLoad){
+			for(String path : orderedConfigLocations){
+				orderedConfigLocations.addAll(subPaths(path));
+			}
+		}
 		Map<String,FileLoadStatus> loadResult = super.load(CollectionUtil.list2StringArray(orderedConfigLocations)); 
 		return loadResult;
 	}
    
-	
+
+	private static Set<String> subPaths(String path){
+		Set<String> result = new HashSet<String>();
+		//todo
+		return result;
+	}
+
 	/**
 	 *  Get configuration locations under the caller's classpath.<br> 
 	 */
