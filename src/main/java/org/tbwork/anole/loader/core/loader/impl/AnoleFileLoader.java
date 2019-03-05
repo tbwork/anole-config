@@ -86,7 +86,7 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 	
 	@Override
-	public Map<String,FileLoadStatus> load(String... configLocations) { 
+	public Map<String,FileLoadStatus> load(String... locationPatterns) {
 		Map<String,FileLoadStatus> result = new HashMap<String, FileLoadStatus>();  
 		AnoleApp.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
 		LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.6)");
@@ -94,19 +94,19 @@ public class AnoleFileLoader implements AnoleLoader{
 		AnoleLogger.debug("Current enviroment is {}", AnoleApp.getEnvironment());
 		List<ConfigPathPattern> patterns = new ArrayList<ConfigPathPattern>();
 	    // set loading order
-		for(String configLocation : configLocations) {
-			if(!isInValidScanJar(configLocation)) continue;
-			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getCallerClasspath())) {
+		for(String locationPattern : locationPatterns) {
+			if(!isInValidScanJar(locationPattern)) continue;
+			if(locationPattern.contains(".jar/") && !locationPattern.startsWith(ProjectUtil.getCallerClasspath())) {
 				// outer jars
-				patterns.add(new ConfigPathPattern(1, configLocation.trim()));
+				patterns.add(new ConfigPathPattern(1, locationPattern.trim()));
 			}
-			else if(!configLocation.startsWith(ProjectUtil.getCallerClasspath())){
+			else if(!locationPattern.startsWith(ProjectUtil.getCallerClasspath())){
 				// outer directory
-				patterns.add(new ConfigPathPattern(50, configLocation.trim()));
+				patterns.add(new ConfigPathPattern(50, locationPattern.trim()));
 			}
 			else {
 				// main classpath (in jar or in classes)
-				patterns.add(new ConfigPathPattern(99, configLocation.trim()));
+				patterns.add(new ConfigPathPattern(99, locationPattern.trim()));
 			}
 		} 
 		for(String projectInfoFile : getFullPathForProjectInfoFiles()) {
@@ -217,7 +217,6 @@ public class AnoleFileLoader implements AnoleLoader{
 				}
 			}
 		}
-		Collections.sort();
 		return result;
 	}  
 
