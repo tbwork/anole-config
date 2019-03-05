@@ -59,60 +59,35 @@ public class AnoleLogger {
 	 * E.g. <b>AnoleLogger.debug("{}-{}","a","b")</b> will output "a-b"
 	 */
 	public static void debug(String baseInfo, Object ... variables){
-		if(!Anole.initialized){
-			coreLog(LogLevel.DEBUG, "[DEBUG] "+baseInfo, variables);
-		}
-		else{ 
-			getLogger().debug(baseInfo, variables);
-		}
+		coreLog(LogLevel.DEBUG, "[DEBUG] "+baseInfo, variables);
 	}
 	
 	/**
 	 * E.g. <b>AnoleLogger.info("{}-{}","a","b")</b> will output "a-b"
 	 */
 	public static void info(String baseInfo, Object ... variables){
-		if(!Anole.initialized){
-			coreLog(LogLevel.INFO, "[INFO] "+baseInfo, variables);
-		}
-		else{ 
-			getLogger().info(baseInfo, variables);
-		}
+		coreLog(LogLevel.INFO, "[INFO] "+baseInfo, variables);
 	}
 
 	/**
 	 * E.g. <b>AnoleLogger.warn("{}-{}","a","b")</b> will output "a-b"
 	 */
 	public static void warn(String baseInfo, Object ... variables){
-		if(!Anole.initialized){
-			coreLog(LogLevel.WARN, "[WARN] "+baseInfo, variables);
-		}
-		else{ 
-			getLogger().warn(baseInfo, variables);
-		}
+		coreLog(LogLevel.WARN, "[WARN] "+baseInfo, variables);
 	}
 
 	/**
 	 * E.g. <b>AnoleLogger.error("{}-{}","a","b")</b> will output "a-b"
 	 */
 	public static void error(String baseInfo, Object ... variables){
-		if(!Anole.initialized){
-			coreLog(LogLevel.ERROR, "[ERROR] "+baseInfo, variables);
-		}
-		else{ 
-			getLogger().error(baseInfo, variables);
-		}
+		coreLog(LogLevel.ERROR, "[ERROR] "+baseInfo, variables);
 	}
 	
 	/**
 	 * E.g. <b>AnoleLogger.fatal("{}-{}","a","b")</b> will output "a-b"
 	 */
 	public static void fatal(String baseInfo, String ... variables){
-		if(!Anole.initialized){
-			coreLog(LogLevel.FATAL, "[FATAL] "+baseInfo, variables);
-		}
-		else{ 
-			getLogger().error(baseInfo, variables);
-		}
+		coreLog(LogLevel.FATAL, "[FATAL] "+baseInfo, variables);
 	}
 	
 	

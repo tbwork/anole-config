@@ -18,6 +18,9 @@ public class StringUtil {
 	  * return false;
 	  */
 	 public static boolean asteriskMatch(String asteriskString, String targetString){
+	 	  if(targetString == null){
+	 	  	 return asteriskString == null;
+		  }
 		  String asteriskRegex = asteriskString.replace(".", "\\.").replace("*", ".*");
 		  Pattern pattern = Pattern.compile(asteriskRegex);
 		  Matcher matcher = pattern.matcher(targetString);

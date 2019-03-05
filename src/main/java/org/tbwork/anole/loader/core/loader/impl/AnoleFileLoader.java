@@ -4,19 +4,22 @@ import lombok.Data;
 import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
+import org.tbwork.anole.loader.core.loader.seeker.OmniSeeker;
+import org.tbwork.anole.loader.core.loader.seeker.impl.OmniSeekerImpl;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.exceptions.BadJarFileException;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
-import org.tbwork.anole.loader.util.*;
+import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.ProjectUtil;
+import org.tbwork.anole.loader.util.SingletonFactory;
+import org.tbwork.anole.loader.util.StringUtil;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 public class AnoleFileLoader implements AnoleLoader{ 
 	
@@ -41,7 +44,6 @@ public class AnoleFileLoader implements AnoleLoader{
 	public AnoleFileLoader(ConfigManager cm){
 		this.cm = cm ;
 	}
-	
 
 	@Override
 	public Map<String,FileLoadStatus> load() {
@@ -71,12 +73,12 @@ public class AnoleFileLoader implements AnoleLoader{
 	
 
 	@Data
-	public static class CandidateConfigPath { 
+	public static class ConfigPathPattern {
 		private Integer order;
-		private String fullPath;
-		public CandidateConfigPath(int order, String configLocation) {
+		private String pattern;
+		public ConfigPathPattern(int order, String pattern) {
 			this.order = order;
-			this.fullPath = configLocation;
+			this.pattern = pattern;
 		}
 	}
 
@@ -90,39 +92,56 @@ public class AnoleFileLoader implements AnoleLoader{
 		LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.6)");
 		AnoleLogger.flush();
 		AnoleLogger.debug("Current enviroment is {}", AnoleApp.getEnvironment());
-		List<CandidateConfigPath> candidates = new ArrayList<CandidateConfigPath>();
+		List<ConfigPathPattern> patterns = new ArrayList<ConfigPathPattern>();
 	    // set loading order
 		for(String configLocation : configLocations) {
 			if(!isInValidScanJar(configLocation)) continue;
 			if(configLocation.contains(".jar/") && !configLocation.startsWith(ProjectUtil.getCallerClasspath())) {
 				// outer jars
-				candidates.add(new CandidateConfigPath(1, configLocation.trim()));
+				patterns.add(new ConfigPathPattern(1, configLocation.trim()));
 			}
 			else if(!configLocation.startsWith(ProjectUtil.getCallerClasspath())){
 				// outer directory
-				candidates.add(new CandidateConfigPath(50, configLocation.trim()));
+				patterns.add(new ConfigPathPattern(50, configLocation.trim()));
 			}
 			else {
 				// main classpath (in jar or in classes)
-				candidates.add(new CandidateConfigPath(99, configLocation.trim()));
+				patterns.add(new ConfigPathPattern(99, configLocation.trim()));
 			}
 		} 
 		for(String projectInfoFile : getFullPathForProjectInfoFiles()) {
-			candidates.add(new CandidateConfigPath(10, projectInfoFile.trim()));
+			patterns.add(new ConfigPathPattern(10, projectInfoFile.trim()));
 		} 
-		List<ConfigInputStreamUnit> configInputStreamUnits = new ArrayList<ConfigInputStreamUnit>();
-		for(CandidateConfigPath configLocation : candidates) {
-			LoadFileResult  lfr = loadFile(configLocation);
-			configInputStreamUnits.addAll(lfr.getCandidateStreams()); 
-			result.put(configLocation.getFullPath(),  lfr.fileLoadStatus); 
-		}  
+		List<ConfigInputStreamUnit> configInputStreamUnits = loadFileMatch(patterns);
 		parseFiles(configInputStreamUnits);
-		cm.postProcess(); 
-		Anole.initialized = true; 
+		cm.postProcess();
+		Anole.initialized = true;
+		if(AnoleApp.anoleCallBack != null){
+			AnoleApp.anoleCallBack.run();
+		}
 		AnoleLogger.info("[:)] Anole configurations are loaded succesfully.");
 		return result;
 	}
-	
+
+
+	private void parseFiles(List<ConfigInputStreamUnit> cisus) {
+		ConfigInputStreamUnit [] streams = cisus.toArray(new ConfigInputStreamUnit[cisus.size()]);
+		Arrays.sort(streams, new Comparator<ConfigInputStreamUnit>() {
+			@Override
+			public int compare(ConfigInputStreamUnit unit1, ConfigInputStreamUnit unit2) {
+				return unit1.getOrder() < unit2.getOrder() ? -1 : (unit1.getOrder() == unit2.getOrder() ? 0 : 1);
+			}
+		});
+		AnoleLogger.debug("{} candidate configuration files are found:", cisus.size());
+		if(AnoleLogger.isDebugEnabled()) {
+			for(ConfigInputStreamUnit unit : streams)
+				AnoleLogger.debug(unit.fileName);
+		}
+		for(ConfigInputStreamUnit cisu : streams) {
+			AnoleLogger.debug("parsing : {}", cisu.getFileName());
+			acfParser.parse(cisu.getIs(), cisu.fileName);
+		}
+	}
 
 	protected boolean isInValidScanJar(String configLocation){
 		if(!configLocation.contains(".jar"))
@@ -177,27 +196,33 @@ public class AnoleFileLoader implements AnoleLoader{
 	}
 	
 	/**
-	 * @param ccp the absolute path of the configuration file.  
+	 * @param patternItems the candidate patterns
 	 */
-	protected LoadFileResult loadFile(CandidateConfigPath ccp){
-		AnoleLogger.debug("Searching config files matchs '{}'", ccp.getFullPath());
-		if(ccp.getFullPath().contains("jar!/") && ccp.getFullPath().contains("*")){
-			String fullpath = ccp.getFullPath();
-			String solidDirectory = FileUtil.getSolidDirectory(fullpath);
-			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
-			files.addAll(files);
-
-
+	protected List<ConfigInputStreamUnit> loadFileMatch(List<ConfigPathPattern> patternItems){
+		List<String> patterns = new ArrayList<String>();
+		for(ConfigPathPattern item : patternItems){
+			patterns.add(item.getPattern());
 		}
-		if(ccp.getFullPath().contains("!/")){ // For Jar projects 
-			return loadFileFromJar(ccp);
+		OmniSeeker omniSeeker = new OmniSeekerImpl(patterns);
+		Map<String,InputStream> resultMap = omniSeeker.seekFiles();
+		List<ConfigInputStreamUnit> result = new ArrayList<ConfigInputStreamUnit>();
+		for(ConfigPathPattern item : patternItems){
+			AnoleLogger.debug("Pattern {} matches following files:", item.getPattern());
+			Integer p = 0;
+			for(Entry<String, InputStream> entry : resultMap.entrySet()){
+				String filepath = entry.getKey();
+				if(StringUtil.asteriskMatch(item.getPattern(), filepath)){
+					AnoleLogger.debug("{} - {}", p++, filepath);
+					result.add(new ConfigInputStreamUnit(filepath, entry.getValue(), item.getOrder()));
+				}
+			}
 		}
-		else{ 
-			return loadFileFromDirectory(ccp);
-		}
+		Collections.sort();
+		return result;
 	}  
 
-	private static boolean isProjectInfo(String fileFullPath) {
+
+	static boolean isProjectInfo(String fileFullPath) {
 		for(String path : projectInfoPropertiesInJarPathList) {
 			if(fileFullPath.contains(path))
 				return true;
@@ -209,153 +234,9 @@ public class AnoleFileLoader implements AnoleLoader{
 		return false;
 	}
 	
-	private LoadFileResult loadFileFromDirectory(CandidateConfigPath ccp){ 
-		LoadFileResult result = new LoadFileResult();
-		int fileOrder = ccp.getOrder();
-		String fileFullPath = ccp.getFullPath();
-		if(!fileFullPath.contains("*")){
-			InputStream is = newInputStream(fileFullPath);
-			if(is == null) {
-				result.setFileLoadStatus(FileLoadStatus.NOT_FOUND);
-				return result;
-			}  
-			result.getCandidateStreams().add(new ConfigInputStreamUnit(fileFullPath, is, fileOrder));
-			result.setFileLoadStatus(FileLoadStatus.SUCCESS); 
-			return result;
-		}
-		else
-		{  
-			if(!isProjectInfo(fileFullPath) && FileUtil.isFuzzyDirectory(fileFullPath)){
-				AnoleLogger.info("Use asterisk in directory is not recommended, e.g., D://a/*/*.txt. We hope you know that it will cause plenty cost of time to seek every matched file.");
-			}
-			String solidDirectory = FileUtil.getSolidDirectory(fileFullPath);
-			File directory = new File(solidDirectory);
-			if(!directory.exists()) {
-				result.setFileLoadStatus(FileLoadStatus.NOT_MATCHED);
-				return result;
-			}
-			List<File> files = FileUtil.getFilesInDirectory(solidDirectory);
-			boolean matched = false;
-			for(File file : files){
-				String fileAbsolutePath = uniformAbsolutePath(file.getAbsolutePath());
-				if(FileUtil.asteriskMatchPath(fileFullPath,  fileAbsolutePath)){ 
-					 result.getCandidateStreams().add(new ConfigInputStreamUnit(fileAbsolutePath, newInputStream(fileAbsolutePath), fileOrder));
-					 matched = true;
-				}
-			}
-			result.setFileLoadStatus(matched ? FileLoadStatus.SUCCESS : FileLoadStatus.NOT_MATCHED);
-			return result;
-		}
-	}
-	
-	private String uniformAbsolutePath(String absolutePath) {
-		String result =  FileUtil.getNakedAbsolutePath(FileUtil.format2Slash(absolutePath));
-		if(!result.startsWith("/"))
-			return "/"+result;
-		return result;
-	}
-	
-	private void parseFiles(List<ConfigInputStreamUnit> cisus) {
-		ConfigInputStreamUnit [] streams = cisus.toArray(new ConfigInputStreamUnit[cisus.size()]);
-		Arrays.sort(streams, new Comparator<ConfigInputStreamUnit>() { 
-			@Override
-			public int compare(ConfigInputStreamUnit unit1, ConfigInputStreamUnit unit2) {
-				return unit1.getOrder() < unit2.getOrder() ? -1 : (unit1.getOrder() == unit2.getOrder() ? 0 : 1);
-			} 
-		});
-		AnoleLogger.debug("{} candidate configuration files are found:", cisus.size());
-		if(AnoleLogger.isDebugEnabled()) {
-			for(ConfigInputStreamUnit unit : streams)
-				AnoleLogger.debug(unit.fileName);
-		}  
-		for(ConfigInputStreamUnit cisu : streams) {
-			AnoleLogger.debug("parsing : {}", cisu.getFileName());
-			acfParser.parse(cisu.getIs(), cisu.fileName);
-		}
-	}
+
 	 
-	/**
-	 * Input like : /D://prject/a.jar!/BOOT-INF!/classes!/*.properties
-	 */
-	private static LoadFileResult loadFileFromJar(CandidateConfigPath ccp){
-		LoadFileResult result = new LoadFileResult();
-		Integer pathOrder = ccp.getOrder();
-		String fileFullPath = ccp.getFullPath();
-		String jarPath = ProjectUtil.getJarPath(fileFullPath)+"/"; 
-	    String directRelativePath = fileFullPath.replace("!", "").replace(jarPath, "");
-	    JarFile file;
-		try {
-			file = new JarFile(jarPath);
-		}
-		catch(FileNotFoundException e) {
-			if(fileFullPath.contains("*")) {
-				//asterisk match
-				result.setFileLoadStatus(FileLoadStatus.NOT_MATCHED);
-				return result;
-			}
-			else {
-				result.setFileLoadStatus(FileLoadStatus.NOT_FOUND);
-				return result;
-			} 
-		}
-		catch(Exception e) {
-			e.printStackTrace();
-			throw new BadJarFileException(jarPath);
-		}
-		Enumeration<JarEntry> entrys = file.entries();
-		boolean matched = false; 
-		while(entrys.hasMoreElements()){
-	        JarEntry fileInJar = entrys.nextElement();
-	        String fileInJarName = fileInJar.getName();
-	        if(fileInJarName.endsWith(".jar") && !isProjectInfo(fileFullPath)) {
-	        	// It is another jar and the current search is not for project information. 
-	        	Map<String,InputStream> inputStreamsMap = getConfigInputStreamsFromJar(IOUtil.getInputStream(file, fileInJar), jarPath+fileInJarName, FileUtil.format2Slash(directRelativePath));
-	        	for(Entry<String,InputStream> entry : inputStreamsMap.entrySet()) {
-	        		matched = true;
-	        		result.getCandidateStreams().add(new ConfigInputStreamUnit(entry, 2));
-	        	} 
-	        	continue;
-	        } 
-	        if(FileUtil.asteriskMatchPath(FileUtil.format2Slash(directRelativePath), FileUtil.format2Slash(fileInJarName))){ 
-	        	matched = true; 
-	        	InputStream tempStream = IOUtil.getCopiedInputStream(file, fileInJar); 
-	        	String fullPath = jarPath+fileInJarName; 
-	        	result.getCandidateStreams().add(new ConfigInputStreamUnit(fullPath, tempStream, pathOrder)); 
-			}
-		}
-		try {
-			file.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} 
-		if(matched) {
-			result.setFileLoadStatus(FileLoadStatus.SUCCESS); 
-			return result;
-		}
-		else {
-			result.setFileLoadStatus(fileFullPath.contains("*") ? FileLoadStatus.NOT_MATCHED : FileLoadStatus.NOT_FOUND);
-			return result;
-		}  
-	}
-	 
-	private static Map<String,InputStream> getConfigInputStreamsFromJar(InputStream jarFileInputStream, String jarName, String directRelativePath){ 
-		Map<String,InputStream> result = new HashMap<String, InputStream>();
-		try {
-			ZipInputStream jarInputStream = new ZipInputStream(jarFileInputStream); 
-			ZipEntry zipEntry = null; 
-			while ((zipEntry = jarInputStream.getNextEntry()) != null) { 
-				String fileInZipName = zipEntry.getName();
-				if(FileUtil.asteriskMatchPath(directRelativePath, FileUtil.format2Slash(fileInZipName))){
-					String fullPath = jarName+"/"+fileInZipName; 
-	    			result.put(fullPath , IOUtil.getZipInputStream(jarInputStream, zipEntry));
-	    		} 
-			} 
-		}
-		catch(Exception e) { 
-			AnoleLogger.error("Fail to get configuration file from jar due to {}", e.getMessage());
-		} 
-		return result;
-	}
+
 	 
 	private static class  LogoUtil{
 		
@@ -445,5 +326,7 @@ public class AnoleFileLoader implements AnoleLoader{
 		    }  
 		
 	}
+
+
 
 }

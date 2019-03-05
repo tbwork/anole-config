@@ -1,6 +1,5 @@
 package org.tbwork.anole.loader.util;
 
-import lombok.Data;
 import org.tbwork.anole.loader.enums.OsCategory;
 
 import java.io.File;
@@ -12,13 +11,13 @@ import java.util.jar.JarFile;
 public class FileUtil {
 
 	
-	public static class AnoleFilePath {
+	private static class AnoleFilePath {
 		private List<String> pathPartList;
-		
-		public AnoleFilePath(String fullPath){ 
-			pathPartList = SetUtil.newArrayList(fullPath.split("\\\\|/")); 
+
+		public AnoleFilePath(String fullPath){
+			pathPartList = SetUtil.newArrayList(fullPath.split("\\\\|/"));
 		}
-		
+
 		public boolean  isFuzzyDirectory(){
 			int i = 0;
 			for(i = 0; i < pathPartList.size(); i++){
@@ -28,7 +27,7 @@ public class FileUtil {
 			}
 			return i < pathPartList.size()-1;
 		}
-		
+
 		public String getSolidDirectory(){
 			int i = 0;
 			for(i = 0; i < pathPartList.size(); i++){
@@ -38,23 +37,22 @@ public class FileUtil {
 			}
 			return StringUtil.join("/", pathPartList.subList(0, Math.min(i, pathPartList.size()-1))) + "/";
 		}
-		
+
 		public boolean match(AnoleFilePath afp){
 			return this.pathPartList.size() == afp.pathPartList.size();
 		}
 	}
-	
+
 	public static String getSolidDirectory(String fullPath){
 		AnoleFilePath afp = new AnoleFilePath(fullPath);
 		return afp.getSolidDirectory();
 	}
-	
+
 	public static boolean isFuzzyDirectory(String fullPath){
 		AnoleFilePath afp = new AnoleFilePath(fullPath);
 		return afp.isFuzzyDirectory();
-	} 
-	
-	
+	}
+
 	public static List<File> getFilesInDirectory(String path){
 		List<File> result = new ArrayList<File>();
 		File file = new File(path);
@@ -64,85 +62,19 @@ public class FileUtil {
 			if(tempFile.isDirectory()){
 				result.addAll(getFilesInDirectory(tempFile.getAbsolutePath()));
 			}
-			else{
-				result.add(tempFile);
-			} 
-		} 
-		return result;
-	}
-
-	public static List<File> getFilesInDirectoryAndJar(String path){
-		List<File> result = new ArrayList<File>();
-		File file = new File(path);
-		File[] fileList = file.listFiles();
-		for (int i = 0; i < fileList.length; i++) {
-			File tempFile = fileList[i];
-			if(tempFile.isDirectory()){
-				result.addAll(getFilesInDirectory(tempFile.getAbsolutePath()));
-			}
-			else{
-				result.add(tempFile);
-			}
-		}
-		return result;
-	}
-
-
-
-	@Data
-	public static class AnoleSearchFile{
-
-		private File file;
-
-		private JarFile jarFile;
-
-		private String path;
-		/**
-		 * 0-file; 1-directory; 2-jar directory
-		 */
-		private int fileType = 0;
-
-		public AnoleSearchFile(String path){
-			if(path.endsWith("/")){
-				path = path.substring(0, path.length() -1);
-			}
-			this.path = path;
-			if(path.contains(".jar")){
-				fileType = 2;
-				jarFile = createJarFile(path);
-			}
 			else {
-				file = new File(path);
-				if(file.isDirectory()){
-					fileType = 1;
-				}
-				else{
-					fileType = 0;
-				}
+				result.add(tempFile);
 			}
 		}
-
-		public AnoleSearchFile(File file){
-			 this.file = file;
-			 fileType =
-		}
-
-		public List<AnoleSearchFile> subFiles(){
-			List<AnoleSearchFile> result = new ArrayList<AnoleSearchFile>();
-			if(fileType == 0){
-				return result;
-			}
-			if(fileType == 1){
-
-			}
-		}
-
-		public boolean isDirectory(){
-			return fileType != 0;
-		}
+		return result;
 	}
 
-	
+
+	/**
+	 * Uniform the candidate path according to the Linux style.
+	 * @param path the candidate path like "C:/aa\bbb/cc.txt"
+	 * @return like "/C:/aa/bbb/cc.txt"
+	 */
 	public static String toLinuxStylePath(String path){
 		path = format2Slash(path);
 		if(!path.startsWith("/"))

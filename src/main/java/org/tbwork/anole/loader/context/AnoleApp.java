@@ -2,6 +2,7 @@ package org.tbwork.anole.loader.context;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
+import org.tbwork.anole.loader.core.loader.impl.AnoleCallBack;
 import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.types.ConfigType;
@@ -26,6 +27,8 @@ public class AnoleApp {
 	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 
 	private static final List<String> preSetLocations = new ArrayList<String>();
+
+	public volatile static AnoleCallBack anoleCallBack;
 
 	/**
 	 * Start an anole application.

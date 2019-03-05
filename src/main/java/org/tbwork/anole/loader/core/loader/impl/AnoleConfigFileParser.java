@@ -58,7 +58,8 @@ class AnoleConfigFileParser {
 	private void parseLine(String content){ 
 		if(content==null || content.isEmpty())
 			return;
-		else if(content.trim().startsWith("#env:")) {
+		content = content.replace("\uFEFF", "");
+		if(content.trim().startsWith("#env:")) {
 			configEnv = content.trim().replace("#env:", "").trim();
 		}else if(content.charAt(0) == '#')
 			return;
