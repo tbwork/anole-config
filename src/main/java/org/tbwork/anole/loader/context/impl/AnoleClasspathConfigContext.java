@@ -1,17 +1,14 @@
 package org.tbwork.anole.loader.context.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import org.tbwork.anole.loader.annotion.AnoleClassPathFilter;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
+import org.tbwork.anole.loader.core.loader.impl.AnoleCallBack;
 import org.tbwork.anole.loader.core.loader.impl.AnoleClasspathLoader;
-import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
-import org.tbwork.anole.loader.util.FileUtil;
+import org.tbwork.anole.loader.util.PathUtil;
+import org.tbwork.anole.loader.util.SetUtil;
+
+import java.util.Map;
 
 /**
  * <p>Before using Anole to manage your configuration, 
@@ -36,50 +33,40 @@ import org.tbwork.anole.loader.util.FileUtil;
 public class AnoleClasspathConfigContext{
 
 	private Map<String, Boolean> alreadyFoundOrMatchedMap;
-	
+
+	public AnoleClasspathConfigContext(AnoleCallBack anoleCallBack, AnoleClassPathFilter classPathFilter, String ... configLocations) {
+		AnoleLoader anoleLoader = new AnoleClasspathLoader(classPathFilter);
+		anoleLoader.setCallback(anoleCallBack);
+		String [] slashProcessedPathes = PathUtil.format2SlashPathes(configLocations);
+		MatchCounter.initialize(SetUtil.newArrayList(configLocations));
+		anoleLoader.load(slashProcessedPathes);
+		MatchCounter.checkNotExist();
+	}
+
+
+	public AnoleClasspathConfigContext(AnoleClassPathFilter classPathFilter, String ... configLocations) {
+		this(null, classPathFilter, configLocations);
+	}
+
+	public AnoleClasspathConfigContext(AnoleCallBack anoleCallBack, String ... configLocations) {
+		this(anoleCallBack, null, configLocations);
+	}
+
+	public AnoleClasspathConfigContext(AnoleCallBack anoleCallBack) {
+		this(anoleCallBack, (AnoleClassPathFilter) null, "*.anole");
+	}
+
 	public AnoleClasspathConfigContext(String ... configLocations) {
-		AnoleLoader anoleLoader = new AnoleClasspathLoader();
-		String [] slashProcessedPathes = FileUtil.format2SlashPathes(configLocations);
-		initializeAlreadyFoundMap(slashProcessedPathes); 
-		Map<String,FileLoadStatus> loadResult = anoleLoader.load(slashProcessedPathes);
-		checkNotExist(loadResult); 
-	} 
-	 
-	
+		this(null, null, configLocations);
+	}
+
 	public AnoleClasspathConfigContext() {
 		this("*.anole");
 	}
-	
-	
-	private void initializeAlreadyFoundMap(String ... configLocations) {
-		if(alreadyFoundOrMatchedMap == null)
-			alreadyFoundOrMatchedMap = new HashMap<String,Boolean>(); 
-		for(String configLocation : configLocations) {
-			configLocation = FileUtil.format2Slash(configLocation);
-			alreadyFoundOrMatchedMap.put(configLocation, false); 
-		}
-	}
-	
-	private void checkNotExist(Map<String,FileLoadStatus> loadResult) {
-		for(Entry<String, Boolean> entry2 : alreadyFoundOrMatchedMap.entrySet()) {
-			String relativePath = entry2.getKey();
-			for(Entry<String, FileLoadStatus> entry : loadResult.entrySet()) {
-				String absolutePath = entry.getKey();
-				if(absolutePath.endsWith(relativePath) && entry.getValue().equals(FileLoadStatus.SUCCESS)) {
-					entry2.setValue(true);
-				} 
-			} 
-		}
-		for(Entry<String, Boolean> entry2 : alreadyFoundOrMatchedMap.entrySet()) {
-			String relativePath = entry2.getKey();
-			if(!entry2.getValue()) {
-				if(relativePath.contains("*")) { //In terms of asterisk path, it is no need to throw an exception. 
-					AnoleLogger.warn("There is no matched file for '{}'", relativePath);
-				}
-				else {
-					throw new ConfigFileDirectoryNotExistException(relativePath);
-				}
-			}
-		}
-	}
+
+
+
+
+
+
 }

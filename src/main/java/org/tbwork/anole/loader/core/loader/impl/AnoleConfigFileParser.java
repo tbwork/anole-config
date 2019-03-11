@@ -5,9 +5,11 @@ import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.types.ConfigType;
-import org.tbwork.anole.loader.util.*;
+import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.SetUtil;
+import org.tbwork.anole.loader.util.SingletonFactory;
+import org.tbwork.anole.loader.util.StringUtil;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.Scanner;
  
@@ -18,17 +20,7 @@ class AnoleConfigFileParser {
 	
 	private static AnoleLogger logger ;
 	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
-	
-	private AnoleConfigFileParser(){
-		String env = setEnv(); 
-		AnoleApp.setEnvironment(env);
-	}
-	
-	/**
-	 * The environment type of current running os.
-	 */
-	private String sysEnv;
-	
+
 	private int lineNumber = 0;
 	
 	/**
@@ -43,7 +35,7 @@ class AnoleConfigFileParser {
 	}
 	
 	public void parse(InputStream is, String fileName) { 
-		if(sysEnv == null || sysEnv.isEmpty())
+		if(StringUtil.isNullOrEmpty(AnoleApp.getEnvironment()))
 			throw new EnvironmentNotSetException();
 		lineNumber = 0;
 		configEnv = "all";//default environment is all 
@@ -59,8 +51,9 @@ class AnoleConfigFileParser {
 		if(content==null || content.isEmpty())
 			return;
 		content = content.replace("\uFEFF", "");
-		if(content.trim().startsWith("#env:")) {
-			configEnv = content.trim().replace("#env:", "").trim();
+		String envContent = StringUtil.removeBlankChars(content);
+		if(envContent.trim().startsWith("#env:") || envContent.trim().startsWith("#environment:")) {
+			configEnv = content.split(":")[1];
 		}else if(content.charAt(0) == '#')
 			return;
 		else
@@ -72,6 +65,7 @@ class AnoleConfigFileParser {
 		String [] tkvArray = separateKV(content); 
 		String tk = tkvArray[0].trim();
 		String v = tkvArray[1].trim();
+		String sysEnv = AnoleApp.getEnvironment();
 		if(sysEnv.equals(configEnv) || "all".equals(configEnv)){
 			String [] tkArray = tk.split(":");  
 			if(tkArray.length >2)
@@ -101,58 +95,7 @@ class AnoleConfigFileParser {
 		}				
 	}
 	
-	private String setEnv(){
-		switch(OsUtil.getOsCategory()){
-			case WINDOWS:{
-				return setEnvFromPath("C://anole/");
-			}
-			case LINUX:{
-				return setEnvFromPath("/etc/anole/");
-			}
-			case MAC:{
-				return setEnvFromPath("/Users/anole/");
-			}
-			default: return null;
-		}
-	}
-	
-	private String setEnvFromPath(String directoryPath){ 
-		// check by the following order
-		// 1. the system property
-		// 2. the JVM boot variable
-		// 3. the environment file
-		//check if the environment is already set or not
-		sysEnv = System.getProperty("anole.runtime.currentEnvironment");
-		if(sysEnv == null)
-			sysEnv = System.getenv("anole.runtime.currentEnvironment"); 
-		
-		if(sysEnv != null && !sysEnv.isEmpty()) {
-			lcm.setConfigItem("anole.runtime.currentEnvironment", sysEnv, ConfigType.STRING);
-			return sysEnv; 
-		} 
-		
-		File file = new File(directoryPath);
-		if(file.exists()){
-			File [] fileList = file.listFiles();
-			for(File ifile : fileList){
-				String ifname = ifile.getName();
-				if(StringUtil.asteriskMatch("*.env", ifname)){
-					sysEnv = ifname.replace(".env", ""); 
-					return sysEnv;
-				}
-			}
-		}
-		if(!StringUtil.isNullOrEmpty(AnoleApp.getEnvironment())){
-			sysEnv = AnoleApp.getEnvironment();
-			return sysEnv;
-		}
-		//throw new EnvironmentNotSetException();
-		// from 1.2.5 use warning instead and return "all" environment.
-		AnoleLogger.info("Cound not decide current environment, 'all' environment will be used.");
-		sysEnv = "all";
-		return sysEnv;
-		
-	}
+
 	
 	private String [] separateKV(String kvString){
 		int index = kvString.indexOf('='); 

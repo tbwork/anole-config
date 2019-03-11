@@ -26,7 +26,7 @@ public class StringUtil {
 		  Matcher matcher = pattern.matcher(targetString);
 		  return matcher.matches(); 
 	 }
-	
+
 	 public static String [] splitConfigLocations(String configLocationString){
 		 configLocationString = configLocationString.replace("\r\n", ",");
 		 return configLocationString.split("[\r|\n|,]");
@@ -194,6 +194,24 @@ public class StringUtil {
 		 }
 		 return result;
 	 }
-	 
-	 
+
+
+	 public static String removeBlankChars(String candidate){
+		 String dest = null;
+		 if(candidate == null){
+			 return dest;
+		 }else{
+			 Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+			 Matcher m = p.matcher(candidate);
+			 dest = m.replaceAll("");
+			 return dest;
+		 }
+	 }
+
+
+	public static void main(String[] args) {
+		System.out.println(removeBlankChars("sdf   s\rdds\n   \t"));
+	}
+
+
 }

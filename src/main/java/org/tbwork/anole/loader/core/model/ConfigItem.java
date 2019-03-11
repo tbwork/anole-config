@@ -1,17 +1,17 @@
 package org.tbwork.anole.loader.core.model;
 
-import java.math.BigDecimal;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.tbwork.anole.loader.exceptions.BadTransformValueFormatException;
 import org.tbwork.anole.loader.exceptions.ConfigTypeNotMatchedException;
 import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.StringUtil;
 
-import com.alibaba.fastjson.JSON;
-
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.math.BigDecimal;
 
 @Data
 public class ConfigItem {
@@ -82,30 +82,38 @@ public class ConfigItem {
 				if(!atFinal)
 					return; 
 				empty = false;
+				strValue = value;
 				switch(type){
 					case BOOL:{ //set boolValue
 						if(!"true".equals(value) && !"false".equals(value)) 
 							throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
-						if("true".equals(value)) 
+						if("true".equals(value)) {
 							boolValue = true;
-						else
-							boolValue = false; 
+							BigDecimal a = new BigDecimal(1);
+							setNumberValues(a);
+						}
+						else{
+							boolValue = false;
+							BigDecimal a = new BigDecimal(0);
+							setNumberValues(a);
+						}
 					}break;
 					case JSON: {// set strValue
 						 if(value.isEmpty())
-							 throw new BadTransformValueFormatException(value, ConfigType.JSON); 
-						 strValue = value; 
+							 throw new BadTransformValueFormatException(value, ConfigType.JSON);
+						 try{
+							 JSONObject validate = JSON.parseObject(value);
+						 }
+						 catch(Exception e){
+							 throw new BadTransformValueFormatException(value, ConfigType.JSON);
+						 }
 					}break;
 					case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
 						 if(value.isEmpty())
 							 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
 						 try{
 							 BigDecimal a = new BigDecimal(value);
-							 intValue = a.toBigInteger().intValue();
-							 shortValue = intValue.shortValue();
-							 longValue = a.toBigInteger().longValue();
-							 floatValue = a.floatValue();
-							 doubleValue = a.doubleValue();
+							 setNumberValues(a);
 						 }
 						 catch(NumberFormatException e)
 						 {
@@ -116,11 +124,7 @@ public class ConfigItem {
 						 strValue = value;
 						 try{
 							 BigDecimal a = new BigDecimal(value);
-							 intValue = a.toBigInteger().intValue();
-							 shortValue = intValue.shortValue();
-							 longValue = a.toBigInteger().longValue();
-							 floatValue = a.floatValue();
-							 doubleValue = a.doubleValue();
+							 setNumberValues(a);
 						 }
 						 catch(NumberFormatException e)
 						 {
@@ -135,7 +139,15 @@ public class ConfigItem {
 			} 
 		} 
 	}
-	
+
+	private void setNumberValues(BigDecimal a ){
+		intValue = a.toBigInteger().intValue();
+		shortValue = intValue.shortValue();
+		longValue = a.toBigInteger().longValue();
+		floatValue = a.floatValue();
+		doubleValue = a.doubleValue();
+	}
+
 	public String strValue(){
 	    return strValue;	
 	}

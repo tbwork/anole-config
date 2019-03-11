@@ -1,11 +1,11 @@
 package org.tbwork.anole.loader.context;
-  
+
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
 import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
- 
+
 /**
  * <p> Anole provides basic retrieving 
  * operations on local configurations. 
@@ -103,11 +103,38 @@ public class Anole {
 	public static boolean getBoolProperty(String key){
 		 return getBoolProperty(key, false);
 	}
-	
-	
+
+
+	/**
+	 * This class is used to implement custom process of each value.
+	 * E.g. if you want to add properties prefix with "custom." to
+	 * you own list, you can refer to following codes:
+	 * <pre>
+	 *  {@code
+	 *    final List<String> customContainer = new ArrayList<String>();
+	 *    foreachProcess(new AnoleProcessor() {
+	 * 			@Override
+	 * 			public void process(String key, String value) {
+	 * 				customContainer.add(key);
+	 * 			}
+	 *    });
+	 * 	}
+	 * </pre>
+	 */
+	public interface AnoleProcessor{
+		public void  process(String key, String value);
+	}
+
+	/**
+	 * Used to process each property managed by Anole.
+	 * @param processor the processor, {@link AnoleProcessor}
+	 */
+	public static void foreachProcess(AnoleProcessor processor){
+		cm.foreachProcess(processor);
+	}
 	
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
-	{ 
+	{
 		 if(!initialized)
 			 throw new AnoleNotReadyException();  
 		 return cm.getConfigItem(key);

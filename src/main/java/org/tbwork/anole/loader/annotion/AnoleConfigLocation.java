@@ -13,6 +13,6 @@ import java.lang.annotation.RetentionPolicy;
 @Inherited
 public @interface AnoleConfigLocation {
 	
-	public String locations() default "";
+	public String [] locations() default "";
 	
 }

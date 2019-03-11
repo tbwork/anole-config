@@ -48,7 +48,14 @@ public class LocalConfigManager implements ConfigManager{
 		cItem.setValue(value, type);
 		
 	}
-	
+
+	@Override
+	public void foreachProcess(Anole.AnoleProcessor anoleProcessor) {
+		for(Entry<String, ConfigItem> entry : configMap.entrySet()){
+			anoleProcessor.process(entry.getKey(), entry.getValue().strValue());
+		}
+	}
+
 	@Override
 	public ConfigItem getConfigItem(String key){
 		//local first

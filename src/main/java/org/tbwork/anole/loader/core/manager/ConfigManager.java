@@ -1,5 +1,6 @@
 package org.tbwork.anole.loader.core.manager;
 
+import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.types.ConfigType;
 
@@ -19,7 +20,8 @@ public interface ConfigManager {
 	 * @param type the type of the configuration item.
 	 */
 	public void setConfigItem(String key, String value, ConfigType type);
-	
+
+	public void foreachProcess(Anole.AnoleProcessor anoleProcessor);
 	/**
 	 * Tasks need to be executes after loading configurations from the file.
 	 */

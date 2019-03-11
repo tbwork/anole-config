@@ -1,18 +1,21 @@
 package org.tbwork.anole.loader.context;
 
+import org.tbwork.anole.loader.annotion.AnoleClassPathFilter;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.core.loader.impl.AnoleCallBack;
-import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
+import org.tbwork.anole.loader.exceptions.BadFileException;
 import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.CollectionUtil;
 import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Scanner;
 
 public class AnoleApp {
   
@@ -26,54 +29,55 @@ public class AnoleApp {
 
 	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 
-	private static final List<String> preSetLocations = new ArrayList<String>();
-
-	public volatile static AnoleCallBack anoleCallBack;
-
 	/**
 	 * Start an anole application.
 	 * @param logLevel the logLevel of anole itself.
-	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
-	public static void start(AnoleLogger.LogLevel logLevel, String ... scanJarPatterns){
+	public static void start(AnoleLogger.LogLevel logLevel, AnoleCallBack anoleCallBack){
 		Class<?> runtimeClass =  getAnoleRootClassByStackTrace(); 
-		start(runtimeClass, logLevel, scanJarPatterns);
+		start(runtimeClass, logLevel, anoleCallBack);
 	}
 	
 	/**
 	 * Start an Anole application with specified root class.
 	 * @param targetRootClass the root start class.
 	 * @param logLevel the logLevel of Anole itself.
-	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
-	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel, String ... scanJarPatterns) {
+	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel, AnoleCallBack anoleCallBack) {
 		AnoleLogger.anoleLogLevel = logLevel;
-		AnoleFileLoader.includedJarFilters = scanJarPatterns;
+		AnoleClassPathFilter classPathFilter = null;
+		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleClassPathFilter.class)){
+			classPathFilter = targetRootClass.getAnnotation(AnoleClassPathFilter.class);
+		}
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfigFiles = targetRootClass.getAnnotation(AnoleConfigLocation.class); 
-			if(!anoleConfigFiles.locations().isEmpty()){
-				String [] paths = anoleConfigFiles.locations().split(",");
-				paths = CollectionUtil.mergeArray(CollectionUtil.list2StringArray(preSetLocations), paths);
-				new AnoleClasspathConfigContext(StringUtil.trimStrings(paths));
+			if(anoleConfigFiles.locations() != null &&  anoleConfigFiles.locations().length > 0){
+				new AnoleClasspathConfigContext(classPathFilter, StringUtil.trimStrings(anoleConfigFiles.locations()));
 				return;
 			}  
 		}  
-		new AnoleClasspathConfigContext(StringUtil.trimStrings(CollectionUtil.list2StringArray(preSetLocations)));
+		new AnoleClasspathConfigContext(classPathFilter);
 	}
 
 	/**
-	 * Start an Anole application with default log level.
-	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
+	 * Start an Anole application with default log level and a specified callback.
 	 */
-	public static void start(String ... scanJarPatterns){
-		start(AnoleLogger.defaultLogLevel, scanJarPatterns);
+	public static void start(AnoleLogger.LogLevel logLevel){
+		start(logLevel, null);
+	}
+
+	/**
+	 * Start an Anole application with default log level and a specified callback.
+	 */
+	public static void start(AnoleCallBack anoleCallBack){
+		start(AnoleLogger.defaultLogLevel, anoleCallBack);
 	}
 
 	/**
 	 * Start an Anole application with default log level.
 	 */
 	public static void start(){
-		start(AnoleLogger.defaultLogLevel);
+		start(AnoleLogger.defaultLogLevel, null);
 	}
 
 	public static boolean runingInJar(){
@@ -83,12 +87,56 @@ public class AnoleApp {
 	public static void setRuningInJar(boolean runingInJar){
 		AnoleApp.runingInJar = runingInJar;
 	}
-	
-	 
+
+
+	/**
+	 * @param env the specified environment like: production
+	 */
 	public static void setEnvironment(String env) {
 		environment = env;
 	}
-	 
+
+	/**
+	 * Specify an input stream whose content is like:<br>
+	 * <pre>
+	 * 	environment=dev
+	 * </pre>
+	 */
+	public static void setEnvironment(InputStream is){
+		parse(is);
+	}
+
+	/**
+	 * Please specify a class path file's path like "env.anole" whose content is about:<br>
+	 * <pre>
+	 * 	environment=dev
+	 * </pre>
+	 */
+	public static void setEnvironmentFromClassPathFile(String classPathFile) {
+		if(!classPathFile.startsWith("/"))
+			classPathFile = StringUtil.concat("/", classPathFile);
+		setEnvironment(AnoleApp.class.getResourceAsStream(classPathFile));
+	}
+
+	/**
+	 * Specify a anole environment file whose content is like:<br>
+	 * <pre>
+	 *  environment=dev
+	 * </pre>
+	 */
+	public static void setEnvironment(File file){
+		try{
+			FileInputStream fileInputStream = new FileInputStream(file);
+			setEnvironment(fileInputStream);
+		}
+		catch (FileNotFoundException e){
+			throw new BadFileException("The environment file is broken or invalid.");
+		}
+		catch (Exception e){
+			throw new BadFileException(e.getMessage());
+		}
+
+	}
 	
 	public static String getEnvironment() {
 		return environment;
@@ -116,12 +164,7 @@ public class AnoleApp {
 		}
 		return callerClass; 
 	}
-	
-	public static String getCurrentEnvironment(){
-		return Anole.getProperty("anole.runtime.currentEnvironment");
-	}
-	
-	
+
 	/**
 	 * <p> For <b>maven</b> projects, this method will return the artifactId.
 	 * <p> For <b>other</b> projects, this method will return the value of 
@@ -158,13 +201,6 @@ public class AnoleApp {
 		lcm.setConfigItem(key, value, ConfigType.STRING);
 	}
 
-
-
-	public static void preAddConfigFileLocation(String ... locations){
-		for(String location : locations){
-			preSetLocations.add(location);
-		}
-	}
 	private static Class<?> getRootClassByStackTrace(){
 		try {
 			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 
@@ -201,13 +237,13 @@ public class AnoleApp {
 			return null;
 		} 
 	} 
-	
+
 	private static Class<?> getAnoleRootClassByStackTrace(){
 		try {
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
-			for (int i =0; i < stackTrace.length ; i++) {
+			for (int i = stackTrace.length - 1; i > 0 ; i--) {
 				if("org.tbwork.anole.loader.context.AnoleApp".equals(stackTrace[i].getClassName())) {
-					return Class.forName(stackTrace[i+2].getClassName());
+					return Class.forName(stackTrace[i+1].getClassName());
 				} 
 			}
 			throw new ClassNotFoundException("Can not find anole's root class, please check your start codes.");
@@ -216,6 +252,22 @@ public class AnoleApp {
 			// Swallow and continue
 		}
 		return null;
-	} 
-	 
+	}
+
+
+	private static void parse(InputStream is) {
+		Scanner s = new Scanner(is);
+		boolean found = false;
+		while(s.hasNextLine()){
+			String line =StringUtil.removeBlankChars(s.nextLine());
+			if(line.startsWith("env")){
+				setEnvironment(line.split("=")[1]);
+				found = true;
+			}
+		}
+		if(!found){
+			AnoleLogger.warn("It seems that there is no environment information in your input stream: {}",is.toString());
+		}
+	}
+
 }

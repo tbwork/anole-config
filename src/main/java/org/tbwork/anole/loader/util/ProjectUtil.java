@@ -1,12 +1,10 @@
 package org.tbwork.anole.loader.util;
 
+import org.tbwork.anole.loader.context.AnoleApp;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.context.AnoleApp;
-import org.tbwork.anole.loader.exceptions.AnoleNotReadyException; 
  
 
 public class ProjectUtil {
@@ -50,8 +48,8 @@ public class ProjectUtil {
 		String className = fullClassName.replace(packageName+".", "");
 		String classRelativePath = mainClass.getPackage().getName().replace(".", "/")+"/"+className+".class";
 		URL resourcePath = Thread.currentThread().getContextClassLoader().getResource(classRelativePath); 
-		callerClasspath = FileUtil.getNakedAbsolutePath(resourcePath.toString().replace(classRelativePath, ""));  
-		callerClasspath = FileUtil.format2Slash(callerClasspath);  
+		callerClasspath = PathUtil.getNakedAbsolutePath(resourcePath.toString().replace(classRelativePath, ""));
+		callerClasspath = PathUtil.format2Slash(callerClasspath);
 		return callerClasspath;
 	}
 	
@@ -63,13 +61,10 @@ public class ProjectUtil {
 		if(programPath != null && !programPath.isEmpty())
 			return programPath;
 		programPath = System.getProperty("user.dir"); 
-		programPath = FileUtil.format2Slash(programPath);
+		programPath = PathUtil.format2Slash(programPath);
 		if(!programPath.endsWith("/"))
 			programPath = programPath + "/";
 		return programPath;
 	}
-	
-	 
- 
-  
+
 }

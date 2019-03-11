@@ -17,6 +17,7 @@
   <url>https://github.com/tbwork/anole-loader</url>
   <description>An awesome property or configuration loader for java.</description> 
   <properties>
+	    <javadocExecutable>${java.home}/../bin/javadoc</javadocExecutable>
 	    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
 	    <junit.version>4.12</junit.version>
 	    <google.guava>19.0</google.guava>
@@ -37,7 +38,7 @@
   <developers>
 	  <developer>
 	        <name>tbwork</name>
-	        <email>542561232@qq.com</email>
+	        <email>tbwork1989@163.com</email>
 	        <roles>
 	            <role>owner</role>
 	        </roles>

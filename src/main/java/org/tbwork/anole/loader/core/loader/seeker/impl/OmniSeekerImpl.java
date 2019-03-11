@@ -3,10 +3,7 @@ package org.tbwork.anole.loader.core.loader.seeker.impl;
 import org.tbwork.anole.loader.core.loader.seeker.OmniSeeker;
 import org.tbwork.anole.loader.exceptions.BadFileException;
 import org.tbwork.anole.loader.exceptions.BadJarFileException;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.IOUtil;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.*;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +30,7 @@ public class OmniSeekerImpl implements OmniSeeker{
         }
     }
     public OmniSeekerImpl(List<String> candidatePathPatterns){
+        this.candidatePathPatterns = new ArrayList<String>();
         for(String item : candidatePathPatterns) {
             this.candidatePathPatterns.add(uniformAbsolutePath(item));
         }
@@ -41,7 +39,7 @@ public class OmniSeekerImpl implements OmniSeeker{
 	@Override
 	public Map<String, InputStream> seekFiles() {
 		String rootDirectory = getCommonDirectoryPath();
-        if(rootDirectory.endsWith("/"))
+        if(rootDirectory.trim().length() > 1 && rootDirectory.endsWith("/"))
             rootDirectory = rootDirectory.substring(0, rootDirectory.length()-1);
         if(rootDirectory.endsWith(".jar") ) {
             return seekJar(rootDirectory);
@@ -53,6 +51,7 @@ public class OmniSeekerImpl implements OmniSeeker{
 
 	private Map<String, InputStream> seekJar(String jarFilePath){
         Map<String, InputStream> result = new HashMap<String, InputStream>();
+        long tempTime = System.currentTimeMillis();
         JarFile file = null;
 	     try {
 	         file = new JarFile(jarFilePath);
@@ -61,7 +60,7 @@ public class OmniSeekerImpl implements OmniSeeker{
 	    	 throw new BadJarFileException();
 	     } 
 	     Enumeration<JarEntry> entrys = file.entries();
-         boolean matched = false;
+         int foundCount = 0;
          while(entrys.hasMoreElements()){
             JarEntry fileInJar = entrys.nextElement();
             String fileInJarName = fileInJar.getName();
@@ -73,17 +72,19 @@ public class OmniSeekerImpl implements OmniSeeker{
                 continue;
             }
             if(match(fullPath)){
+                foundCount ++;
                 InputStream tempStream = IOUtil.getCopiedInputStream(file, fileInJar);
                 result.put(fullPath, tempStream);
             }
          }
+         AnoleLogger.debug("{} is scanned. {} files are matched. Cost {} ms. ", jarFilePath, foundCount, System.currentTimeMillis() - tempTime);
 	     return result;
 	}
 
 
 	private boolean match(String candidate){
         for(String pattern : candidatePathPatterns){
-            if(FileUtil.asteriskMatchPath(pattern, candidate))
+            if(PathUtil.asteriskMatchPath(pattern, candidate))
                 return true;
         }
         return false;
@@ -113,10 +114,14 @@ public class OmniSeekerImpl implements OmniSeeker{
             File tempFile = fileList[i];
             String filename = uniformAbsolutePath(tempFile.getAbsolutePath());
             if(tempFile.isDirectory()){
-                result.addAll(getFilesInDirectory(filename));
+                if(preMatchPattern(filename)){
+                    result.addAll(getFilesInDirectory(filename));
+                }
             }
             else if( filename.endsWith(".jar") ){
-                result.add(tempFile); // for further process
+                if(preMatchPattern(filename)) {
+                    result.add(tempFile); // for further process
+                }
             }
             else if(match(filename)){
                 result.add(tempFile);
@@ -124,6 +129,15 @@ public class OmniSeekerImpl implements OmniSeeker{
         }
         return result;
     }
+
+    private boolean preMatchPattern(String partialPath){
+        for(String item : candidatePathPatterns){
+            if(PathUtil.preMatchPattern(partialPath, item))
+                return true;
+        }
+        return false;
+    }
+
 
 	private InputStream getFileInputStream(File file)  {
         try {
@@ -169,15 +183,11 @@ public class OmniSeekerImpl implements OmniSeeker{
     }
 
     /**¶
-     * @param candidate like "****&#47;"
-     * @return true if it is like "****&#47;", otherwise return false
+     * @param candidate like "mz-*&#47;"
+     * @return true if the candidate contains "*", otherwise return false
      */
     private boolean isAsterisk(String candidate){
-        for(int i =0 ;i < candidate.length() - 1 ; i++){
-            if(candidate.charAt(i) != '*')
-                return false;
-        }
-        return true;
+        return candidate.contains("*");
     }
     private String getNextFileName(String candidate){
         int index = candidate.indexOf('/');
@@ -196,7 +206,7 @@ public class OmniSeekerImpl implements OmniSeeker{
             ZipEntry zipEntry = null;
             while ((zipEntry = jarInputStream.getNextEntry()) != null) {
                 String fileInZipName = zipEntry.getName();
-                fileInZipName = FileUtil.format2Slash(fileInZipName);
+                fileInZipName = PathUtil.format2Slash(fileInZipName);
                 String fullPath = StringUtil.concat(fileToDirectory(jarPath), fileInZipName) ;
                 if(fileInZipName.endsWith(".jar")){
                     InputStream zipFileStream = IOUtil.getZipInputStream(jarInputStream, zipEntry);
@@ -224,7 +234,7 @@ public class OmniSeekerImpl implements OmniSeeker{
     }
 
     private static String uniformAbsolutePath(String absolutePath) {
-        String result =  FileUtil.getNakedAbsolutePath(FileUtil.toLinuxStylePath(absolutePath));
+        String result =  PathUtil.getNakedAbsolutePath(PathUtil.toLinuxStylePath(absolutePath));
         result = result.replace("!/", "/");
         if(!result.startsWith("/"))
             return "/"+result;
