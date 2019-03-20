@@ -19,11 +19,11 @@ For maven, import it using:
 <dependency>
   <groupId>org.tbwork.anole</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.8</version>
+  <version>1.2.9</version>
 </dependency>
 ```
 
-## 2 Specify the runtime environment. There are 3 ways to specify the runtime enviroment.
+## 2 Specify the runtime environment. There are several ways to specify the runtime enviroment.
 
 > If you just want to use Anole-Loader's basic function for retrieving properties without distinguishing the environments, you can skip this step. And the default environment would be 'all'.
 
@@ -38,6 +38,26 @@ For maven, import it using:
 ```
 **Option 3**: Set the operating system environment variable named **"anole.runtime.currentEnvironment"**
  
+**Option 4**: Set the environment manually via codes:
+```
+        AnoleApp.setEnvironment("local");
+		AnoleApp.start( LogLevel.DEBUG);
+
+``` 
+
+**Option 5**: Load from an environment file:
+```
+        AnoleApp.setEnvironmentFromClassPathFile("env.anole"); 
+		AnoleApp.start( LogLevel.DEBUG);
+```
+and the **env.anole** file's content is like:
+
+```
+## environment file
+environment=dev
+```
+
+
 ## 3 Create an anole config file in your **classpath** like:
 
   ```

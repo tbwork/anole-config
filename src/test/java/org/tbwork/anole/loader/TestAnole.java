@@ -13,6 +13,7 @@ import java.io.IOException;
 public class TestAnole {
 	public static void main(String[] args) throws IOException {
 		AnoleApp.setEnvironmentFromClassPathFile("env.anole");
+		AnoleApp.setEnvironment("local");
 		AnoleApp.start( LogLevel.DEBUG);
 		System.out.println(Anole.getProperty("a"));
 	}
