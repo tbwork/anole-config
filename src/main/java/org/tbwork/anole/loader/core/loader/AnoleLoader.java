@@ -11,10 +11,10 @@ public interface AnoleLoader {
 	 * Load "*.anole" files under the class-path directories.
 	 * <p><b>Note:</b> Default log level is INFO.
 	 */
-	public Map<String,FileLoadStatus> load(); 
+	public void load();
 	/**
 	 * Load multiple configuration files. 
 	 */
-	public Map<String,FileLoadStatus> load(String ... configLocations);
+	public void load(String ... configLocations);
  
 }

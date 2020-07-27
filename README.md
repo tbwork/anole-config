@@ -5,12 +5,20 @@
 An awesome configuration loader for java. 
 
 # Why we need it.
-In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc. to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and file-name, it would be annoying if you manage those files together. 
-Futhermore, in no longer future, we will propose our web-server-version Anole system (based on this local version) with which you can modify your configuration dynamically via a web UI.
+In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc
+. to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and
+ file-name, it would be annoying if you manage those files together. Anole-loader is a light framework to tackle with
+  this issue. By using it, you could manage all configurations together. We strongly recommend putting all those unclassified
+  configurations to local properties file so that reviewers can be aware of the change points in the code-review stage. 
 
 # What does it support
 
-It supports many kinds of property-files which are required in runtime, even those properties are used in the third-party frameworks.
+* Spring properties.
+* Log4j properties.
+* Logback properties.
+* All frameworks accessing system properties to retrieve configurations. 
+
+
 # How to use it
 
 ## 1 Add anole-loader to your build path manually or via maven dependency.
@@ -54,7 +62,8 @@ For maven, import it using:
   switch = true
   
   ```
-  Within the first line, `#env` means properties under this line will be loaded in and only in this enviroment, while `all` means it is suitable for all enviroments.
+  Within the first line, `#env` means the following properties will be loaded in and only in this environment
+  , while `all` means it is suitable for all enviroments.
   
 ### 3.1 Recursive variable reference
 

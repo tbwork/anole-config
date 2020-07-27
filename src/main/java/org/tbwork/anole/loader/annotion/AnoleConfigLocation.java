@@ -14,5 +14,11 @@ import java.lang.annotation.RetentionPolicy;
 public @interface AnoleConfigLocation {
 	
 	public String locations() default "";
-	
+
+	/**
+	 * the scanned jar name patterns like "soa-*", "app-*", etc.
+	 * @return jar pattern strings
+	 */
+	public String jarPattern() default "";
+
 }

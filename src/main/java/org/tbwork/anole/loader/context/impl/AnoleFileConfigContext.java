@@ -12,6 +12,7 @@ import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 import org.tbwork.anole.loader.util.FileUtil;
+import org.tbwork.anole.loader.util.PathUtil;
 
 
 /**
@@ -24,7 +25,7 @@ import org.tbwork.anole.loader.util.FileUtil;
  * <p>Usage example:
  *    	
  * <pre>
- *    AnoleFileConfigContext acc = new AnoleFileConfigContext(LogLevel.INFO, configFilePath);
+ *    AnoleFileConfigContext acc = new AnoleFileConfigContext(configLocations, jarPatterns);
  *    //use Anole as you like.
  * </pre>
  * <p> <b>About LogLevel:</b> The anole does not use any log implement
@@ -34,44 +35,15 @@ import org.tbwork.anole.loader.util.FileUtil;
  * @author tbwork
  * @see AnoleClasspathConfigContext
  */
-public class AnoleFileConfigContext{
-  
-	private Map<String, Boolean> alreadyFoundOrMatchedMap;
-	
-	public AnoleFileConfigContext(String ... configLocations) {
-		AnoleLoader anoleLoader = new AnoleFileLoader();
-		String [] slashProcessedPathes = FileUtil.format2SlashPathes(configLocations);
-		initializeAlreadyFoundMap(slashProcessedPathes);
-		Map<String,FileLoadStatus> loadResult = anoleLoader.load(slashProcessedPathes);
-		checkNotExist(loadResult); 
+public class AnoleFileConfigContext extends AbstractAnoleContext{
+
+
+	public AnoleFileConfigContext(String [] configLocations, String [] jarPatterns) {
+		super(configLocations, jarPatterns);
 	}
-	
-	private void initializeAlreadyFoundMap(String ... configLocations) {
-		if(alreadyFoundOrMatchedMap == null)
-			alreadyFoundOrMatchedMap = new HashMap<String,Boolean>(); 
-		for(String configLocation : configLocations) {
-			configLocation = FileUtil.format2Slash(configLocation);
-			alreadyFoundOrMatchedMap.put(configLocation, false); 
-		}
-	}
-	
-	private void checkNotExist(Map<String,FileLoadStatus> loadResult) {
-		for(Entry<String, Boolean> entry2 : alreadyFoundOrMatchedMap.entrySet()) {
-			String relativePath = entry2.getKey();
-			FileLoadStatus fls = loadResult.get(relativePath);
-			if(fls != null && fls.equals(FileLoadStatus.SUCCESS))
-				entry2.setValue(true); 
-		}
-		for(Entry<String, Boolean> entry2 : alreadyFoundOrMatchedMap.entrySet()) {
-			String relativePath = entry2.getKey();
-			if(!entry2.getValue()) {
-				if(relativePath.contains("*")) { //In terms of asterisk path, it is no need to throw an exception. 
-					AnoleLogger.warn("There is no matched file for '{}'", relativePath);
-				}
-				else {
-					throw new ConfigFileDirectoryNotExistException(relativePath);
-				}
-			}
-		}
+
+	@Override
+	protected AnoleLoader getAnoleLoader(String[] jarPatterns) {
+		return new AnoleFileLoader(jarPatterns);
 	}
 }

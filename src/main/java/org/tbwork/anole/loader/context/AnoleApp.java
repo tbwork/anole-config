@@ -24,9 +24,8 @@ public class AnoleApp {
 	/**
 	 * Start an anole application.
 	 * @param logLevel the logLevel of anole itself.
-	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
-	public static void start(AnoleLogger.LogLevel logLevel, String ... scanJarPatterns){
+	public static void start(AnoleLogger.LogLevel logLevel){
 		Class<?> runtimeClass =  getAnoleRootClassByStackTrace(); 
 		start(runtimeClass, logLevel);
 	}
@@ -35,28 +34,18 @@ public class AnoleApp {
 	 * Start an Anole application with specified root class.
 	 * @param targetRootClass the root start class.
 	 * @param logLevel the logLevel of Anole itself.
-	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
 	 */
-	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel, String ... scanJarPatterns) {
+	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel) {
 		AnoleLogger.anoleLogLevel = logLevel;
-		AnoleFileLoader.includedJarFilters = scanJarPatterns;
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
-			AnoleConfigLocation anoleConfigFiles = targetRootClass.getAnnotation(AnoleConfigLocation.class); 
-			if(!anoleConfigFiles.locations().isEmpty()){
-				String [] path = anoleConfigFiles.locations().split(",");
-				new AnoleClasspathConfigContext(StringUtil.trimStrings(path)); 
-				return;
-			}  
+			AnoleConfigLocation anoleConfig = targetRootClass.getAnnotation(AnoleConfigLocation.class);
+			String jarPatternString = anoleConfig.jarPattern();
+			String locationString = anoleConfig.locations();
+			String [] path = locationString.split(",");
+			String [] jarPatterns = jarPatternString.split(",");
+			new AnoleClasspathConfigContext(StringUtil.trimStrings(path), StringUtil.trimStrings(jarPatterns));
 		}  
-		new AnoleClasspathConfigContext(); 
-	}
-
-	/**
-	 * Start an Anole application with default log level.
-	 * @param scanJarPatterns the scanned jar name patterns like "soa-*", "app-*", etc.
-	 */
-	public static void start(String ... scanJarPatterns){
-		start(AnoleLogger.defaultLogLevel);
+		new AnoleClasspathConfigContext(new String[0], new String[0]);
 	}
 
 	/**

@@ -109,7 +109,9 @@ public class Anole {
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
 	{ 
 		 if(!initialized)
-			 throw new AnoleNotReadyException();  
+			 throw new AnoleNotReadyException();
+
+
 		 return cm.getConfigItem(key);
 	} 
 	
