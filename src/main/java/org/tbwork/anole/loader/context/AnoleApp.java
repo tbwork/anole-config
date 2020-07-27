@@ -2,7 +2,6 @@ package org.tbwork.anole.loader.context;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
-import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
 import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.AnoleLogger;
@@ -39,13 +38,15 @@ public class AnoleApp {
 		AnoleLogger.anoleLogLevel = logLevel;
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfig = targetRootClass.getAnnotation(AnoleConfigLocation.class);
-			String jarPatternString = anoleConfig.jarPattern();
+			String includeDirectory = anoleConfig.includeClassPathDirectoryPattern();
+			String excludeDirectory = anoleConfig.includeClassPathDirectoryPattern();
 			String locationString = anoleConfig.locations();
 			String [] path = locationString.split(",");
-			String [] jarPatterns = jarPatternString.split(",");
-			new AnoleClasspathConfigContext(StringUtil.trimStrings(path), StringUtil.trimStrings(jarPatterns));
+			String [] includePatterns = includeDirectory.split(",");
+			String [] excludePatterns = excludeDirectory.split(",");
+			new AnoleClasspathConfigContext(StringUtil.trimStrings(path), StringUtil.trimStrings(includePatterns), StringUtil.trimStrings(excludePatterns));
 		}  
-		new AnoleClasspathConfigContext(new String[0], new String[0]);
+		new AnoleClasspathConfigContext();
 	}
 
 	/**

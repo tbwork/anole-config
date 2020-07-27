@@ -38,12 +38,14 @@ import org.tbwork.anole.loader.util.PathUtil;
 public class AnoleFileConfigContext extends AbstractAnoleContext{
 
 
-	public AnoleFileConfigContext(String [] configLocations, String [] jarPatterns) {
-		super(configLocations, jarPatterns);
+	public AnoleFileConfigContext(String [] configLocations) {
+		super(configLocations);
 	}
 
 	@Override
-	protected AnoleLoader getAnoleLoader(String[] jarPatterns) {
-		return new AnoleFileLoader(jarPatterns);
+	protected AnoleLoader getAnoleLoader() {
+
+			return new AnoleFileLoader();
 	}
+
 }

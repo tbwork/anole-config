@@ -9,18 +9,15 @@ import org.tbwork.anole.loader.core.resource.impl.FileResourceLoader;
 public class AnoleFileLoader extends AbstractAnoleLoader{
 
 
-	public AnoleFileLoader(String [] includedJarFilters){
+	public AnoleFileLoader(){
 		super(
 				AnoleConfigFileParser.instance(),
-				new FileResourceLoader(includedJarFilters),
+				new FileResourceLoader(),
 				new AnoleConfigRegister()
 		);
 	}
 
 
-	public AnoleFileLoader() {
-		this(new String[0]);
-	}
 
 	@Override
 	public void load() {

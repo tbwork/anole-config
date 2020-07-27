@@ -35,12 +35,12 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
     public void load(String... configLocations) {
 
         // logo print
-        LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.6)");
+        LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.8)");
 
-        // locate
+        // locate and load as input stream
         ConfigFileResource [] configFileResources = resourceLoader.load(configLocations);
 
-        // load and parser
+        // parse to kvs
         List<RawKV> rawKVS =  parse(configFileResources);
 
         // register

@@ -32,6 +32,10 @@ public class PathUtil {
     }
 
 
+    public static boolean directoryMatch(String targetPath, String directoryPattern){
+        AnoleFilePath anoleFilePath = new AnoleFilePath(targetPath);
+        return anoleFilePath.directoryMatch(directoryPattern);
+    }
 
 
     public static String getNakedAbsolutePath(String absolutePath) {
@@ -105,6 +109,15 @@ public class PathUtil {
                 }
             }
             return i < pathPartList.size()-1;
+        }
+
+        public boolean directoryMatch(String directoryPattern){
+            for(String part : pathPartList){
+                if(StringUtil.asteriskMatch(directoryPattern, part)){
+                    return true;
+                }
+            }
+            return false;
         }
 
         public String getSolidDirectory(){

@@ -37,12 +37,23 @@ import org.tbwork.anole.loader.util.PathUtil;
 public class AnoleClasspathConfigContext extends AbstractAnoleContext{
 
 
-	public AnoleClasspathConfigContext(String [] configLocations, String [] jarPatterns) {
-		super(configLocations, jarPatterns);
+	private String [] includeClasspathDirectoryPatterns;
+	private String [] excludeClasspathDirectoryPatterns;
+
+	public AnoleClasspathConfigContext(){
+		super(new String[]{"*.anole"});
+		includeClasspathDirectoryPatterns = new String [0];
+		excludeClasspathDirectoryPatterns = new String [0];
+	}
+	public AnoleClasspathConfigContext(String [] configLocations, String [] includePatterns,
+									   String [] excludePatterns) {
+		super(configLocations);
+		this.includeClasspathDirectoryPatterns = includePatterns;
+		this.excludeClasspathDirectoryPatterns = excludePatterns;
 	}
 
 	@Override
-	protected AnoleLoader getAnoleLoader(String[] jarPatterns) {
-		return new AnoleClasspathLoader(jarPatterns);
+	protected AnoleLoader getAnoleLoader() {
+		return new AnoleClasspathLoader(includeClasspathDirectoryPatterns, excludeClasspathDirectoryPatterns);
 	}
 }

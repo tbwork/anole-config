@@ -7,10 +7,7 @@ import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.core.resource.ResourceLoader;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.ProjectUtil;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.*;
 import sun.security.provider.ConfigFile;
 
 import javax.annotation.Resource;
@@ -22,9 +19,6 @@ import java.util.*;
 
 public class FileResourceLoader implements ResourceLoader {
 
-
-    public String [] includedJarFilters = null;
-
     private static final List<String> projectInfoPropertiesInJarPathList  = new ArrayList<String>();
     private static final List<String> projectInfoPropertiesPathList  = new ArrayList<String>();
     static {
@@ -33,8 +27,7 @@ public class FileResourceLoader implements ResourceLoader {
         projectInfoPropertiesInJarPathList.add("META-INF/maven/*/*/pom.properties");
     }
 
-    public FileResourceLoader(String [] includedJarFilters){
-        this.includedJarFilters = includedJarFilters;
+    public FileResourceLoader( ){
     }
 
 
@@ -50,10 +43,7 @@ public class FileResourceLoader implements ResourceLoader {
 
         // set loading order
         for(String configurationFilePath : configurationFilePaths) {
-            if(!isInValidScanJar(configurationFilePath)) {
-                // filter by custom demand
-                continue;
-            }
+
             if(configurationFilePath.startsWith(ProjectUtil.getCallerClasspath())){
                 // inner project, load at the end
                 candidates.put(configurationFilePath, 99);
@@ -75,13 +65,17 @@ public class FileResourceLoader implements ResourceLoader {
         }
         for(Map.Entry<String, Integer> entry : candidates.entrySet()) {
             List<ConfigFileResource> tempResult = loadFile(  entry.getKey(),  entry.getValue());
-            if(tempResult)
-            // log matched paths
-            AnoleLogger.debug(" Pattern ({}) matches : -------------------------------------------",
-                    entry.getKey());
-            if(AnoleLogger.isDebugEnabled()){
-                for(ConfigFileResource item :tempResult){
-                    AnoleLogger.debug(item.getFullPath());
+            if(tempResult.isEmpty()){
+                AnoleLogger.debug(" Pattern ({}) matches nothing !", entry.getKey());
+            }
+            else{
+                // log matched paths
+                AnoleLogger.debug(" Pattern ({}) matches : -------------------------------------------",
+                        entry.getKey());
+                if(AnoleLogger.isDebugEnabled()){
+                    for(ConfigFileResource item :tempResult){
+                        AnoleLogger.debug(item.getFullPath());
+                    }
                 }
             }
             result.addAll(tempResult);
@@ -91,19 +85,6 @@ public class FileResourceLoader implements ResourceLoader {
     }
 
 
-
-
-    private boolean isInValidScanJar(String configLocation){
-        if(!configLocation.contains(".jar"))
-            return true;
-        for(String item : includedJarFilters){
-            item = StringUtil.concat("*", item, ".jar*");
-            if(StringUtil.asteriskMatch(item, configLocation)){
-                return true;
-            }
-        }
-        return false;
-    }
 
 
     private List<String> getFullPathForProjectInfoFiles() {

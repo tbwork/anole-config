@@ -11,7 +11,7 @@ import java.io.IOException;
 public class TestAnole {
 	public static void main(String[] args) throws IOException {
 		AnoleApp.putLocalProperty("num", "123");
-		AnoleApp.start(LogLevel.WARN, "anole-*");
+		AnoleApp.start(LogLevel.WARN);
 		System.out.println(Anole.getIntProperty("num"));
 	}
 }

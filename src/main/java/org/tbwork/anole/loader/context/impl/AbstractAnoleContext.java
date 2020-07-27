@@ -15,14 +15,14 @@ public abstract class AbstractAnoleContext {
 
     private Map<String, Boolean> alreadyFoundOrMatchedMap;
 
-    public AbstractAnoleContext( String [] configLocations, String [] jarPatterns) {
-        AnoleLoader anoleLoader = getAnoleLoader(jarPatterns);
+    public AbstractAnoleContext( String [] configLocations) {
+        AnoleLoader anoleLoader = getAnoleLoader();
         String [] slashProcessedPathes = PathUtil.format2SlashPathes(configLocations);
         initializeAlreadyFoundMap(slashProcessedPathes);
         anoleLoader.load(slashProcessedPathes);
     }
 
-    protected abstract AnoleLoader getAnoleLoader(String [] jarPatterns);
+    protected abstract AnoleLoader getAnoleLoader();
 
     private void initializeAlreadyFoundMap(String ... configLocations) {
         if(alreadyFoundOrMatchedMap == null)
