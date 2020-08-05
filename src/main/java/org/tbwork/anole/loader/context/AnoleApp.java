@@ -2,10 +2,8 @@ package org.tbwork.anole.loader.context;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
-import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
-import org.tbwork.anole.loader.types.ConfigType;
+import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
 
 public class AnoleApp {
@@ -18,7 +16,7 @@ public class AnoleApp {
 	
 	private static String environment;
 
-	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
+	private static final AnoleConfigManager lcm = SingletonFactory.getLocalConfigManager();
 
 	/**
 	 * Start an anole application.
@@ -38,13 +36,11 @@ public class AnoleApp {
 		AnoleLogger.anoleLogLevel = logLevel;
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfig = targetRootClass.getAnnotation(AnoleConfigLocation.class);
-			String includeDirectory = anoleConfig.includeClassPathDirectoryPattern();
-			String excludeDirectory = anoleConfig.includeClassPathDirectoryPattern();
-			String locationString = anoleConfig.locations();
-			String [] path = locationString.split(",");
-			String [] includePatterns = includeDirectory.split(",");
-			String [] excludePatterns = excludeDirectory.split(",");
-			new AnoleClasspathConfigContext(StringUtil.trimStrings(path), StringUtil.trimStrings(includePatterns), StringUtil.trimStrings(excludePatterns));
+			new AnoleClasspathConfigContext(StringUtil.splitString2Array(anoleConfig.locations(), ",")
+					, anoleConfig.includeClassPathDirectoryPattern()
+					, anoleConfig.excludeClassPathDirectoryPattern()
+			);
+			return ;
 		}  
 		new AnoleClasspathConfigContext();
 	}
@@ -53,7 +49,7 @@ public class AnoleApp {
 	 * Start an Anole application with default log level.
 	 */
 	public static void start(){
-		start(AnoleLogger.defaultLogLevel);
+		start(AnoleLogger.LogLevel.INFO);
 	}
 
 	public static boolean runingInJar(){
@@ -67,6 +63,8 @@ public class AnoleApp {
 	 
 	public static void setEnvironment(String env) {
 		environment = env;
+		lcm.setConfigItem("anole.env", env);
+		lcm.setConfigItem("anole.environment", env);
 	}
 	 
 	
@@ -131,7 +129,7 @@ public class AnoleApp {
 	}
 
 	public static void putLocalProperty(String key, String value){
-		lcm.setConfigItem(key, value, ConfigType.STRING);
+		lcm.registerConfigItemDefinition(key, value);
 	}
 
 	private static Class<?> getRootClassByStackTrace(){

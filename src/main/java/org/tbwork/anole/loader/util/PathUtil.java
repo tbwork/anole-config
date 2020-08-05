@@ -98,6 +98,9 @@ public class PathUtil {
         private List<String> pathPartList;
 
         public AnoleFilePath(String fullPath){
+            if(fullPath.startsWith("\\") || fullPath.startsWith("/")){
+                fullPath = fullPath.substring(1);
+            }
             pathPartList = SetUtil.newArrayList(fullPath.split("\\\\|/"));
         }
 

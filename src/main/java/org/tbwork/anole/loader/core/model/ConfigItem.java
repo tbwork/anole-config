@@ -1,139 +1,115 @@
 package org.tbwork.anole.loader.core.model;
 
 import java.math.BigDecimal;
-import org.tbwork.anole.loader.exceptions.BadTransformValueFormatException;
-import org.tbwork.anole.loader.exceptions.ConfigTypeNotMatchedException;
-import org.tbwork.anole.loader.types.ConfigType;
-import org.tbwork.anole.loader.util.StringUtil;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import com.alibaba.fastjson.JSON;
+import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.core.register.converter.impl.BooleanConverter;
+import org.tbwork.anole.loader.core.register.converter.impl.DigitalConverter;
+import org.tbwork.anole.loader.exceptions.ConfigTypeNotMatchedException;
+import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.tbwork.anole.loader.util.AnoleValueUtil;
 
-@Data
 public class ConfigItem {
 
 	private String key;
-	private ConfigType type; 
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
-	private String strValue; 
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
+
+	/**
+	 * Definition of the config, like " ${switch} ? ${small.value} : ${big.value}".
+	 */
+	private String definition;
+
+	/**
+	 * The value expression, like " true ? 123 : 345".
+	 */
+	private String valueExpression;
+
+	/**
+	 * <p>Non-empty indicates something wrong occurred in calculating the value,
+	 * and this field is the reason note.</p>
+	 * Only works in not strict mode, coz in strict mode, exceptions would be
+	 * thrown out and request thread would be terminated.
+	 */
+	private String error;
+
+
+	/**
+	 * different data type of values
+	 */
+	private String strValue;
 	private Boolean boolValue;
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private Double doubleValue;
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private Float floatValue;
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private Integer intValue;
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private Long longValue;
-	@Getter(AccessLevel.NONE)@Setter(AccessLevel.NONE)
 	private Short shortValue; 
 
 	/**
-	 * True empty means user does not set value 
-	 * (or set an empty value) for the configuration.
+	 * Last update timestamp.
 	 */
-	private boolean empty; 
-	
+	private volatile long lastUpdateTime;
+
 	/**
-	 * Indicates that at least the setValue() was called 
-	 * once after it was created.
+	 * Keys of configs which are referencing the current config key.
 	 */
-	private volatile boolean loaded; 
-	private boolean atFinal;
-	
-	/**
-	 * In case of that the key is always in wait status,
-	 *  and no value-setter any more.
-	 */
-	private volatile boolean giveup;
-	
-	private ConfigItem(){
-		this.key = new String();
-		setSystemDefault();
-		
-	}
+	private Set<String> parentConfigKeys;
 	
 	public ConfigItem(String key){
-		this.key = key;
+		this.key = key.trim();
+		parentConfigKeys = new HashSet<>();
 		setSystemDefault();
 	}
-	
-	public ConfigItem(String key , String value, ConfigType type){
-		this.key = key;
-		this.setValue(value, type);
-	}
-	
-	public void setValue(String value, ConfigType type)
-	{
-		synchronized(key){  
-			try{
-				this.type = type;
-				loaded = true;
-				if(value == null)
-					return; 
-				value = value.trim();
-				this.strValue = value;
-				checkFinal();
-				if(!atFinal)
-					return; 
-				empty = false;
-				switch(type){
-					case BOOL:{ //set boolValue
-						if(!"true".equals(value) && !"false".equals(value)) 
-							throw new BadTransformValueFormatException(value, ConfigType.BOOL); 
-						if("true".equals(value)) 
-							boolValue = true;
-						else
-							boolValue = false; 
-					}break;
-					case JSON: {// set strValue
-						 if(value.isEmpty())
-							 throw new BadTransformValueFormatException(value, ConfigType.JSON); 
-						 strValue = value; 
-					}break;
-					case NUMBER:{// set intValue shortValue longValue floatValue doubleValue 
-						 if(value.isEmpty())
-							 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
-						 try{
-							 BigDecimal a = new BigDecimal(value);
-							 intValue = a.toBigInteger().intValue();
-							 shortValue = intValue.shortValue();
-							 longValue = a.toBigInteger().longValue();
-							 floatValue = a.floatValue();
-							 doubleValue = a.doubleValue();
-						 }
-						 catch(NumberFormatException e)
-						 {
-							 throw new BadTransformValueFormatException(value, ConfigType.NUMBER); 
-						 }  
-					}break;
-					case STRING:{
-						 strValue = value;
-						 try{
-							 BigDecimal a = new BigDecimal(value);
-							 intValue = a.toBigInteger().intValue();
-							 shortValue = intValue.shortValue();
-							 longValue = a.toBigInteger().longValue();
-							 floatValue = a.floatValue();
-							 doubleValue = a.doubleValue();
-						 }
-						 catch(NumberFormatException e)
-						 {
-							//do nothing
-						 }  
-					}break;
-					default:break;
-				} 
+
+
+
+
+	/**
+	 * After the value is calculated, value should not contain any variable
+	 * or any expression.
+	 * @param value the concrete value of the config
+	 */
+	public void setValue(String value) {
+		if(value == null)
+			return;
+		value = value.trim();
+		this.strValue = value;
+
+		if(!Anole.initialized){
+			//Add to JVM system properties for other frameworks to read.
+			System.setProperty(key, strValue);
+		}
+		else{
+			// only for those configs who were already existed in system properties.
+			if(System.getProperty(key) != null && !System.getProperty(key).equals(value)){
+				System.setProperty(key, strValue);
 			}
-			finally{
-				key.notifyAll();   
-			} 
-		} 
+		}
+		BigDecimal bigDecimal =new DigitalConverter().convert(strValue);
+		if(bigDecimal != null){
+			this.doubleValue = bigDecimal.doubleValue();
+			this.floatValue = bigDecimal.floatValue();
+			this.intValue = bigDecimal.intValue();
+			this.longValue = bigDecimal.longValue();
+			this.shortValue = bigDecimal.shortValue();
+		}
+		else{
+			this.doubleValue = null;
+			this.floatValue = null;
+			this.intValue = null;
+			this.longValue = null;
+			this.shortValue = null;
+		}
+
+		this.boolValue = new BooleanConverter().convert(strValue);
+		this.lastUpdateTime = System.nanoTime();
 	}
 	
 	public String strValue(){
@@ -142,11 +118,11 @@ public class ConfigItem {
 	
 	public int intValue()
 	{
-		if(intValue != null)
+		if( intValue != null)
 		{
 			return intValue;
 		} 
-		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
+		throw new ConfigTypeNotMatchedException(strValue, "int/Integer");
 	}
 	
 	public boolean boolValue()
@@ -155,7 +131,7 @@ public class ConfigItem {
 		{
 			return boolValue;
 		}
-		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
+		throw new ConfigTypeNotMatchedException(strValue, "boolean/Boolean");
 	}
 	
 	public double doubleValue()
@@ -164,7 +140,7 @@ public class ConfigItem {
 		{
 			return doubleValue;
 		}
-		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
+		throw new ConfigTypeNotMatchedException(strValue, "double/Double");
 	}
 	
 	public float floatValue()
@@ -173,7 +149,7 @@ public class ConfigItem {
 		{
 			return floatValue;
 		}
-		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
+		throw new ConfigTypeNotMatchedException(strValue, "float/Float");
 	}
 	
 	public short shortValue()
@@ -182,7 +158,7 @@ public class ConfigItem {
 		{
 			return shortValue;
 		}
-		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
+		throw new ConfigTypeNotMatchedException(strValue, "short/Short");
 	}
 	
 	public long longValue()
@@ -191,31 +167,13 @@ public class ConfigItem {
 		{
 			return longValue;
 		}
-		throw new ConfigTypeNotMatchedException(type, ConfigType.NUMBER);
+		throw new ConfigTypeNotMatchedException(strValue, "long/Long");
 	}
 	
+
 	
-	private void checkFinal(){ 
-		this.atFinal = !StringUtil.checkContainVariable(this.strValue, this.key);
-	}
-	
-	
-	/**
-	 * If you want to get POJO object from the configuration
-	 * value, make sure the value is a valid JSON string.
-	 * @param clazz the POJO's class
-	 * @return the object of POJO's class
-	 */
-	public <T> T objectValue(Class<T> clazz)
-	{
-		if(ConfigType.JSON.equals(type)) 
-			return JSON.parseObject(strValue, clazz); 
-		else
-			throw new ConfigTypeNotMatchedException(type, ConfigType.JSON);
-	} 
-	
+
 	private void setSystemDefault(){
-		this.empty       = true;
 		this.boolValue   = false;
 		this.doubleValue = 0.0;
 		this.floatValue  = 0.0f;
@@ -223,8 +181,39 @@ public class ConfigItem {
 		this.longValue   = 0l;
 		this.shortValue  = 0;
 		this.strValue    = null;
-		this.atFinal = true;
+		this.lastUpdateTime = System.nanoTime();
 	}
-	 
-	
+
+
+	public void setDefinition(String definition){
+		this.definition = definition;
+	}
+
+	public String getDefinition() {
+		return definition;
+	}
+
+	public String getValueExpression() {
+		return valueExpression;
+	}
+
+	public void setValueExpression(String valueExpression) {
+		this.valueExpression = valueExpression;
+	}
+
+	public long getLastUpdateTime() {
+		return lastUpdateTime;
+	}
+
+	public void setLastUpdateTime(long lastUpdateTime) {
+		this.lastUpdateTime = lastUpdateTime;
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setError(String error) {
+		this.error = error;
+	}
 }

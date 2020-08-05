@@ -5,16 +5,17 @@ import java.util.regex.Matcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 public class AnoleLogger {
 
 	public static volatile LogLevel anoleLogLevel = LogLevel.INFO; // default is INFO
-	
+
 	private static Logger logger = null;
-	
-	public static LogLevel defaultLogLevel = LogLevel.INFO;
-	
+
+	private Class owner;
+
 	private static char placeHolderChar = 26 ; //ASCII code: SUB
 	
 	public static enum LogLevel{
@@ -35,13 +36,19 @@ public class AnoleLogger {
 			return level;
 		} 
 	}
-	
-	public static boolean isDebugEnabled(){
+
+	public AnoleLogger(Class<?> clazz){
+		this.owner = clazz;
+		logger = LoggerFactory.getLogger(clazz);
+	}
+
+	public boolean isDebugEnabled(){
 		return anoleLogLevel.code() == LogLevel.DEBUG.code();
 	}
 	
-	private static void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){ 
+	private void coreLog(LogLevel logLevel, String baseInfo, Object ... variables){
 		if(logLevel.code() >= anoleLogLevel.code()  ){
+			baseInfo = owner.getSimpleName() + " - " + baseInfo;
 			String output = baseInfo.replace("{}", placeHolderChar+""); 
 			for(Object variable : variables){
 				if(variable == null)
@@ -59,9 +66,9 @@ public class AnoleLogger {
 	/**
 	 * E.g. <b>AnoleLogger.debug("{}-{}","a","b")</b> will output "a-b"
 	 */
-	public static void debug(String baseInfo, Object ... variables){
+	public void debug(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.DEBUG, "[DEBUG] "+baseInfo, variables);
+			coreLog(LogLevel.DEBUG, "[DEBUG] "+ baseInfo, variables);
 		}
 		else{ 
 			getLogger().debug(baseInfo, variables);
@@ -71,9 +78,9 @@ public class AnoleLogger {
 	/**
 	 * E.g. <b>AnoleLogger.info("{}-{}","a","b")</b> will output "a-b"
 	 */
-	public static void info(String baseInfo, Object ... variables){
+	public void info(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
-			coreLog(LogLevel.INFO, "[INFO] "+baseInfo, variables);
+			coreLog(LogLevel.INFO, "[INFO] " + baseInfo, variables);
 		}
 		else{ 
 			getLogger().info(baseInfo, variables);
@@ -83,7 +90,7 @@ public class AnoleLogger {
 	/**
 	 * E.g. <b>AnoleLogger.warn("{}-{}","a","b")</b> will output "a-b"
 	 */
-	public static void warn(String baseInfo, Object ... variables){
+	public void warn(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
 			coreLog(LogLevel.WARN, "[WARN] "+baseInfo, variables);
 		}
@@ -95,7 +102,7 @@ public class AnoleLogger {
 	/**
 	 * E.g. <b>AnoleLogger.error("{}-{}","a","b")</b> will output "a-b"
 	 */
-	public static void error(String baseInfo, Object ... variables){
+	public void error(String baseInfo, Object ... variables){
 		if(!Anole.initialized){
 			coreLog(LogLevel.ERROR, "[ERROR] "+baseInfo, variables);
 		}
@@ -107,7 +114,7 @@ public class AnoleLogger {
 	/**
 	 * E.g. <b>AnoleLogger.fatal("{}-{}","a","b")</b> will output "a-b"
 	 */
-	public static void fatal(String baseInfo, String ... variables){
+	public void fatal(String baseInfo, String ... variables){
 		if(!Anole.initialized){
 			coreLog(LogLevel.FATAL, "[FATAL] "+baseInfo, variables);
 		}
@@ -117,13 +124,7 @@ public class AnoleLogger {
 	}
 	
 	
-	private static Logger getLogger(){
-		if(logger == null){
-			synchronized(AnoleLogger.class){
-				if(logger == null)
-					logger = LoggerFactory.getLogger(AnoleLogger.class);
-			}
-		}
+	private Logger getLogger(){
 		return logger; 
 	}
 }

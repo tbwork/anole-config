@@ -1,1 +1,13 @@
 a=true
+b = @@ ${a} ? yes : no
+# apollo
+apollo.namespaces=mtl-order,application
+apollo.meta=http://10.1.2.134:8080
+apollo.cluster=dev_main
+app.id=MTL
+
+# remote common property
+remote.env=DEV
+
+config.remote.types.supported=apollo
+test=${global.phoneOfRemindAddShowSvg}

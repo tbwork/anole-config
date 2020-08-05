@@ -1,9 +1,9 @@
 package org.tbwork.anole.loader.context;
   
 import org.tbwork.anole.loader.core.manager.ConfigManager;
+import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
-import org.tbwork.anole.loader.util.SingletonFactory;
 import org.tbwork.anole.loader.util.StringUtil;
  
 /**
@@ -13,14 +13,12 @@ import org.tbwork.anole.loader.util.StringUtil;
  */ 
 public class Anole { 
 	 
-	protected static final ConfigManager cm = SingletonFactory.getLocalConfigManager();
-	
+	protected static final ConfigManager cm = AnoleConfigManager.getInstance();
+
 	/**
 	 * Indicates that local anole is loaded successfully.
 	 */
 	public static boolean initialized = false;
-	
-	
 
 	/**
 	 * Check whether the value of the key is existing and
@@ -42,12 +40,8 @@ public class Anole {
 	public static String getProperty(String key){ 
 		 return getProperty(key, null);
 	}
-	
-	public static <T> T getObject(String key, Class<T> clazz){
-		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty() ? null : cItem.objectValue(clazz); 
-	}
-	
+
+
 	public static int getIntProperty(String key, int defaultValue){
 		 ConfigItem cItem = getConfig(key, cm);
 	 	 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.intValue();  
@@ -104,14 +98,43 @@ public class Anole {
 		 return getBoolProperty(key, false);
 	}
 	
-	
-	
+	public static void setProperty(String key, String value){
+		cm.applyChange(key, value);
+	}
+
+	/**
+	 * Whether the specified key is defined or not.
+	 * @param key the specified key
+	 * @return return if the key is already defined.
+	 */
+	public static boolean isPresent(String key){
+		return cm.getConfigItem(key) != null;
+	}
+
+	/**
+	 * Get the rawValue of specified key. The raw value is the original value defined
+	 * by users which may contain another key.
+	 * E.g.,
+	 * <pre>
+	 *     a = b ;
+	 *     b = ${a}.123
+	 * </pre>
+	 * getRawValue("b") will return "${a}.123"
+	 * @param key
+	 * @return
+	 */
+	public static String getRawValue(String key){
+		ConfigItem configItem = cm.getConfigItem(key);
+		if(configItem != null){
+			return configItem.getDefinition();
+		}
+		return null;
+	}
+
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
 	{ 
 		 if(!initialized)
 			 throw new AnoleNotReadyException();
-
-
 		 return cm.getConfigItem(key);
 	} 
 	

@@ -7,12 +7,14 @@ import java.util.Map.Entry;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.core.loader.impl.AnoleClasspathLoader;
+import org.tbwork.anole.loader.core.resource.impl.ClasspathResourceLoader;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 import org.tbwork.anole.loader.util.FileUtil;
 import org.tbwork.anole.loader.util.PathUtil;
+import org.tbwork.anole.loader.util.StringUtil;
 
 /**
  * <p>Before using Anole to manage your configuration, 
@@ -36,24 +38,35 @@ import org.tbwork.anole.loader.util.PathUtil;
  */
 public class AnoleClasspathConfigContext extends AbstractAnoleContext{
 
+	private String [] includeClasspathPatterns;
+	private String [] excludeClasspathPatterns;
 
-	private String [] includeClasspathDirectoryPatterns;
-	private String [] excludeClasspathDirectoryPatterns;
+	public AnoleClasspathConfigContext(String [] configLocations, String includeClassPathDirectoryPattern,
+									   String excludeClassPathDirectoryPattern){
+		super(configLocations);
+		String includeDirectory = includeClassPathDirectoryPattern.trim();
+		String excludeDirectory = excludeClassPathDirectoryPattern.trim();
+		includeClasspathPatterns =  StringUtil.isNullOrEmpty(includeDirectory) ? new String[0] : includeDirectory.split(",");
+		excludeClasspathPatterns = StringUtil.isNullOrEmpty(excludeDirectory) ? new String[0] :
+				excludeDirectory.split(",");
+		create();
+	}
 
 	public AnoleClasspathConfigContext(){
-		super(new String[]{"*.anole"});
-		includeClasspathDirectoryPatterns = new String [0];
-		excludeClasspathDirectoryPatterns = new String [0];
+		super(null);
+		includeClasspathPatterns = new String[0] ;
+		excludeClasspathPatterns = new String[0] ;
+		create();
 	}
-	public AnoleClasspathConfigContext(String [] configLocations, String [] includePatterns,
-									   String [] excludePatterns) {
-		super(configLocations);
-		this.includeClasspathDirectoryPatterns = includePatterns;
-		this.excludeClasspathDirectoryPatterns = excludePatterns;
+
+
+	@Override
+	protected String[] getDefaultConfigLocations() {
+		return new String[]{"*.anole"};
 	}
 
 	@Override
-	protected AnoleLoader getAnoleLoader() {
-		return new AnoleClasspathLoader(includeClasspathDirectoryPatterns, excludeClasspathDirectoryPatterns);
+	protected void create() {
+		new AnoleClasspathLoader(includeClasspathPatterns, excludeClasspathPatterns).load(getConfigLocations());
 	}
 }

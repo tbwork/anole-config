@@ -1,11 +1,10 @@
 package org.tbwork.anole.loader.core.parser;
 
 import org.tbwork.anole.loader.context.AnoleApp;
-import org.tbwork.anole.loader.core.manager.impl.LocalConfigManager;
+import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
-import org.tbwork.anole.loader.types.ConfigType;
 import org.tbwork.anole.loader.util.*;
 
 import java.io.File;
@@ -17,14 +16,14 @@ import java.util.Scanner;
 
 public class AnoleConfigFileParser {
 
+	private static final AnoleLogger logger = new AnoleLogger(AnoleConfigFileParser.class) ;
+
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 
-	private static final LocalConfigManager lcm = SingletonFactory.getLocalConfigManager();
 
-	private static AnoleLogger logger ;
 
 	private AnoleConfigFileParser(){
-		String env = setEnv(); 
+		String env = getCurrentEnvironment();
 		AnoleApp.setEnvironment(env);
 	}
 	
@@ -56,7 +55,10 @@ public class AnoleConfigFileParser {
 		currentFileName = fileName;
 		while(s.hasNextLine()){
 			lineNumber++;
-			result.add(parseLine(StringUtil.trim(s.nextLine())));
+			RawKV rawKV = parseLine(StringUtil.trim(s.nextLine()));
+			if(rawKV != null){
+				result.add(rawKV);
+			}
 		}
 		return result;
 	}
@@ -73,7 +75,7 @@ public class AnoleConfigFileParser {
 			// skip comments
 			return null;
 		}
-		if(!sysEnv.equals(currentEnvironment) && !"all".equals(sysEnv)){
+		if(!sysEnv.equals(currentEnvironment) && !"all".equals(currentEnvironment)){
 			// skip other environments
 			return null;
 		}
@@ -81,56 +83,73 @@ public class AnoleConfigFileParser {
 		return new RawKV(separateKV(content));
 	}
 
+
 	
-	private String setEnv(){
+	private String getCurrentEnvironment(){
+		// check by the following order
+		// 1. the jvm system property
+		// 2. the os system property
+		// 3. the environment file
+		//check if the environment is already set or not
+		sysEnv = System.getProperty("anole.env");
+		if(StringUtil.isNullOrEmpty(sysEnv)){
+			sysEnv = System.getProperty("anole.environment");
+		}
+		if(StringUtil.isNullOrEmpty(sysEnv)){
+			sysEnv = System.getenv("ANOLE_ENV");
+		}
+		if(StringUtil.isNullOrEmpty(sysEnv)){
+			sysEnv = System.getenv("ANOLE_ENVIRONMENT");
+		}
+
+		if(StringUtil.isNullOrEmpty(sysEnv)){
+			sysEnv = getEnvFromFile();
+		}
+
+		if(StringUtil.isNotEmpty(sysEnv)) {
+			return sysEnv;
+		}
+
+		//throw new EnvironmentNotSetException();
+		// from 1.2.5 use warning instead and return "all" environment.
+		logger.info("Cound not decide current environment, 'all' environment will be used.");
+		sysEnv = "all";
+		return sysEnv;
+		
+	}
+
+
+	private String getEnvFromFile(){
 		switch(OsUtil.getOsCategory()){
 			case WINDOWS:{
-				return setEnvFromPath("C://anole/");
+				return getEnvFromFile("C://anole/");
 			}
 			case LINUX:{
-				return setEnvFromPath("/etc/anole/");
+				return getEnvFromFile("/etc/anole/");
 			}
 			case MAC:{
-				return setEnvFromPath("/Users/anole/");
+				return getEnvFromFile("/Users/anole/");
 			}
 			default: return null;
 		}
 	}
-	
-	private String setEnvFromPath(String directoryPath){ 
-		// check by the following order
-		// 1. the system property
-		// 2. the JVM boot variable
-		// 3. the environment file
-		//check if the environment is already set or not
-		sysEnv = System.getProperty("anole.runtime.currentEnvironment");
-		if(sysEnv == null)
-			sysEnv = System.getenv("anole.runtime.currentEnvironment"); 
-		
-		if(sysEnv != null && !sysEnv.isEmpty()) {
-			lcm.setConfigItem("anole.runtime.currentEnvironment", sysEnv, ConfigType.STRING);
-			return sysEnv; 
-		} 
-		
+
+	private String getEnvFromFile(String directoryPath){
 		File file = new File(directoryPath);
 		if(file.exists()){
 			File [] fileList = file.listFiles();
 			for(File ifile : fileList){
 				String ifname = ifile.getName();
 				if(StringUtil.asteriskMatch("*.env", ifname)){
-					sysEnv = ifname.replace(".env", ""); 
+					sysEnv = ifname.replace(".env", "");
 					return sysEnv;
 				}
 			}
-		}  
-		//throw new EnvironmentNotSetException();
-		// from 1.2.5 use warning instead and return "all" environment.
-		AnoleLogger.info("Cound not decide current environment, 'all' environment will be used.");
-		sysEnv = "all";
-		return sysEnv;
-		
+		}
+		return null;
 	}
-	
+
+
 	private String [] separateKV(String kvString){
 		int index = kvString.indexOf('='); 
 		if(index < 0 )

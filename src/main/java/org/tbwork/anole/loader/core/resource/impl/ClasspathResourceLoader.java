@@ -11,6 +11,8 @@ import java.util.Set;
 
 public class ClasspathResourceLoader extends FileResourceLoader {
 
+
+    private static final  AnoleLogger  logger = new AnoleLogger(ClasspathResourceLoader.class);
     /**
      * Whitelist
      */
@@ -21,7 +23,8 @@ public class ClasspathResourceLoader extends FileResourceLoader {
     private String [] excludePatterns;
 
     public ClasspathResourceLoader(String [] includedPatterns, String [] excludePatterns) {
-        super(includedPatterns, excludePatterns);
+        this.includedPatterns = includedPatterns;
+        this.excludePatterns = excludePatterns;
     }
 
     @Override
@@ -36,11 +39,11 @@ public class ClasspathResourceLoader extends FileResourceLoader {
         List<String> orderedConfigLocations = new ArrayList<String>();
         orderedConfigLocations.addAll(configLocationsUnderUserSpecifiedClasspathes);
         orderedConfigLocations.addAll(configLocationUnderApplicationClasspathes);
-        if(AnoleLogger.isDebugEnabled()){
-            AnoleLogger.debug("All patterns will be matched are:");
+        if(logger.isDebugEnabled()){
+            logger.debug("All patterns will be matched are:");
             int p = 0;
             for(String configLocation : orderedConfigLocations){
-                AnoleLogger.debug("{} - {}", p++, configLocation);
+                logger.debug("{} - {}", p++, configLocation);
             }
         }
         return super.load(CollectionUtil.list2StringArray(orderedConfigLocations));

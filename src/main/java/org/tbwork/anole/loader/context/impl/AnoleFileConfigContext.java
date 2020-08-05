@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
+import org.tbwork.anole.loader.core.resource.impl.FileResourceLoader;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.util.AnoleLogger;
@@ -37,15 +38,20 @@ import org.tbwork.anole.loader.util.PathUtil;
  */
 public class AnoleFileConfigContext extends AbstractAnoleContext{
 
-
 	public AnoleFileConfigContext(String [] configLocations) {
 		super(configLocations);
+		create();
+	}
+
+
+	@Override
+	protected String[] getDefaultConfigLocations() {
+		throw new UnsupportedOperationException("This operation is not supported in the current mode. You must " +
+				"specified a concrete configuration path.");
 	}
 
 	@Override
-	protected AnoleLoader getAnoleLoader() {
-
-			return new AnoleFileLoader();
+	protected void create() {
+		new AnoleFileLoader().load(getConfigLocations());
 	}
-
 }

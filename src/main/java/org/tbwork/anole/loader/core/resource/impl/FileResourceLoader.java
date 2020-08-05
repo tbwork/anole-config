@@ -19,6 +19,9 @@ import java.util.*;
 
 public class FileResourceLoader implements ResourceLoader {
 
+
+    private static final AnoleLogger logger = new AnoleLogger(FileResourceLoader.class);
+
     private static final List<String> projectInfoPropertiesInJarPathList  = new ArrayList<String>();
     private static final List<String> projectInfoPropertiesPathList  = new ArrayList<String>();
     static {
@@ -27,7 +30,7 @@ public class FileResourceLoader implements ResourceLoader {
         projectInfoPropertiesInJarPathList.add("META-INF/maven/*/*/pom.properties");
     }
 
-    public FileResourceLoader( ){
+    public FileResourceLoader(){
     }
 
 
@@ -36,7 +39,7 @@ public class FileResourceLoader implements ResourceLoader {
     public ConfigFileResource [] load(String... configurationFilePaths) {
 
         AnoleApp.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
-        AnoleLogger.debug("Current environment is {}", AnoleApp.getEnvironment());
+        logger.debug("Current environment is {}", AnoleApp.getEnvironment());
         List<ConfigFileResource> result = new ArrayList<ConfigFileResource>();
 
         Map<String, Integer> candidates = new HashMap<String, Integer>();
@@ -66,16 +69,14 @@ public class FileResourceLoader implements ResourceLoader {
         for(Map.Entry<String, Integer> entry : candidates.entrySet()) {
             List<ConfigFileResource> tempResult = loadFile(  entry.getKey(),  entry.getValue());
             if(tempResult.isEmpty()){
-                AnoleLogger.debug(" Pattern ({}) matches nothing !", entry.getKey());
+                logger.debug("Pattern <{}> matches nothing !", entry.getKey());
             }
             else{
                 // log matched paths
-                AnoleLogger.debug(" Pattern ({}) matches : -------------------------------------------",
+                logger.info("Pattern <{}> matches : ",
                         entry.getKey());
-                if(AnoleLogger.isDebugEnabled()){
-                    for(ConfigFileResource item :tempResult){
-                        AnoleLogger.debug(item.getFullPath());
-                    }
+                for(ConfigFileResource item :tempResult){
+                    logger.info(item.getFullPath());
                 }
             }
             result.addAll(tempResult);
@@ -112,7 +113,7 @@ public class FileResourceLoader implements ResourceLoader {
      * @param patternedPath patterned file path
      */
     private List<ConfigFileResource> loadFile(String patternedPath, int order){
-        AnoleLogger.debug("Searching config files matchs '{}'", patternedPath);
+        logger.debug("Searching config files matchs '{}'", patternedPath);
 
         if(patternedPath.contains("!/")){ // For Jar projects
             return loadFileFromJar(patternedPath, order);
@@ -123,15 +124,21 @@ public class FileResourceLoader implements ResourceLoader {
     }
 
     private List<ConfigFileResource> loadFileFromJar(String patternedPath, int order){
-
-        return null;
+        List<ConfigFileResource> result = new ArrayList<>();
+        Map<String, InputStream>  fileStreamMap = FileUtil.loadFileStreamFromJar(patternedPath);
+        for(Map.Entry<String, InputStream> entry : fileStreamMap.entrySet()){
+            logger.debug("New configuration file is found, name : {}", entry.getKey());
+            result.add( new ConfigFileResource( entry.getKey(),  entry.getValue(),
+                    order));
+        }
+        return result;
     }
 
     private List<ConfigFileResource> loadFileFromDirectory(String patternedPath, int order){
         List<ConfigFileResource> result = new ArrayList<>();
         Map<String, File> fileMap = FileUtil.loadFileByPatternedPath(patternedPath);
         for(Map.Entry<String, File> entry : fileMap.entrySet()){
-            AnoleLogger.debug( entry.getKey());
+            logger.debug("New configuration file is found, name : {}", entry.getKey());
             result.add( new ConfigFileResource( entry.getKey(), FileUtil.getInputStream( entry.getValue()),
                     order));
         }

@@ -1,27 +1,64 @@
 package org.tbwork.anole.loader.core.manager;
 
+import org.tbwork.anole.loader.core.manager.remote.RemoteRetriever;
 import org.tbwork.anole.loader.core.model.ConfigItem;
-import org.tbwork.anole.loader.types.ConfigType;
+import org.tbwork.anole.loader.core.model.RawKV;
+
+import java.util.List;
 
 public interface ConfigManager {
-	
+
+
+	/**
+	 * Register raw key-values to the manager.
+	 * @param rawKVList
+	 */
+	public void batchRegisterDefinition(List<RawKV> rawKVList);
+
+	/**
+	 * Set configuration item into the Anole. Deeply digging will be used if
+	 * value contains an other property like: a = ${b}-service
+	 * @param key the key of the configuration item.
+	 * @param definition the definition of the configuration item.
+	 */
+	public void registerAndSetValue(String key, String definition);
+
+
+
 	/**
 	 * Get the configuration item by its key.
 	 * @param key the key of the configuration item.
 	 * @return the configuration item.
 	 */
 	public ConfigItem getConfigItem(String key);
-	
+
+
 	/**
-	 * Set configuration item into the Anole.
-	 * @param key the key of the configuration item.
-	 * @param value the value of the configuration item.
-	 * @param type the type of the configuration item.
+	 * Rebuild all configurations and refresh their values.
 	 */
-	public void setConfigItem(String key, String value, ConfigType type);
-	
+	public void refresh();
+
 	/**
-	 * Tasks need to be executes after loading configurations from the file.
+	 * Add a remote retriever to retrieve configuration and
+	 * register a corresponding monitor to observe config change event.
+	 * @param remoteRetriever the remote retriever
 	 */
-	public void postProcess();
+	void addRemoteRetriever(RemoteRetriever remoteRetriever);
+
+
+	/**
+	 * Start the updater, after which all updates from the remote config server
+	 * like apollo, spring config etc. will be processed one by one.
+	 */
+	void startUpdater();
+
+	/**
+	 * Apply a update to a config. This operation means the change request will
+	 * be put into the update request queue, waiting for further process.
+	 * @param key
+	 * @param newValue
+	 */
+	void applyChange(String key, String newValue);
+
+
 }

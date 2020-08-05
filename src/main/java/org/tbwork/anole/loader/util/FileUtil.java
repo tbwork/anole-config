@@ -8,6 +8,8 @@ import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.enums.OsCategory;
@@ -16,26 +18,21 @@ import org.tbwork.anole.loader.exceptions.BadJarFileException;
 
 public class FileUtil {
 
+	private static final Logger logger = LoggerFactory.getLogger( FileUtil.class );
 
 	public static FileInputStream getInputStream(File file){
-
 		try {
-
 			return new FileInputStream(file);
-
-		} catch (FileNotFoundException e) {
-
-			throw new RuntimeException("Something bad happened!");
+		} catch (Exception e) {
+			throw new RuntimeException("Something bad happened! Message: " + e.getMessage());
 		}
-
 	}
-
 
 
 	/**
 	 * @param patternedPath like : /D://prject/a.jar!/BOOT-INF!/classes!/*.properties
 	 */
-	private static Map<String, InputStream> loadFileStreamFromJar(String patternedPath){
+	public static Map<String, InputStream> loadFileStreamFromJar(String patternedPath){
 		Map<String, InputStream> result = new HashMap<>();
 		String jarPath = ProjectUtil.getJarPath(patternedPath)+"/";
 		patternedPath = patternedPath.replace("!", "");
@@ -80,19 +77,16 @@ public class FileUtil {
 		Map<String, File> result = new HashMap<>();
 		if(!patternedPath.contains("*")){
 			// SOLID PATH
-			result.put(patternedPath, getFile(patternedPath));
+			File file = getFile(patternedPath);
+			if(file != null){
+				result.put(patternedPath, file);
+			}
 			return result;
-		}
-
-		if( PathUtil.isFuzzyDirectory(patternedPath)){
-			AnoleLogger.warn("Use asterisk in directory is not recommended, e.g., D://a/*/*.txt. We hope you know" +
-					" that it will cause plenty cost of time to seek every matched file.");
 		}
 
 		String solidDirectoryPath = PathUtil.getSolidDirectory(patternedPath);
 		File directory = new File(solidDirectoryPath);
 		if(!directory.exists()) {
-			AnoleLogger.warn("The directory ({}) is not existed.", solidDirectoryPath);
 			return result;
 		}
 		List<File> files = FileUtil.getFilesInDirectoryWithSpecifiedPattern(solidDirectoryPath, patternedPath);
@@ -139,7 +133,7 @@ public class FileUtil {
 			}
 		}
 		catch(Exception e) {
-			AnoleLogger.error("Fail to get configuration file from jar due to {}", e.getMessage());
+			logger.error("Fail to get configuration file from jar due to {}", e.getMessage());
 		}
 		return result;
 	}
