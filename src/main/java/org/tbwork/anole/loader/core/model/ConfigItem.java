@@ -27,10 +27,6 @@ public class ConfigItem {
 	 */
 	private String definition;
 
-	/**
-	 * The value expression, like " true ? 123 : 345".
-	 */
-	private String valueExpression;
 
 	/**
 	 * <p>Non-empty indicates something wrong occurred in calculating the value,
@@ -193,14 +189,6 @@ public class ConfigItem {
 		return definition;
 	}
 
-	public String getValueExpression() {
-		return valueExpression;
-	}
-
-	public void setValueExpression(String valueExpression) {
-		this.valueExpression = valueExpression;
-	}
-
 	public long getLastUpdateTime() {
 		return lastUpdateTime;
 	}
@@ -215,5 +203,17 @@ public class ConfigItem {
 
 	public void setError(String error) {
 		this.error = error;
+	}
+
+	public String getError() {
+		return error;
+	}
+
+	public Set<String> getParentConfigKeys() {
+		return parentConfigKeys;
+	}
+
+	public void setParentConfigKeys(Set<String> parentConfigKeys) {
+		this.parentConfigKeys = parentConfigKeys;
 	}
 }

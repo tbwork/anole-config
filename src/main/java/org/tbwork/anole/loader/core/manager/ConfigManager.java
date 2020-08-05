@@ -24,6 +24,22 @@ public interface ConfigManager {
 	public void registerAndSetValue(String key, String definition);
 
 
+	/**
+	 * Set configuration item into the Anole. Deeply digging will be used if
+	 * value contains an other property like: a = ${b}-service
+	 * @param key the key of the configuration item.
+	 * @param definition the definition of the configuration item.
+	 * @param updateTime the update time given by the caller
+	 */
+	public void registerAndSetValue(String key, String definition, long updateTime);
+
+
+	/**
+	 * Judge whether the given key is interested by the current application.
+	 * @param key the key of the configuration item.
+	 * @return true if the application interests the given key.
+	 */
+	public boolean interest(String key);
 
 	/**
 	 * Get the configuration item by its key.

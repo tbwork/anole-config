@@ -3,6 +3,7 @@ package org.tbwork.anole.loader.core.manager.impl;
 import com.lmax.disruptor.EventHandler;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolver;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolverFactory;
@@ -57,21 +58,34 @@ public class AnoleConfigManager implements ConfigManager{
 
 	@Override
 	public void registerAndSetValue(String key, String definition) {
+		registerAndSetValue(key, definition, System.currentTimeMillis());
+	}
+
+	@Override
+	public void registerAndSetValue(String key, String definition, long updateTime) {
 		ConfigItem configItem = registerConfigItemDefinition(key, definition);
-
-
-		if(AnoleValueUtil.containVariable(value, key)){
-			value = rsc(key);
-			configItem.setValue(value);
+		if(AnoleValueUtil.containVariable(definition,key)){
+			parseDefinitionAndCalculateValue(configItem);
 		}
+		else {
+			configItem.setValue(calculateExpression(key, definition));
+		}
+		configItem.setLastUpdateTime(updateTime);
+		if(Anole.initialized){
+			// means any change could cause other related changes as a chain reaction.
+			processChainReaction(key);
+		}
+	}
+
+	@Override
+	public boolean interest(String key) {
+		return configDefinitionMap.containsKey(key);
 	}
 
 	@Override
 	public void refresh() {
 
-		batchResolveVariablesAndSetValueExpression();
-
-		calculateExpressionForAllConfigs();
+		calculateValueForAll();
 
 		cleanEscapeCharacters();
 
@@ -87,7 +101,7 @@ public class AnoleConfigManager implements ConfigManager{
 		if(anoleConfigUpdater == null){
 			throw new NotReadyException("configUpdater component");
 		}
-		remoteRetriever.registerMonitor(new ConfigChangeMonitor(anoleConfigUpdater));
+		remoteRetriever.registerMonitor(new ConfigChangeMonitor(anoleConfigUpdater, this));
 	}
 
 	@Override
@@ -136,13 +150,19 @@ public class AnoleConfigManager implements ConfigManager{
 			ConfigItem configItem =  anoleConfigManager.getConfigItem(event.getKey());
 			String oldDefinition = configItem.getDefinition();
 
-			if(oldDefinition == null &&event.getNewValue() == null){
+			if(oldDefinition == null && event.getNewValue() == null){
 				return ;
 			}
 
 			if(oldDefinition != null && oldDefinition.equals(event.getNewValue())){
 				return ;
 			}
+
+			if(configItem.getLastUpdateTime() > event.getCreateTime()){
+				return ; // ignore old version update
+			}
+
+			anoleConfigManager.registerAndSetValue(event.getKey(), event.getNewValue(), event.getCreateTime());
 
 			if(configItem != null){
 				configItem.setValue(event.getNewValue());
@@ -152,9 +172,36 @@ public class AnoleConfigManager implements ConfigManager{
 	}
 
 
+	/**
+	 * Calculate value of each config item, according to the definition.
+	 */
+	private void calculateValueForAll(){
+		Set<Entry<String,ConfigItem>> entrySet = configDefinitionMap.entrySet();
+		// process definitions without variables
+		for(Entry<String,ConfigItem> item : entrySet){
+			ConfigItem configItem = item.getValue();
+			if(AnoleValueUtil.containVariable(configItem.getDefinition(), item.getKey()) ){
+				// contains variables
+				parseDefinitionAndCalculateValue(configItem);
+			}
+			else{
+				// plain values
+				if(!AnoleValueUtil.isExpression(configItem.getDefinition())){
+					// not an expression
+					configItem.setValue(configItem.getDefinition());
+				}
+				else{
+					String expression = configItem.getDefinition();
+					configItem.setValue(calculateExpression(configItem.getKey(), expression));
+				}
+			}
+		}
+	}
+
 
 	/**
-	 * Register the config definition.
+	 * Register the config definition and set value for configs if the definition
+	 * did not contain any variable and was not an expression.
 	 *
 	 * @param key the key of the configuration item.
 	 * @param valueDefinition the value definition of the config.
@@ -178,66 +225,6 @@ public class AnoleConfigManager implements ConfigManager{
 
 
 
-    /**
-     * <p> Replace all variables of all config items with corresponding values.
-	 * For those configs containing variables, those variables will be replaced
-	 * with concrete values recursively.</p>
-     * E.g., a snippet of Anole configuration is as following:
-     * <pre>
-     * ip=127.0.0.1
-     * port=80
-     * connectionString=#{ip}:#{port}
-     * </pre>
-     * In this case, after calling this method, the connectionString 
-     * would be 127.0.0.1:80
-     */
-    private void batchResolveVariablesAndSetValueExpression(){
-    	Set<Entry<String,ConfigItem>> entrySet = configDefinitionMap.entrySet();
-    	// process definitions without variables
-		for(Entry<String,ConfigItem> item : entrySet){
-			ConfigItem configItem = item.getValue();
-			if(!AnoleValueUtil.containVariable(configItem.getDefinition(), item.getKey()) ){
-				// only for those not having-variable properties.
-				configItem.setValueExpression(configItem.getDefinition());
-			}
-		}
-		// process definitions with variables
-    	for(Entry<String,ConfigItem> item : entrySet){
-    		ConfigItem configItem = item.getValue();
-    		if(AnoleValueUtil.containVariable(configItem.getDefinition(), item.getKey())){
-    			// only for those having-variable properties.
-				configItem.setValueExpression(rsc(item.getKey()));
-			}
-    	}
-    }
-
-
-
-	/**
-	 * Calculate the expression for all config items.
-	 * Example 1:
-	 * <pre>
-	 *     a = true ? 123 : 345
-	 * </pre>
-	 * a's value would be 123
-	 *
-	 * Example 2:
-	 * <pre>
-	 *     a = 345
-	 * </pre>
-	 * a's value would be 345 (it is not an expression but a plain value.)
-	 *
-	 */
-    private void calculateExpressionForAllConfigs(){
-		Set<Entry<String,ConfigItem>> entrySet = configDefinitionMap.entrySet();
-		for(Entry<String,ConfigItem> item : entrySet){
-			ConfigItem configItem = item.getValue();
-			configItem.setValue(
-			 	calculateExpressionForAllConfigs(configItem.getKey(), configItem.getValueExpression())
-			);
-		}
-	}
-
 	/**
 	 * Calculate expression for the given ownerKey.
 	 *
@@ -245,7 +232,7 @@ public class AnoleConfigManager implements ConfigManager{
 	 * @param expression the expression
 	 * @return the calculated result
 	 */
-	private String calculateExpressionForAllConfigs(String ownerKey, String expression){
+	private String calculateExpression(String ownerKey, String expression){
 		if(AnoleValueUtil.isExpression(expression)){
 			ExpressionResolver expressionResolver = ExpressionResolverFactory.findSuitableExpressionResolver(expression);
 			String calculateResult = expressionResolver.resolve(ownerKey, expression);
@@ -266,72 +253,138 @@ public class AnoleConfigManager implements ConfigManager{
     }
 
 
+	/**
+	 * Refresh all affected configs' value due to update of the config with the given orgKey.
+	 *
+	 * @param orgKey the modified config's key
+	 */
+    private void processChainReaction(String orgKey){
 
-    @Data
+    	ConfigItem configItem = getConfigItem(orgKey);
+
+		List<String> affectedKeys = new LinkedList<String>();
+		affectedKeys.addAll(configItem.getParentConfigKeys());
+
+		while(!affectedKeys.isEmpty()){
+
+			String affectedKey = affectedKeys.get(0);
+
+			ConfigItem affectedConfigItem = configDefinitionMap.get(affectedKey);
+
+			parseDefinitionAndCalculateValue(affectedConfigItem);
+
+			affectedKeys.addAll(affectedConfigItem.getParentConfigKeys());
+
+			affectedKeys.remove(0);
+		}
+	}
+
+
+	@Data
 	@AllArgsConstructor
-    static class ParseResult{
-    	private String expression;
-    	private String error;
+	static class GraphNode{
+
+    	private Set<GraphNode> referenceNodes;
+
+    	private String key;
+
 	}
 
 	/**
-	 * Recursively build all properties.
+	 * <p>The configs' dependency relationship is an unidirectional graph, and
+	 * how to sort the update order is a topological sort algorithm.<p/>
 	 *
-	 * @param key the config key
-	 * @param definition definition
-	 * @return the value expression
+	 * Access <a href="https://algorithmist.com/wiki/Topological_sort">Topological sort</a>
+	 * for further read.
+	 * @param startKey the start config's key
+	 * @return the sorted keys of config which will be updated.
 	 */
-	private ParseResult parseDefinitionToExpression(String key, String definition){
-		if(unknownConfigSet.contains(key)){
-			throw new CircularDependencyException(key);
-		}
-		unknownConfigSet.add(key);
-		String resultExpression = definition;
-		String resultError = null;
-		String [] variablesWithCloth = AnoleValueUtil.getVariables(definition, key);
+	private List<String> topologySort(String startKey){
 
+		// build the graph.
+		GraphNode root = new GraphNode(null, startKey);
+
+		Map<String, GraphNode> nodeMap = new HashMap<>();
+		nodeMap.put(startKey, root);
+
+		Stack<String> waitForProcessNodes = new Stack<String>();
+
+		waitForProcessNodes.push(startKey);
+
+		while(!waitForProcessNodes.empty()){
+
+			String key = waitForProcessNodes.pop();
+
+			for(String parentKey : getConfigItem(startKey).getParentConfigKeys()){
+				GraphNode temp = nodeMap.get(parentKey);
+				if(temp == null){
+					temp = new GraphNode(new HashSet<GraphNode>(), parentKey);
+				}
+				temp.getReferenceNodes().add(nodeMap.get(key));
+				waitForProcessNodes.push(parentKey);
+			}
+
+		}
+
+		for(String parentKey : getConfigItem(startKey).getParentConfigKeys()){
+			GraphNode temp = new GraphNode(new HashSet<GraphNode>(), parentKey);
+			temp.getReferenceNodes().add(root);
+		}
+		List<String>
+
+
+	}
+
+
+	/**
+	 * Recursively parse config's definition and calculate the value.
+	 *
+	 * @param configItem the config item
+	 */
+	private void parseDefinitionAndCalculateValue(ConfigItem configItem){
+		if(unknownConfigSet.contains(configItem.getKey())){
+			throw new CircularDependencyException(configItem.getKey());
+		}
+		unknownConfigSet.add(configItem.getKey());
+
+		String [] variablesWithCloth = AnoleValueUtil.getVariables(configItem.getDefinition(), configItem.getKey());
+
+		String resolvedValue = configItem.getDefinition();
 		for(String str: variablesWithCloth){
 			String vkey = AnoleValueUtil.getVariable(str);
 			if(StringUtil.isNullOrEmpty(vkey)){
-				throw new ErrorSyntaxException(key, str + " must contains a valid variable.");
+				throw new ErrorSyntaxException(configItem.getKey(), str + " must contains a valid variable.");
 			}
 			ConfigItem vConfig = extendibleGetConfigItem(vkey);
-			if(vConfig == null || vConfig.strValue() == null) {
+
+			if(vConfig == null) {
 				String errorMessage = String.format("There is no manual-set or default-set value for %s", vkey);
 				if(isRunInStrictMode()){
-					throw new ErrorSyntaxException(key, errorMessage);
+					throw new ErrorSyntaxException(vkey, errorMessage);
 				}
 				else{
-					resultError = errorMessage;
-				}
-			}
-			else{
-				// vKey found
-				// get value expression
-				if(AnoleValueUtil.containVariable(vConfig.getDefinition(), vkey)){
-					ParseResult parseResult = parseDefinitionToExpression(vkey, vConfig.getDefinition());
-					vConfig.setValueExpression(parseResult.getExpression());
-					vConfig.setError(parseResult.getError());
+					configItem.setError(errorMessage);
+					return;
 				}
 			}
 
-			resultExpression = resultExpression.replace(str, vConfig.getValueExpression());
-
-
-			String realValue = parseDefinition(vkey, );
-			if(realValue == null){
-				String message = String.format("The config (key=%s) could not be null value because it is a reference (dependency) of config(key=%s)", vkey, key);
-				throw new ErrorSyntaxException(key, message);
-			}
-			if(!resultValue.equals(str)){
-				resultValue = resultValue.replace(str, realValue);
+			if(AnoleValueUtil.containVariable(vConfig.getDefinition(), vConfig.getKey())){
+				parseDefinitionAndCalculateValue(vConfig);
 			}
 
+			if(vConfig.strValue() == null){
+				configItem.setError(vConfig.getError());
+			}
+
+			// variable's value is ready
+			resolvedValue = resolvedValue.replace(str, vConfig.strValue());
 		}
-		ci.setValue(resultValue);
-		unknownConfigSet.remove(key);
-		// else: real value is still not found, keep intact and do nothing
-		return ci.strValue();
+		// process expression
+		if(AnoleValueUtil.isExpression(resolvedValue)){
+			resolvedValue = calculateExpression(configItem.getKey(), resolvedValue);
+		}
+		configItem.setValue(resolvedValue);
+		unknownConfigSet.remove(configItem.getKey());
 	}
 
 
@@ -343,43 +396,7 @@ public class AnoleConfigManager implements ConfigManager{
 		return true;
 	}
 
-	/**
-	 * Recursively build all properties.
-	 *
-	 * @param key the key
-	 * @return
-	 */
-    private String rsc(String key){
-    	if(unknownConfigSet.contains(key)){
-    		throw new CircularDependencyException(key);
-    	}
-    	unknownConfigSet.add(key);
-    	ConfigItem ci = extendibleGetConfigItem(key);
-    	if(ci == null || ci.strValue() == null) {
-    		String message = String.format("There is no manual-set or default-set value for %s", key);
-			throw new ErrorSyntaxException(key, message);
-    	} 
-		String [] variablesWithCloth = AnoleValueUtil.getVariables(ci.getDefinition(), key);
-    	String resultValue = ci.getDefinition();
-		for(String str: variablesWithCloth){
-			String vkey = AnoleValueUtil.getVariable(str);
-			if(vkey==null || vkey.isEmpty())
-				throw new ErrorSyntaxException(key, str + " must contains a valid variable.");
-			String realValue = rsc(vkey);
-			if(realValue == null){
-				String message = String.format("The config (key=%s) could not be null value because it is a reference (dependency) of config(key=%s)", vkey, key);
-				throw new ErrorSyntaxException(key, message);
-			} 
-			if(!resultValue.equals(str)){
-				resultValue = resultValue.replace(str, realValue);
-			}
 
-		}
-		ci.setValue(resultValue);
-		unknownConfigSet.remove(key);
-		// else: real value is still not found, keep intact and do nothing
-    	return ci.strValue(); 
-    }
 
 	/**
 	 *

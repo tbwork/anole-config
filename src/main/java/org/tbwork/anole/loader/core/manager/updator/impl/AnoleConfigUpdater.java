@@ -3,10 +3,7 @@ package org.tbwork.anole.loader.core.manager.updator.impl;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.tbwork.anole.loader.core.manager.ConfigManager;
-import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.manager.updator.ConfigUpdater;
-import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
 import org.tbwork.anole.loader.exceptions.UpdaterNotReadyException;
 
@@ -57,7 +54,6 @@ public class AnoleConfigUpdater implements ConfigUpdater {
                 event.setCreateTime(updateEvent.getCreateTime());
                 event.setKey(updateEvent.getKey());
                 event.setNewValue(updateEvent.getNewValue());
-                event.setOldValue(updateEvent.getOldValue());
             }
         });
 

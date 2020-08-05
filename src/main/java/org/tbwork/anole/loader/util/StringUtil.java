@@ -56,7 +56,7 @@ public class StringUtil {
 	 }
 
 	 public static String replaceEscapeChars(String input){
-		return input.replace("\\~", "~").replace("\\!", "!").replace("\\@", "@").replace("\\#", "#").replace("\\$", "$").replace("\\{", "{").replace("\\}", "}");
+		return input.replace("\\@", "@").replace("\\$", "$").replace("\\{", "{").replace("\\}", "}");
 	 }
 	 
 	 public static String join(String delimiter, String ...strings){
