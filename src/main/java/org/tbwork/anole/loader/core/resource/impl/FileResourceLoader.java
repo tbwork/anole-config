@@ -39,7 +39,7 @@ public class FileResourceLoader implements ResourceLoader {
     public ConfigFileResource [] load(String... configurationFilePaths) {
 
         AnoleApp.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
-        logger.debug("Current environment is {}", AnoleApp.getEnvironment());
+        logger.debug("Current environment is {}", Anole.getEnvironment());
         List<ConfigFileResource> result = new ArrayList<ConfigFileResource>();
 
         Map<String, Integer> candidates = new HashMap<String, Integer>();

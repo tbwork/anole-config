@@ -3,7 +3,7 @@ package org.tbwork.anole.loader.core.manager.updator.impl;
 import com.lmax.disruptor.*;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.tbwork.anole.loader.core.manager.updator.ConfigUpdater;
+import org.tbwork.anole.loader.core.manager.updator.ConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
 import org.tbwork.anole.loader.exceptions.UpdaterNotReadyException;
 
@@ -11,23 +11,23 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>Process all config updates.</p>
+ * <p>Manage all update events, record them and then process them.</p>
  */
-public class AnoleConfigUpdater implements ConfigUpdater {
+public class AnoleConfigUpdateManager implements ConfigUpdateManager {
 
     private Disruptor<UpdateEvent> disruptor = null;
 
-    private volatile boolean started = false;
+    private volatile boolean startRecording = false;
 
     private EventHandler eventHandler;
 
-    public AnoleConfigUpdater( EventHandler eventHandler){
+    public AnoleConfigUpdateManager(EventHandler eventHandler){
         this.eventHandler = eventHandler;
     }
 
-    @Override
-    public void start() {
 
+    @Override
+    public void startRecord() {
         EventFactory<UpdateEvent> eventEventFactory = new UpdateEventFactory();
         ThreadFactory threadFactory = new AnoleUpdaterThreadFactory();
         disruptor = new Disruptor<UpdateEvent>(eventEventFactory,
@@ -35,16 +35,30 @@ public class AnoleConfigUpdater implements ConfigUpdater {
                 threadFactory,
                 ProducerType.MULTI,// multiple publisher
                 new BlockingWaitStrategy());
-
         disruptor.handleEventsWith(eventHandler);
+        startRecording = true;
+    }
+
+    @Override
+    public void startProcess() {
+        if(!startRecording){
+            throw new UpdaterNotReadyException();
+        }
         disruptor.start();
-        started = true;
+    }
+
+    @Override
+    public void shutDown() {
+        if(!startRecording){
+            throw new UpdaterNotReadyException();
+        }
+        disruptor.shutdown();
     }
 
     @Override
     public void publishEvent(final UpdateEvent updateEvent) {
 
-        if(!started){
+        if(!startRecording){
             throw new UpdaterNotReadyException();
         }
 
@@ -67,7 +81,7 @@ public class AnoleConfigUpdater implements ConfigUpdater {
     public static class UpdateEventFactory implements EventFactory<UpdateEvent> {
         @Override
         public UpdateEvent newInstance() {
-            return new UpdateEvent();
+            return new UpdateEvent(null, null, 0);
         }
     }
 

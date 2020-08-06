@@ -1,5 +1,6 @@
 package org.tbwork.anole.loader.core.register;
 
+import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.manager.remote.impl.ApolloRetriever;
@@ -30,14 +31,21 @@ public class AnoleConfigRegister {
         // register raw definition, those raw values may be used in the following steps.
         lcm.batchRegisterDefinition(rawKVList);
 
-        // create and start the updater, a updater is an executor used to tackle with all updates.
-        lcm.startUpdater();
+        // start up the update recorder to prepare to receive update events from the remote config servers.
+        lcm.startUpdateRecorder();
 
         // initialize retrievers
         initializeRemoteConfigServer();
 
         // refresh all properties
         lcm.refresh();
+
+        // initialized successfully
+        Anole.initialized = true;
+
+        // start up the update executor to process update events from the remote config servers.
+        lcm.startUpdateExecutor();
+
     }
 
 

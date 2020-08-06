@@ -18,7 +18,7 @@ public class ErrorSyntaxException extends RuntimeException {
 	}
 	
 	public ErrorSyntaxException(String key, String message){
-		super(String.format("There is a syntax error while setting value for key = %s, details: %s", key, message));
+		super(String.format("There is a syntax error while setting value for key (%s), details: %s", key, message));
 	}
 	 
 }

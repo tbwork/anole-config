@@ -3,9 +3,13 @@ package org.tbwork.anole.loader.context;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
+import org.tbwork.anole.loader.exceptions.AnoleContextNotFoundException;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
+import org.tbwork.anole.loader.exceptions.ConfigNotSetException;
+import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
+import org.tbwork.anole.loader.util.AnoleValueUtil;
 import org.tbwork.anole.loader.util.StringUtil;
- 
+
 /**
  * <p> Anole provides basic retrieving 
  * operations on local configurations. 
@@ -33,18 +37,20 @@ public class Anole {
 	}
 	
 	public static String getProperty(String key, String defaultValue){ 
-		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty()? defaultValue : cItem.strValue();
+		ConfigItem cItem = getConfig(key, cm);
+		if(StringUtil.isNotEmpty(cItem.getError())){
+			throw new ConfigNotSetException(key, "There is a related config which is not set value yet, details message: " + cItem.getError());
+		}
+		return cItem == null || cItem.strValue() == null ? defaultValue : cItem.strValue();
 	}
 	
 	public static String getProperty(String key){ 
 		 return getProperty(key, null);
 	}
 
-
 	public static int getIntProperty(String key, int defaultValue){
-		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.intValue();  
+		ConfigItem cItem = getConfig(key, cm);
+		return  cItem == null || StringUtil.isNullOrEmpty(cItem.strValue()) ? defaultValue : cItem.intValue();
 	}
 	
 	public static int getIntProperty(String key){
@@ -52,8 +58,8 @@ public class Anole {
 	}
 	
 	public static short getShortProperty(String key, short defaultValue){
-		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.shortValue();  
+		ConfigItem cItem = getConfig(key, cm);
+		return   cItem==null || cItem.strValue() == null ? defaultValue : cItem.shortValue();
 	}
 	
 	public static short getShortProperty(String key){
@@ -61,8 +67,8 @@ public class Anole {
 	}
 	
 	public static long getLongProperty(String key, long defaultValue){
-		 ConfigItem cItem = getConfig(key, cm);
-		 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.longValue();
+		ConfigItem cItem = getConfig(key, cm);
+		return   cItem==null || cItem.strValue() == null ? defaultValue : cItem.longValue();
 	}
 	
 	public static long getLongProperty(String key){
@@ -70,8 +76,8 @@ public class Anole {
 	}
 	
 	public static double getDoubleProperty(String key, double defaultValue){
-		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.doubleValue();  
+		ConfigItem cItem = getConfig(key, cm);
+		return   cItem==null || cItem.strValue() == null ? defaultValue : cItem.doubleValue();
 	}
 	
 	public static double getDoubleProperty(String key){
@@ -81,7 +87,7 @@ public class Anole {
 	
 	public static float getFloatProperty(String key, float defaultValue){
 		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.floatValue();  
+	 	 return cItem==null || cItem.strValue() == null ? defaultValue : cItem.floatValue();
 	}
 	
 	public static float getFloatProperty(String key){
@@ -91,7 +97,7 @@ public class Anole {
 	
 	public static boolean getBoolProperty(String key, boolean defaultValue){
 		 ConfigItem cItem = getConfig(key, cm);
-	 	 return cItem==null || cItem.isEmpty() ? defaultValue : cItem.boolValue();
+	 	 return  cItem==null || cItem.strValue() == null ? defaultValue : cItem.boolValue();
 	}
 	
 	public static boolean getBoolProperty(String key){
@@ -99,7 +105,15 @@ public class Anole {
 	}
 	
 	public static void setProperty(String key, String value){
-		cm.applyChange(key, value);
+		if(Anole.initialized){
+			cm.applyChange(key, value);
+		}
+		else{
+			if(AnoleValueUtil.containVariable(value) || AnoleValueUtil.isExpression(value)){
+				throw new OperationNotSupportedException("Before initialization, you can and only can set a plain value for the given key.");
+			}
+			cm.registerAndSetValue(key, value);
+		}
 	}
 
 	/**
@@ -131,12 +145,26 @@ public class Anole {
 		return null;
 	}
 
+	public static String getEnvironment(){
+		ConfigItem cItem = cm.getConfigItem("anole.env");
+		if(cItem == null){
+			throw new AnoleContextNotFoundException();
+		}
+		return cItem.strValue();
+	}
+
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
 	{ 
 		 if(!initialized)
 			 throw new AnoleNotReadyException();
-		 return cm.getConfigItem(key);
+		 ConfigItem cItem = cm.getConfigItem(key);
+		 if(cItem == null){
+		 	return null;
+		 }
+		if(StringUtil.isNotEmpty(cItem.getError())){
+			throw new ConfigNotSetException(cItem.getKey(), "There is a related config which is not set value yet, details message: " + cItem.getError());
+		}
+		return cItem;
 	} 
-	
-	
+
 }

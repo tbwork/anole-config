@@ -2,7 +2,6 @@ package org.tbwork.anole.loader.context;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
-import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
 
@@ -16,7 +15,7 @@ public class AnoleApp {
 	
 	private static String environment;
 
-	private static final AnoleConfigManager lcm = SingletonFactory.getLocalConfigManager();
+	private static AnoleContext anoleContext = null;
 
 	/**
 	 * Start an anole application.
@@ -36,13 +35,16 @@ public class AnoleApp {
 		AnoleLogger.anoleLogLevel = logLevel;
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfig = targetRootClass.getAnnotation(AnoleConfigLocation.class);
-			new AnoleClasspathConfigContext(StringUtil.splitString2Array(anoleConfig.locations(), ",")
+			anoleContext = new AnoleClasspathConfigContext(StringUtil.splitString2Array(anoleConfig.locations(), ",")
 					, anoleConfig.includeClassPathDirectoryPattern()
 					, anoleConfig.excludeClassPathDirectoryPattern()
 			);
 			return ;
-		}  
-		new AnoleClasspathConfigContext();
+		}
+		anoleContext = new AnoleClasspathConfigContext();
+		environment = anoleContext.getEnvironment();
+		Anole.setProperty("anole.env", environment);
+		Anole.setProperty("anole.environment", environment);
 	}
 
 	/**
@@ -59,19 +61,11 @@ public class AnoleApp {
 	public static void setRuningInJar(boolean runingInJar){
 		AnoleApp.runingInJar = runingInJar;
 	}
-	
-	 
-	public static void setEnvironment(String env) {
-		environment = env;
-		lcm.setConfigItem("anole.env", env);
-		lcm.setConfigItem("anole.environment", env);
+
+	public static void stop(){
+		anoleContext.close();
 	}
-	 
-	
-	public static String getEnvironment() {
-		return environment;
-	} 
-	
+
 	/**
 	 * The root main class in Anole refers to the main class 
 	 * of current java application.
@@ -128,9 +122,6 @@ public class AnoleApp {
 		return projectVersion;
 	}
 
-	public static void putLocalProperty(String key, String value){
-		lcm.registerConfigItemDefinition(key, value);
-	}
 
 	private static Class<?> getRootClassByStackTrace(){
 		try {

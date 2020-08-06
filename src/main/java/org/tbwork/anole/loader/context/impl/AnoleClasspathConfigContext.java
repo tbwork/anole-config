@@ -44,13 +44,26 @@ public class AnoleClasspathConfigContext extends AbstractAnoleContext{
 	public AnoleClasspathConfigContext(String [] configLocations, String includeClassPathDirectoryPattern,
 									   String excludeClassPathDirectoryPattern){
 		super(configLocations);
-		String includeDirectory = includeClassPathDirectoryPattern.trim();
-		String excludeDirectory = excludeClassPathDirectoryPattern.trim();
-		includeClasspathPatterns =  StringUtil.isNullOrEmpty(includeDirectory) ? new String[0] : includeDirectory.split(",");
-		excludeClasspathPatterns = StringUtil.isNullOrEmpty(excludeDirectory) ? new String[0] :
-				excludeDirectory.split(",");
+		if(StringUtil.isNotEmpty(includeClassPathDirectoryPattern)){
+			String includeDirectory = includeClassPathDirectoryPattern.trim();
+			includeClasspathPatterns =  StringUtil.isNullOrEmpty(includeDirectory) ? new String[0] : includeDirectory.split(",");
+		}
+		else{
+			includeClasspathPatterns = new String[0] ;
+		}
+
+		if(StringUtil.isNotEmpty(excludeClassPathDirectoryPattern)){
+			String excludeDirectory = excludeClassPathDirectoryPattern.trim();
+			excludeClasspathPatterns = StringUtil.isNullOrEmpty(excludeDirectory) ? new String[0] :
+					excludeDirectory.split(",");
+		}
+		else{
+			excludeClasspathPatterns = new String[0] ;
+		}
+
 		create();
 	}
+
 
 	public AnoleClasspathConfigContext(){
 		super(null);
@@ -67,6 +80,6 @@ public class AnoleClasspathConfigContext extends AbstractAnoleContext{
 
 	@Override
 	protected void create() {
-		new AnoleClasspathLoader(includeClasspathPatterns, excludeClasspathPatterns).load(getConfigLocations());
+		new AnoleClasspathLoader(environment, includeClasspathPatterns, excludeClasspathPatterns).load(getConfigLocations());
 	}
 }

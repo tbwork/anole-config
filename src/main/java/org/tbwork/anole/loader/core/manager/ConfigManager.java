@@ -62,11 +62,24 @@ public interface ConfigManager {
 	void addRemoteRetriever(RemoteRetriever remoteRetriever);
 
 
+
 	/**
-	 * Start the updater, after which all updates from the remote config server
-	 * like apollo, spring config etc. will be processed one by one.
+	 * Start an update recorder to receive all config update events from the
+	 * remote servers like apollo, spring config etc..
 	 */
-	void startUpdater();
+	void startUpdateRecorder();
+
+
+	/**
+	 * Start an executor to process all update events stored in the update recorder.
+	 */
+	void startUpdateExecutor();
+
+
+	/**
+	 * Tell the update manager to shut down.
+	 */
+	void stopUpdateManager();
 
 	/**
 	 * Apply a update to a config. This operation means the change request will

@@ -16,7 +16,7 @@ import java.util.*;
 
 public abstract class AbstractAnoleLoader implements AnoleLoader {
 
-    private static final AnoleLogger logger = new AnoleLogger(AbstractAnoleLoader.class);
+    private final AnoleLogger logger = new AnoleLogger(getClass());
 
     private AnoleConfigFileParser anoleConfigFileParser;
 
@@ -25,8 +25,8 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
     private AnoleConfigRegister anoleConfigRegister;
 
 
-    protected AbstractAnoleLoader(AnoleConfigFileParser parser, ResourceLoader resourceLoader, AnoleConfigRegister anoleConfigRegister){
-        this.anoleConfigFileParser = parser;
+    protected AbstractAnoleLoader(String environment, ResourceLoader resourceLoader, AnoleConfigRegister anoleConfigRegister){
+        this.anoleConfigFileParser =  AnoleConfigFileParser.getInstance(environment);
         this.resourceLoader = resourceLoader;
         this.anoleConfigRegister = anoleConfigRegister;
     }
@@ -47,7 +47,6 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
         // register configs
         anoleConfigRegister.register(rawKVS);
 
-        Anole.initialized = true;
 
         logger.info("[:)] Anole configurations are loaded successfully.");
     }

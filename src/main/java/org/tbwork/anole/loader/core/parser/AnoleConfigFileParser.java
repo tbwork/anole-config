@@ -21,12 +21,6 @@ public class AnoleConfigFileParser {
 	private static final AnoleConfigFileParser anoleConfigFileParser = new AnoleConfigFileParser();
 
 
-
-	private AnoleConfigFileParser(){
-		String env = getCurrentEnvironment();
-		AnoleApp.setEnvironment(env);
-	}
-	
 	/**
 	 * The environment type of current running os.
 	 */
@@ -41,7 +35,8 @@ public class AnoleConfigFileParser {
 	
 	private String currentFileName;
 	
-	public static AnoleConfigFileParser instance(){
+	public static AnoleConfigFileParser getInstance(String environment){
+		anoleConfigFileParser.sysEnv = environment;
 		return anoleConfigFileParser;
 	}
 	
@@ -84,7 +79,7 @@ public class AnoleConfigFileParser {
 	}
 
 
-	
+
 	private String getCurrentEnvironment(){
 		// check by the following order
 		// 1. the jvm system property
@@ -115,7 +110,7 @@ public class AnoleConfigFileParser {
 		logger.info("Cound not decide current environment, 'all' environment will be used.");
 		sysEnv = "all";
 		return sysEnv;
-		
+
 	}
 
 

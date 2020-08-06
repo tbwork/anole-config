@@ -52,6 +52,8 @@ public class AnoleFileConfigContext extends AbstractAnoleContext{
 
 	@Override
 	protected void create() {
-		new AnoleFileLoader().load(getConfigLocations());
+		new AnoleFileLoader(environment).load(getConfigLocations());
 	}
+
+
 }

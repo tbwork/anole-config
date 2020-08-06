@@ -22,7 +22,7 @@ public class RawKV {
     private String value;
 
     public RawKV(String [] parts){
-        this.key = parts[0];
-        this.value = parts[1];
+        this.key = parts[0].trim();
+        this.value = parts[1].trim();
     }
 }

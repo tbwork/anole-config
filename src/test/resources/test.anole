@@ -10,4 +10,4 @@ app.id=MTL
 remote.env=DEV
 
 config.remote.types.supported=apollo
-test=${global.phoneOfRemindAddShowSvg}
+test=${dev_test}

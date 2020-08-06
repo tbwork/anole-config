@@ -6,17 +6,18 @@ import org.tbwork.anole.loader.core.resource.impl.ClasspathResourceLoader;
 
 public class AnoleClasspathLoader extends AbstractAnoleLoader{
 	   
-	public AnoleClasspathLoader(String [] includeClasspathDirectoryPatterns,
+	public AnoleClasspathLoader(String environment,
+								String [] includeClasspathDirectoryPatterns,
 								String [] excludeClasspathDirectoryPatterns){
 		super(
-				AnoleConfigFileParser.instance(),
+				environment,
 				new ClasspathResourceLoader(includeClasspathDirectoryPatterns, excludeClasspathDirectoryPatterns),
 				new AnoleConfigRegister()
 				);
 	}
 	  
-	public AnoleClasspathLoader(){
-		this(new String[0], new String[0]);
+	public AnoleClasspathLoader(String environment){
+		this(environment, new String[0], new String[0]);
 	}
 
 

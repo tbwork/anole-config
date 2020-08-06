@@ -18,7 +18,7 @@ public class AnoleAssertUtil {
 
     public static void assertBasicConfigDefined(String key, String example){
         assertConfigPresent(key);
-        if(AnoleValueUtil.containVariable(Anole.getRawValue(key), key)){
+        if(AnoleValueUtil.containVariable(Anole.getRawValue(key))){
             throw new BasicConfigMustBeSpecifiedClearly(key, example);
         }
     }

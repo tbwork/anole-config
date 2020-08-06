@@ -3,10 +3,17 @@ package org.tbwork.anole.loader.core.loader.impl;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.context.AnoleContext;
+import org.tbwork.anole.loader.context.impl.AbstractAnoleContext;
+import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil; 
 
 /**
+ * <p>This is for old style war projects, and we strongly recommend you
+ * use the java class configurations rather than xml files.
+ *
  * <p> This is for web applications to load anole configurations.
  * <p> <b>Pay attention !!!</b> Dislike the spring context loader, in web 
  * mode, anole allows and only allows to load configuration files 
@@ -39,24 +46,34 @@ import org.tbwork.anole.loader.util.StringUtil;
  * listener configurations so that the other frameworks can use the properties
  * loaded by Anole. Those frameworks can be Spring, Log4j, Log4j2, Logback, etc.
  *  @author Tommy.Tang
- */ 
-public class WebAnoleLoaderListener extends AnoleClasspathLoader implements ServletContextListener{
+ */
+@Deprecated
+public class WebAnoleLoaderListener implements ServletContextListener{
 
 	private AnoleLogger logger;
-   
+
+	AnoleContext anoleContext = null;
+
 	@Override
 	public void contextInitialized(ServletContextEvent sce) {
 		 String configLocationString =  sce.getServletContext().getInitParameter("anoleConfigLocation");
-		 if(configLocationString==null || configLocationString.isEmpty()){
-			 logger.warn("[!] There is no anole configuration file specified in this web application. Anole will load all *.anole files from the classpath directory.");
-			 this.load();
+		 String includeClasspathDirectoryPatterns = sce.getServletContext().getInitParameter("includeClasspathDirectoryPatterns");
+		 String excludeClasspathDirectoryPatterns = sce.getServletContext().getInitParameter("excludeClasspathDirectoryPatterns");
+		 if(StringUtil.isNotEmpty(configLocationString)){
+			 anoleContext = new AnoleClasspathConfigContext(StringUtil.splitString2Array(configLocationString, ",")
+					 , includeClasspathDirectoryPatterns
+					 , excludeClasspathDirectoryPatterns
+			 );
 		 }
-		 else  
-			 this.load(StringUtil.splitConfigLocations(configLocationString));  
+
+		String environment = anoleContext.getEnvironment();
+		Anole.setProperty("anole.env", environment);
+		Anole.setProperty("anole.environment", environment);
 	}
 
 	@Override
-	public void contextDestroyed(ServletContextEvent sce) { 
+	public void contextDestroyed(ServletContextEvent sce) {
+		anoleContext.close();
 		logger.info("[:)] Application is shutting down..." ); 
 	}
    

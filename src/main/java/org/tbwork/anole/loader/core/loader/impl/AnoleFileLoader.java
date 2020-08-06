@@ -9,9 +9,9 @@ import org.tbwork.anole.loader.core.resource.impl.FileResourceLoader;
 public class AnoleFileLoader extends AbstractAnoleLoader{
 
 
-	public AnoleFileLoader(){
+	public AnoleFileLoader(String environment){
 		super(
-				AnoleConfigFileParser.instance(),
+				environment,
 				new FileResourceLoader(),
 				new AnoleConfigRegister()
 		);

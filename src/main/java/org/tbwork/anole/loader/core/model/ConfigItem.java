@@ -57,10 +57,16 @@ public class ConfigItem {
 	 * Keys of configs which are referencing the current config key.
 	 */
 	private Set<String> parentConfigKeys;
+
+	/**
+	 * Keys of configs which are referenced by the current config key.
+	 */
+	private Set<String> childConfigKeys;
 	
 	public ConfigItem(String key){
 		this.key = key.trim();
 		parentConfigKeys = new HashSet<>();
+		childConfigKeys = new HashSet<>();
 		setSystemDefault();
 	}
 
@@ -77,7 +83,7 @@ public class ConfigItem {
 			return;
 		value = value.trim();
 		this.strValue = value;
-
+		this.error = null;
 		if(!Anole.initialized){
 			//Add to JVM system properties for other frameworks to read.
 			System.setProperty(key, strValue);
@@ -213,7 +219,7 @@ public class ConfigItem {
 		return parentConfigKeys;
 	}
 
-	public void setParentConfigKeys(Set<String> parentConfigKeys) {
-		this.parentConfigKeys = parentConfigKeys;
+	public Set<String> getChildConfigKeys() {
+		return childConfigKeys;
 	}
 }
