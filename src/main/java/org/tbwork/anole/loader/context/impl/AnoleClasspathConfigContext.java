@@ -1,19 +1,7 @@
 package org.tbwork.anole.loader.context.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
-import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.core.loader.impl.AnoleClasspathLoader;
-import org.tbwork.anole.loader.core.resource.impl.ClasspathResourceLoader;
-import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
-import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
-import org.tbwork.anole.loader.util.FileUtil;
-import org.tbwork.anole.loader.util.PathUtil;
 import org.tbwork.anole.loader.util.StringUtil;
 
 /**

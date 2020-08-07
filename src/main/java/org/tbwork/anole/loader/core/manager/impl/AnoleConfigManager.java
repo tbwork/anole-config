@@ -82,13 +82,13 @@ public class AnoleConfigManager implements ConfigManager{
 	}
 
 	@Override
-	public void refresh() {
+	public void refresh(boolean needCheckIntegrity) {
 
 		calculateValueForNotPlainConfigs();
 
 		cleanEscapeCharacters();
 
-		if(!unknownConfigSet.isEmpty()){
+		if( needCheckIntegrity && !unknownConfigSet.isEmpty()){
 			logger.error("There are still some configurations could not be parsed rightly, they are: {} ", unknownConfigSet.toArray().toString() );
 		}
 
@@ -254,8 +254,10 @@ public class AnoleConfigManager implements ConfigManager{
     private void cleanEscapeCharacters(){
     	Set<Entry<String,ConfigItem>> entrySet = configDefinitionMap.entrySet();
     	for(Entry<String,ConfigItem> item : entrySet){
-			String strValue = item.getValue().strValue();
-			item.getValue().setValue(StringUtil.replaceEscapeChars(strValue));
+    		if(StringUtil.isNotEmpty(item.getValue().strValue())){
+				String strValue = item.getValue().strValue();
+				item.getValue().setValue(StringUtil.replaceEscapeChars(strValue));
+			}
     	}
     }
 

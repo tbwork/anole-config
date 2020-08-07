@@ -39,7 +39,6 @@ public class AnoleLogger {
 
 	public AnoleLogger(Class<?> clazz){
 		this.owner = clazz;
-		logger = LoggerFactory.getLogger(clazz);
 	}
 
 	public boolean isDebugEnabled(){
@@ -125,6 +124,13 @@ public class AnoleLogger {
 	
 	
 	private Logger getLogger(){
+		if(logger == null){
+			synchronized (owner){
+				if(logger == null){
+					logger = LoggerFactory.getLogger(owner);
+				}
+			}
+		}
 		return logger; 
 	}
 }

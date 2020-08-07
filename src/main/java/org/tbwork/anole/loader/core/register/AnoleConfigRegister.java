@@ -1,5 +1,6 @@
 package org.tbwork.anole.loader.core.register;
 
+import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
@@ -28,8 +29,14 @@ public class AnoleConfigRegister {
 
         lcm = AnoleConfigManager.getInstance();
 
-        // register raw definition, those raw values may be used in the following steps.
+        // register raw definition
         lcm.batchRegisterDefinition(rawKVList);
+
+        // refresh configs locally
+        lcm.refresh(false);
+
+        // register to system for other framework to read.
+        lcm.registerToSystem();
 
         // start up the update recorder to prepare to receive update events from the remote config servers.
         lcm.startUpdateRecorder();
@@ -38,10 +45,13 @@ public class AnoleConfigRegister {
         initializeRemoteConfigServer();
 
         // refresh all properties
-        lcm.refresh();
+        lcm.refresh(true);
 
         // initialized successfully
         Anole.initialized = true;
+
+        // remove from system
+        lcm.removeFromSystem();
 
         // start up the update executor to process update events from the remote config servers.
         lcm.startUpdateExecutor();

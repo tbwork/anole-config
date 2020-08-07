@@ -86,7 +86,7 @@ public class ConfigItem {
 		this.error = null;
 		if(!Anole.initialized){
 			//Add to JVM system properties for other frameworks to read.
-			System.setProperty(key, strValue);
+			//System.setProperty(key, strValue);
 		}
 		else{
 			// only for those configs who were already existed in system properties.

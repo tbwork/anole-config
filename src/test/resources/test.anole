@@ -11,3 +11,5 @@ remote.env=DEV
 
 config.remote.types.supported=apollo
 test=${dev_test}
+
+log4j.target.appender=console

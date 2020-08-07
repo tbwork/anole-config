@@ -35,6 +35,18 @@ public interface ConfigManager {
 
 
 	/**
+	 * Register all configs with concrete value (strValue is not null), to the system.
+	 */
+	public void registerToSystem();
+
+
+	/**
+	 * Remove all configs registered by {@link #registerToSystem()} from system property manager.
+	 */
+	public void removeFromSystem();
+
+
+	/**
 	 * Judge whether the given key is interested by the current application.
 	 * @param key the key of the configuration item.
 	 * @return true if the application interests the given key.
@@ -51,8 +63,9 @@ public interface ConfigManager {
 
 	/**
 	 * Rebuild all configurations and refresh their values.
+	 * @param needCheckIntegrity true means all config should be concrete after the refresh, otherwise log as an error; false means do not check
 	 */
-	public void refresh();
+	public void refresh(boolean needCheckIntegrity);
 
 	/**
 	 * Add a remote retriever to retrieve configuration and

@@ -1,19 +1,12 @@
 package org.tbwork.anole.loader.core.resource.impl;
 
-import lombok.Data;
 import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.context.AnoleApp;
-import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.core.resource.ResourceLoader;
-import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.util.*;
-import sun.security.provider.ConfigFile;
 
-import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -125,7 +118,7 @@ public class FileResourceLoader implements ResourceLoader {
 
     private List<ConfigFileResource> loadFileFromJar(String patternedPath, int order){
         List<ConfigFileResource> result = new ArrayList<>();
-        Map<String, InputStream>  fileStreamMap = FileUtil.loadFileStreamFromJar(patternedPath);
+        Map<String, InputStream>  fileStreamMap = AnoleFileUtil.loadFileStreamFromJar(patternedPath);
         for(Map.Entry<String, InputStream> entry : fileStreamMap.entrySet()){
             logger.debug("New configuration file is found, name : {}", entry.getKey());
             result.add( new ConfigFileResource( entry.getKey(),  entry.getValue(),
@@ -136,10 +129,10 @@ public class FileResourceLoader implements ResourceLoader {
 
     private List<ConfigFileResource> loadFileFromDirectory(String patternedPath, int order){
         List<ConfigFileResource> result = new ArrayList<>();
-        Map<String, File> fileMap = FileUtil.loadFileByPatternedPath(patternedPath);
+        Map<String, File> fileMap = AnoleFileUtil.loadFileByPatternedPath(patternedPath);
         for(Map.Entry<String, File> entry : fileMap.entrySet()){
             logger.debug("New configuration file is found, name : {}", entry.getKey());
-            result.add( new ConfigFileResource( entry.getKey(), FileUtil.getInputStream( entry.getValue()),
+            result.add( new ConfigFileResource( entry.getKey(), AnoleFileUtil.getInputStream( entry.getValue()),
                     order));
         }
         return result;

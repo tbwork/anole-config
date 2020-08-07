@@ -10,6 +10,7 @@ import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.monitor.Monitor;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.util.AnoleAssertUtil;
+import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class ApolloRetriever extends AbstractRetriever {
 
-    private static final Logger logger = LoggerFactory.getLogger(ApolloRetriever.class);
+    private static final AnoleLogger logger = new AnoleLogger(ApolloRetriever.class);
 
     private List<Config> configList;
 

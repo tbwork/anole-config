@@ -1,7 +1,6 @@
 package org.tbwork.anole.loader.util;
 
 import java.io.*;
-import java.nio.file.Path;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -10,15 +9,12 @@ import java.util.zip.ZipInputStream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbwork.anole.loader.core.loader.impl.AnoleFileLoader;
-import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.enums.OsCategory;
 import org.tbwork.anole.loader.exceptions.BadJarFileException;
 
 
-public class FileUtil {
+public class AnoleFileUtil {
 
-	private static final Logger logger = LoggerFactory.getLogger( FileUtil.class );
+	private static final AnoleLogger logger = new AnoleLogger( AnoleFileUtil.class);
 
 	public static FileInputStream getInputStream(File file){
 		try {
@@ -89,7 +85,7 @@ public class FileUtil {
 		if(!directory.exists()) {
 			return result;
 		}
-		List<File> files = FileUtil.getFilesInDirectoryWithSpecifiedPattern(solidDirectoryPath, patternedPath);
+		List<File> files = AnoleFileUtil.getFilesInDirectoryWithSpecifiedPattern(solidDirectoryPath, patternedPath);
 
 		for(File file : files){
 			result.put(file.getAbsolutePath(), file);
