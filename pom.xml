@@ -1,22 +1,28 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-      <groupId>org.sonatype.oss</groupId>
-      <artifactId>oss-parent</artifactId>
-      <version>7</version>
-  </parent>
+    <parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+    </parent>
+	 
+	<groupId>org.tbwork.anole</groupId>
+    <artifactId>anole-config</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
 
-  <groupId>org.tbwork.anole</groupId>
-  <artifactId>anole-loader</artifactId>
-  <version>1.2.7</version>
-  <packaging>jar</packaging>
+    <modules>
+        <module>anole-loader</module>
+        <module>spring-anole-loader</module>
+		<module>anole-remote-apollo</module>
+	</modules>
 
-  <name>anole-loader</name>
-  <url>https://github.com/tbwork/anole-loader</url>
-  <description>An awesome property or configuration loader for java.</description> 
-  <properties>
+    <url>https://github.com/tbwork/anole-config</url>
+	<description>An awesome configuration loader for java. It could use different configurations according to the current environment, just like an anole.</description> 
+	<properties>
+		<revision>1.2.8</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.12</junit.version>
 		<google.guava>19.0</google.guava>
@@ -27,114 +33,94 @@
 		<gpg.skip>false</gpg.skip>
 		<javadoc.opts>-Xdoclint:none</javadoc.opts>
 		<disruptor.version>3.4.2</disruptor.version>
-  </properties>
-   
-  <licenses>
-	  <license>
-	        <name>The Apache License, Version 2.0</name>
-	        <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-	  </license>
-  </licenses>
-  <developers>
-	  <developer>
-	        <name>tbwork</name>
-	        <email>542561232@qq.com</email>
-	        <roles>
-	            <role>owner</role>
-	        </roles>
-	        <timezone>+8</timezone>
-	 	</developer>
-  </developers>
-  <scm>
-	    <connection>scm:git:https://github.com/tbwork/anole-loader.git</connection>
-	    <developerConnection>scm:git:https://github.com/tbwork/anole-loader.git</developerConnection>
-	    <url>https://github.com/tbwork/anole-loader</url>
-	    <tag>v${project.version}</tag>
-  </scm>
+		<java.version>1.7</java.version>
+	</properties>
+	
+	<licenses>
+	<license>
+		<name>The Apache License, Version 2.0</name>
+		<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>tbwork</name>
+			<email>542561232@qq.com</email>
+			<roles>
+				<role>owner</role>
+			</roles>
+			<timezone>+8</timezone>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:https://github.com/tbwork/anole-config.git</connection>
+		<developerConnection>scm:git:https://github.com/tbwork/anole-config.git</developerConnection>
+		<url>https://github.com/tbwork/anole-config</url>
+		<tag>v${project.version}</tag>
+	</scm>
+
+    <dependencyManagement>
+        <dependencies> 
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+			</dependency>
+			<dependency>
+			  <groupId>junit</groupId>
+			  <artifactId>junit</artifactId>
+			  <version>${junit.version}</version>
+			  <scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>${servlet.api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${slf4j.api.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.ctrip.framework.apollo</groupId>
+				<artifactId>apollo-client</artifactId>
+				<version>1.6.2</version>
+			</dependency>
+			<dependency>
+				<groupId>com.lmax</groupId>
+				<artifactId>disruptor</artifactId>
+				<version>${disruptor.version}</version>
+			</dependency>
+		</dependencies>
+    </dependencyManagement>
 
 	<dependencies>
 		<dependency>
-		  <groupId>junit</groupId>
-		  <artifactId>junit</artifactId>
-		  <version>3.8.1</version>
-		  <scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.alibaba</groupId>
-			<artifactId>fastjson</artifactId>
-			<version>${fastjson.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>${servlet.api.version}</version>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.api.version}</version>
-		</dependency>
-		<dependency>
-		  <groupId>com.ctrip.framework.apollo</groupId>
-		  <artifactId>apollo-client</artifactId>
-		  <version>1.6.2</version>
-		</dependency>
-		<dependency>
-			<groupId>com.lmax</groupId>
-			<artifactId>disruptor</artifactId>
-			<version>${disruptor.version}</version>
-		</dependency>
-
-		<!-- Test -->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.logging.log4j</groupId>-->
-<!--			<artifactId>log4j-core</artifactId>-->
-<!--			<version>2.13.3</version>-->
-<!--			<scope>test</scope>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.logging.log4j</groupId>-->
-<!--			<artifactId>log4j-slf4j-impl</artifactId>-->
-<!--			<version>2.13.3</version>-->
-<!--			<scope>test</scope>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>org.apache.logging.log4j</groupId>-->
-<!--			<artifactId>log4j-api</artifactId>-->
-<!--			<version>2.13.3</version>-->
-<!--			<scope>compile</scope>-->
-<!--		</dependency>-->
-
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>1.1.3</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.1.3</version>
-		</dependency>
-
 	</dependencies>
-  
-  <build>  
-    <plugins>  
-        <plugin>  
-            <groupId>org.apache.maven.plugins</groupId>  
-            <artifactId>maven-compiler-plugin</artifactId>  
-            <configuration>  
-                <source>1.7</source>  
-                <target>1.7</target>   
-	      	    <encoding>UTF-8</encoding> 
-            </configuration>  
-        </plugin>  
-        <plugin>
+
+
+
+	<build>
+	<plugins>
+		<plugin>
+			<groupId>org.apache.maven.plugins</groupId>
+			<artifactId>maven-compiler-plugin</artifactId>
+			<configuration>
+				<source>${java.version}</source>
+				<target>${java.version}</target>
+				<encoding>UTF-8</encoding>
+			</configuration>
+		</plugin>
+		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-source-plugin</artifactId>
 			<version>2.4</version>
@@ -161,9 +147,9 @@
 						<goal>jar</goal>
 					</goals>
 					<configuration>
-					    <skip>true</skip>
-                        <additionalparam>${javadoc.opts}</additionalparam>
-                    </configuration>
+						<skip>true</skip>
+						<additionalparam>${javadoc.opts}</additionalparam>
+					</configuration>
 				</execution>
 			</executions>
 		</plugin>
@@ -175,8 +161,8 @@
 				<skip>${gpg.skip}</skip>
 			</configuration>
 			<executions>
-				<execution> 
-				    <id>sign-artifacts</id>
+				<execution>
+					<id>sign-artifacts</id>
 					<phase>verify</phase>
 					<goals>
 						<goal>sign</goal>
@@ -184,9 +170,34 @@
 				</execution>
 			</executions>
 		</plugin>
-    </plugins>    
-  </build>
-  <distributionManagement>
+		<plugin>
+			<groupId>org.codehaus.mojo</groupId>
+			<artifactId>flatten-maven-plugin</artifactId>
+			<version>1.1.0</version>
+			<configuration>
+				<updatePomFile>true</updatePomFile>
+				<flattenMode>resolveCiFriendliesOnly</flattenMode>
+			</configuration>
+			<executions>
+				<execution>
+					<id>flatten</id>
+					<phase>process-resources</phase>
+					<goals>
+						<goal>flatten</goal>
+					</goals>
+				</execution>
+				<execution>
+					<id>flatten.clean</id>
+					<phase>clean</phase>
+					<goals>
+						<goal>clean</goal>
+					</goals>
+				</execution>
+			</executions>
+		</plugin>
+	</plugins>
+	</build>
+	<distributionManagement>
 		<snapshotRepository>
 			<id>tb_oss_snapshots</id>
 			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
@@ -195,5 +206,6 @@
 			<id>tb_oss_release</id>
 			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
 		</repository>
-  </distributionManagement>
+	</distributionManagement>
+ 
 </project>

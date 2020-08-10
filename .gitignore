@@ -8,4 +8,5 @@ target/
 
 #ignore idea files
 .idea
-.iml
+**/.iml
+**/*.fml
