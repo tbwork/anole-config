@@ -50,8 +50,6 @@ public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
     }
 
 
-
-
     @Override
     public void registerMonitor(final Monitor monitor) {
         for(Config config : configList){
@@ -81,7 +79,7 @@ public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
 
 
     @Override
-    protected void initialize() {
+    protected void doInitialization() {
         configList = new ArrayList<>();
         String [] namespaces = StringUtil.trimStrings(Anole.getRawValue("apollo.namespaces").trim().split(","));
         for(String namespace : namespaces){

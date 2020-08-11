@@ -1,5 +1,6 @@
 package org.tbwork.anole.loader.core.manager.source.impl;
 
+import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.util.AnoleAssertUtil;
 
@@ -23,4 +24,15 @@ public abstract class AbstractRemoteRetriever extends AbstractRetriever implemen
        super.checkAllRequiredProperties();
        AnoleAssertUtil.assertBasicConfigDefined("remote.env", "DEV");
     }
+
+    @Override
+    protected void initialize() {
+        setRemoteEnvironment(Anole.getRawValue("remote.env"));
+        doInitialization();
+    }
+
+    /**
+     * Do the initialization.
+     */
+    protected abstract void doInitialization();
 }
