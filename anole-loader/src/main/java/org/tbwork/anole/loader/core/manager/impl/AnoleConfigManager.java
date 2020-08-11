@@ -7,7 +7,7 @@ import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolver;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolverFactory;
 import org.tbwork.anole.loader.core.manager.monitor.impl.ConfigChangeMonitor;
-import org.tbwork.anole.loader.core.manager.remote.RemoteRetriever;
+import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.manager.updater.impl.AnoleConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;

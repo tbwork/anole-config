@@ -3,11 +3,9 @@ package org.tbwork.anole.loader.core.register;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import org.tbwork.anole.loader.core.manager.remote.RemoteRetriever;
-import org.tbwork.anole.loader.core.model.ConfigItem;
+import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.StringUtil;
 
 import java.util.*;
 

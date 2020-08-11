@@ -1,6 +1,6 @@
 package org.tbwork.anole.loader.core.manager;
 
-import org.tbwork.anole.loader.core.manager.remote.RemoteRetriever;
+import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;
 

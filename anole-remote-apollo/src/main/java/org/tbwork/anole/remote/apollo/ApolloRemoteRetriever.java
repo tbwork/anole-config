@@ -4,28 +4,37 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.manager.monitor.Monitor;
-import org.tbwork.anole.loader.core.manager.remote.impl.AbstractRetriever;
+import org.tbwork.anole.loader.core.manager.source.impl.AbstractRemoteRetriever;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Apollo config retriever
  */
-public class ApolloRetriever extends AbstractRetriever {
+public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
 
-    private static final AnoleLogger logger = new AnoleLogger(ApolloRetriever.class);
+    private static final AnoleLogger logger = new AnoleLogger(ApolloRemoteRetriever.class);
 
     private List<Config> configList;
 
-    public ApolloRetriever(){
-        super("app.id", "apollo.cluster", "apollo.meta", "apollo.namespaces");
+    public ApolloRemoteRetriever(){
+        super();
+    }
+
+    @Override
+    protected String [] getRequiredProperties() {
+        return  new String [] {"app.id", "apollo.cluster", "apollo.meta", "apollo.namespaces"};
+    }
+
+    @Override
+    protected void registerAllRequiredProperties() {
+
     }
 
     @Override
@@ -39,6 +48,9 @@ public class ApolloRetriever extends AbstractRetriever {
         }
         return null;
     }
+
+
+
 
     @Override
     public void registerMonitor(final Monitor monitor) {
