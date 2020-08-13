@@ -1,14 +1,7 @@
 package org.tbwork.anole.loader.core.manager.source.impl;
 
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.util.AnoleAssertUtil;
-
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Abstract implement of SourceRetriever

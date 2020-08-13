@@ -3,9 +3,8 @@ package org.tbwork.anole.loader.core.loader.impl;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.context.AnoleContext;
-import org.tbwork.anole.loader.context.impl.AbstractAnoleContext;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil; 

@@ -2,12 +2,13 @@ package org.tbwork.anole.loader.core.manager.impl;
 
 import com.lmax.disruptor.EventHandler;
 import lombok.Data;
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolver;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolverFactory;
 import org.tbwork.anole.loader.core.manager.monitor.impl.ConfigChangeMonitor;
 import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
+import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.manager.updater.impl.AnoleConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;
@@ -36,7 +37,7 @@ public class AnoleConfigManager implements ConfigManager{
 	private static final Map<String, ConfigItem> configDefinitionMap = new ConcurrentHashMap<String, ConfigItem>();
 
 
-	private List<RemoteRetriever> remoteRetrieverList = new ArrayList<>();
+	private List<SourceRetriever> extensionSources = new ArrayList<>();
 
 	/**
 	 * Store keys to system property manger temporarily.
@@ -67,7 +68,16 @@ public class AnoleConfigManager implements ConfigManager{
 	}
 
 	@Override
-	public void registerAndSetValue(String key, String definition, long updateTime) {
+	public void registerFromAnywhere(String key) {
+		ConfigItem configItem = extendibleGetConfigItem(key);
+		if(configItem == null){
+			initialConfig(key);
+		}
+
+	}
+
+	@Override
+	public ConfigItem registerAndSetValue(String key, String definition, long updateTime) {
 		ConfigItem configItem = registerConfigItemDefinition(key, definition);
 		if(AnoleValueUtil.containVariable(definition)){
 			parseDefinitionAndCalculateValue(configItem);
@@ -80,6 +90,7 @@ public class AnoleConfigManager implements ConfigManager{
 			// means any change could cause other related changes as a chain reaction.
 			processChainReaction(key);
 		}
+		return configItem;
 	}
 
 	@Override
@@ -134,12 +145,14 @@ public class AnoleConfigManager implements ConfigManager{
 
 
 	@Override
-	public void addRemoteRetriever(RemoteRetriever remoteRetriever) {
-		remoteRetrieverList.add(remoteRetriever);
+	public void addExtensionRetriever(SourceRetriever sourceRetriever) {
+		extensionSources.add(sourceRetriever);
 		if(anoleConfigUpdater == null){
 			throw new NotReadyException("configUpdater component");
 		}
-		remoteRetriever.registerMonitor(new ConfigChangeMonitor(anoleConfigUpdater, this));
+		if(sourceRetriever instanceof RemoteRetriever){
+			((RemoteRetriever)sourceRetriever).registerMonitor(new ConfigChangeMonitor(anoleConfigUpdater, this));
+		}
 	}
 
 	@Override
@@ -206,6 +219,11 @@ public class AnoleConfigManager implements ConfigManager{
 		public void onEvent(UpdateEvent event, long sequence, boolean endOfBatch) throws Exception {
 
 			ConfigItem configItem =  anoleConfigManager.getConfigItem(event.getKey());
+
+			if(configItem == null){
+				configItem = anoleConfigManager.registerAndSetValue(event.getKey(), event.getNewValue(), event.getCreateTime());
+			}
+
 			String oldDefinition = configItem.getDefinition();
 
 			if(oldDefinition == null && event.getNewValue() == null){
@@ -489,12 +507,12 @@ public class AnoleConfigManager implements ConfigManager{
 		}
 
 		Set<String> oldReferenceSet = new HashSet<>();
-		if(StringUtil.isNotEmpty(oldValue)){
+		if(StringUtil.isNotEmpty(oldValue) && AnoleValueUtil.containVariable(oldValue)){
 			oldReferenceSet.addAll(Arrays.asList(AnoleValueUtil.getVariables(oldValue, key)));
 		}
 
 		Set<String> newReferenceSet = new HashSet<>();
-		if(StringUtil.isNotEmpty(newValue)){
+		if(StringUtil.isNotEmpty(newValue) && AnoleValueUtil.containVariable(newValue)){
 			newReferenceSet.addAll(Arrays.asList(AnoleValueUtil.getVariables(newValue, key)));
 		}
 
@@ -601,11 +619,11 @@ public class AnoleConfigManager implements ConfigManager{
 		if(configItem != null && configItem.strValue() != null){
 			return configItem;
 		}
-		for(RemoteRetriever remoteRetriever : remoteRetrieverList){
-			String remoteValue = remoteRetriever.retrieve(key);
+		for(SourceRetriever extensionRetriever : extensionSources){
+			String remoteValue = extensionRetriever.retrieve(key);
 			if(StringUtil.isNotEmpty(remoteValue)){
 				ConfigItem registerResult = registerConfigItemDefinition(key, remoteValue);
-				logger.info("Retrieving value (definition) of '{}' from {} (remote) successfully", key, remoteRetriever.getName());
+				logger.info("Retrieving value (definition) of '{}' from {} successfully", key, extensionRetriever.getName());
 				return registerResult;
 			}
 		}

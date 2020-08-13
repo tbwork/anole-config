@@ -1,5 +1,5 @@
-package org.tbwork.anole.loader.context;
-  
+package org.tbwork.anole.loader;
+
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
@@ -7,6 +7,7 @@ import org.tbwork.anole.loader.exceptions.AnoleContextNotFoundException;
 import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
 import org.tbwork.anole.loader.exceptions.ConfigNotSetException;
 import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
+import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleValueUtil;
 import org.tbwork.anole.loader.util.StringUtil;
 
@@ -18,6 +19,8 @@ import org.tbwork.anole.loader.util.StringUtil;
 public class Anole { 
 	 
 	protected static final ConfigManager cm = AnoleConfigManager.getInstance();
+
+	private final static AnoleLogger logger = new AnoleLogger(Anole.class);
 
 	/**
 	 * Indicates that local anole is loaded successfully.
@@ -117,6 +120,17 @@ public class Anole {
 	}
 
 	/**
+	 * Set the key value to Anole-config, and then set to system property.
+	 *
+	 * @param key the given key
+	 * @param value the given value
+	 */
+	public static void setSysProperty(String key, String value){
+		setProperty(key, value);
+		System.setProperty(key,value);
+	}
+
+	/**
 	 * Whether the specified key is defined or not.
 	 * @param key the specified key
 	 * @return return if the key is already defined.
@@ -158,8 +172,11 @@ public class Anole {
 
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
 	{ 
-		 if(!initialized)
+		 if(!initialized){
+			 logger.error("Anole is not initialized yet, only getRawValue operation is accessible.");
 			 throw new AnoleNotReadyException();
+		 }
+
 		 ConfigItem cItem = cm.getConfigItem(key);
 		 if(cItem == null){
 		 	return null;

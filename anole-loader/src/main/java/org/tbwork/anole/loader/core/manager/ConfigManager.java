@@ -1,6 +1,7 @@
 package org.tbwork.anole.loader.core.manager;
 
 import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
+import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;
 
@@ -23,6 +24,12 @@ public interface ConfigManager {
 	 */
 	public void registerAndSetValue(String key, String definition);
 
+	/**
+	 * Lookup the key's value from all sources, and then register it.
+	 * If no value is found, just initialize an empty configItem.
+	 * @param key the given key.
+	 */
+	public void registerFromAnywhere(String key);
 
 	/**
 	 * Set configuration item into the Anole. Deeply digging will be used if
@@ -30,8 +37,9 @@ public interface ConfigManager {
 	 * @param key the key of the configuration item.
 	 * @param definition the definition of the configuration item.
 	 * @param updateTime the update time given by the caller
+	 * @return the registered config item.
 	 */
-	public void registerAndSetValue(String key, String definition, long updateTime);
+	public ConfigItem registerAndSetValue(String key, String definition, long updateTime);
 
 
 	/**
@@ -68,11 +76,10 @@ public interface ConfigManager {
 	public void refresh(boolean needCheckIntegrity);
 
 	/**
-	 * Add a remote retriever to retrieve configuration and
-	 * register a corresponding monitor to observe config change event.
-	 * @param remoteRetriever the remote retriever
+	 * Add an extended retriever to retrieve configuration.
+	 * @param sourceRetriever the extended retriever
 	 */
-	void addRemoteRetriever(RemoteRetriever remoteRetriever);
+	void addExtensionRetriever(SourceRetriever sourceRetriever);
 
 
 

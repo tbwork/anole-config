@@ -1,9 +1,18 @@
-package org.tbwork.anole.loader.context;
+package org.tbwork.anole.loader;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
+import org.tbwork.anole.loader.context.AnoleContext;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
+import org.tbwork.anole.loader.ext.AnoleStartPostProcessor;
+import org.tbwork.anole.loader.statics.DefaultValueNameBook;
 import org.tbwork.anole.loader.util.AnoleLogger;
+import org.tbwork.anole.loader.util.ProjectUtil;
 import org.tbwork.anole.loader.util.StringUtil;
+
+import java.util.Comparator;
+import java.util.ServiceLoader;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class AnoleApp {
   
@@ -16,6 +25,16 @@ public class AnoleApp {
 	private static String environment;
 
 	private static AnoleContext anoleContext = null;
+
+	private static final AnoleLogger logger = new AnoleLogger(AnoleApp.class);
+
+	private static final Set<AnoleStartPostProcessor> anoleStartPostProcessors = new TreeSet<AnoleStartPostProcessor>(
+			new Comparator<AnoleStartPostProcessor>() {
+				@Override
+				public int compare(AnoleStartPostProcessor o1, AnoleStartPostProcessor o2) {
+					return o1.getClass().getName().compareTo(o2.getClass().getName());
+				}
+			});
 
 	/**
 	 * Start an anole application.
@@ -33,18 +52,29 @@ public class AnoleApp {
 	 */
 	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel) {
 		AnoleLogger.anoleLogLevel = logLevel;
+		String anoleConfigLocationString = DefaultValueNameBook.ANOLE_CONFIG_LOCATIONS;
+		String includeClassPathDirectoryPattern = "";
+		String excludeClassPathDirectoryPattern = "";
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfig = targetRootClass.getAnnotation(AnoleConfigLocation.class);
-			anoleContext = new AnoleClasspathConfigContext(StringUtil.splitString2Array(anoleConfig.locations(), ",")
-					, anoleConfig.includeClassPathDirectoryPattern()
-					, anoleConfig.excludeClassPathDirectoryPattern()
-			);
-			return ;
+			anoleConfigLocationString = anoleConfig.locations();
+			includeClassPathDirectoryPattern = anoleConfig.includeClassPathDirectoryPattern();
+			excludeClassPathDirectoryPattern = anoleConfig.excludeClassPathDirectoryPattern();
 		}
-		anoleContext = new AnoleClasspathConfigContext();
+		anoleContext = new AnoleClasspathConfigContext(StringUtil.splitString2Array(anoleConfigLocationString, ",")
+				, includeClassPathDirectoryPattern
+				, excludeClassPathDirectoryPattern
+		);
+
 		environment = anoleContext.getEnvironment();
 		Anole.setProperty("anole.env", environment);
 		Anole.setProperty("anole.environment", environment);
+
+		doSearchPostStartProcessors();
+
+		for(AnoleStartPostProcessor anoleStartPostProcessor : anoleStartPostProcessors){
+				anoleStartPostProcessor.execute();
+		}
 	}
 
 	/**
@@ -65,6 +95,7 @@ public class AnoleApp {
 	public static void stop(){
 		anoleContext.close();
 	}
+
 
 	/**
 	 * The root main class in Anole refers to the main class 
@@ -135,7 +166,22 @@ public class AnoleApp {
 			return null;
 		} 
 	} 
-	 
+
+
+	private static void doSearchPostStartProcessors(){
+
+		for (final ClassLoader classLoader : ProjectUtil.getClassLoaders()) {
+			try {
+				for (final AnoleStartPostProcessor processor : ServiceLoader.load(AnoleStartPostProcessor.class, classLoader)) {
+					anoleStartPostProcessors.add(processor);
+				}
+			} catch (final Throwable ex) {
+				logger.warn("There is something wrong occurred in searching post start processors step. Details: {}", ex.getMessage());
+			}
+		}
+
+	}
+
 	private static Class<?> getCallerClassByStackTrace(){
 		try {
 			StackTraceElement[] stackTraces = new RuntimeException().getStackTrace(); 

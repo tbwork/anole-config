@@ -32,6 +32,7 @@ public class AnoleClasspathConfigContext extends AbstractAnoleContext{
 	public AnoleClasspathConfigContext(String [] configLocations, String includeClassPathDirectoryPattern,
 									   String excludeClassPathDirectoryPattern){
 		super(configLocations);
+
 		if(StringUtil.isNotEmpty(includeClassPathDirectoryPattern)){
 			String includeDirectory = includeClassPathDirectoryPattern.trim();
 			includeClasspathPatterns =  StringUtil.isNullOrEmpty(includeDirectory) ? new String[0] : includeDirectory.split(",");

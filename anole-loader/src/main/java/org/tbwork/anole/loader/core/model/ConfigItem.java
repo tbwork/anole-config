@@ -1,22 +1,12 @@
 package org.tbwork.anole.loader.core.model;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import org.tbwork.anole.loader.context.Anole;
 import org.tbwork.anole.loader.core.register.converter.impl.BooleanConverter;
 import org.tbwork.anole.loader.core.register.converter.impl.DigitalConverter;
 import org.tbwork.anole.loader.exceptions.ConfigTypeNotMatchedException;
-import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
-
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-import org.tbwork.anole.loader.util.AnoleValueUtil;
 
 public class ConfigItem {
 

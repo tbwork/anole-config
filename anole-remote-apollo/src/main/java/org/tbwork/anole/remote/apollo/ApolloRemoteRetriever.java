@@ -4,14 +4,13 @@ import com.ctrip.framework.apollo.Config;
 import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.manager.monitor.Monitor;
 import org.tbwork.anole.loader.core.manager.source.impl.AbstractRemoteRetriever;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +33,9 @@ public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
 
     @Override
     protected void registerAllRequiredProperties() {
-
+            for(String requiredProperty : getRequiredProperties()){
+                System.setProperty(requiredProperty, Anole.getRawValue(requiredProperty));
+            }
     }
 
     @Override
