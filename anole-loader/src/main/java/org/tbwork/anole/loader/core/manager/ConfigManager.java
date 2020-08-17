@@ -21,15 +21,17 @@ public interface ConfigManager {
 	 * value contains an other property like: a = ${b}-service
 	 * @param key the key of the configuration item.
 	 * @param definition the definition of the configuration item.
+	 * @return the registered config item.
 	 */
-	public void registerAndSetValue(String key, String definition);
+	public ConfigItem registerAndSetValue(String key, String definition);
 
 	/**
 	 * Lookup the key's value from all sources, and then register it.
 	 * If no value is found, just initialize an empty configItem.
 	 * @param key the given key.
+	 * @return the registered config item.
 	 */
-	public void registerFromAnywhere(String key);
+	public ConfigItem registerFromAnywhere(String key);
 
 	/**
 	 * Set configuration item into the Anole. Deeply digging will be used if

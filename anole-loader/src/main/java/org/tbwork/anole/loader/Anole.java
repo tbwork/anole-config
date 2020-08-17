@@ -39,12 +39,9 @@ public class Anole {
 		return StringUtil.isNullOrEmpty(value);
 	}
 	
-	public static String getProperty(String key, String defaultValue){ 
+	public static String getProperty(String key, String defaultValue){
 		ConfigItem cItem = getConfig(key, cm);
-		if(StringUtil.isNotEmpty(cItem.getError())){
-			throw new ConfigNotSetException(key, "There is a related config which is not set value yet, details message: " + cItem.getError());
-		}
-		return cItem == null || cItem.strValue() == null ? defaultValue : cItem.strValue();
+		return  cItem == null || StringUtil.isNullOrEmpty(cItem.strValue()) ? defaultValue : cItem.strValue();
 	}
 	
 	public static String getProperty(String key){ 
@@ -178,7 +175,14 @@ public class Anole {
 		 }
 
 		 ConfigItem cItem = cm.getConfigItem(key);
+
 		 if(cItem == null){
+		 	// Attempt to load the config from extension source
+			 cItem = cm.registerFromAnywhere(key);
+		 }
+
+		 if(cItem == null){
+		 	logger.debug("An attempt to get key ‘{}’ failed due to that it does not exist.", key);
 		 	return null;
 		 }
 		if(StringUtil.isNotEmpty(cItem.getError())){

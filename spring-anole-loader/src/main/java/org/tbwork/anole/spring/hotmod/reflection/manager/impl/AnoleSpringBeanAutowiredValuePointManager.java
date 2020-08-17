@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.BeanExpressionContext;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.Scope;
+import org.springframework.stereotype.Component;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.spring.hotmod.reflection.RefreshablePoint;
-import org.tbwork.anole.spring.hotmod.reflection.manager.BeanFieldManager;
+import org.tbwork.anole.spring.hotmod.reflection.manager.BeanAutowiredValuePointManager;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -19,8 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * An implement of FieldManager used to manager all refreshable field in the current application.
  * @author tommy.tesla
+ * @since 1.3.0
  */
-public class AnoleSpringBeanFieldManager implements BeanFieldManager {
+@Component
+public class AnoleSpringBeanAutowiredValuePointManager implements BeanAutowiredValuePointManager {
 
     private Map<BeanFactory /*the key is the bean factory*/,
                 Map<String /*key is the anole config key*/ , RefreshablePoint /*value is the relevant field*/>>
@@ -28,6 +31,12 @@ public class AnoleSpringBeanFieldManager implements BeanFieldManager {
 
 
     private ConfigManager configManager = AnoleConfigManager.getInstance();
+
+    public static final BeanAutowiredValuePointManager instance = new AnoleSpringBeanAutowiredValuePointManager();
+
+
+    private AnoleSpringBeanAutowiredValuePointManager(){}
+
 
     @Override
     public void register(BeanFactory beanFactory, Field field, Object instance, String beanName, Scope scope) {

@@ -63,17 +63,14 @@ public class AnoleConfigManager implements ConfigManager{
 
 
 	@Override
-	public void registerAndSetValue(String key, String definition) {
-		registerAndSetValue(key, definition, System.currentTimeMillis());
+	public ConfigItem registerAndSetValue(String key, String definition) {
+		return registerAndSetValue(key, definition, System.currentTimeMillis());
 	}
 
 	@Override
-	public void registerFromAnywhere(String key) {
+	public ConfigItem registerFromAnywhere(String key) {
 		ConfigItem configItem = extendibleGetConfigItem(key);
-		if(configItem == null){
-			initialConfig(key);
-		}
-
+		return configItem;
 	}
 
 	@Override
@@ -218,6 +215,16 @@ public class AnoleConfigManager implements ConfigManager{
 		@Override
 		public void onEvent(UpdateEvent event, long sequence, boolean endOfBatch) throws Exception {
 
+			try {
+				processEvent(event);
+			}
+			catch (Throwable throwable){
+				logger.error("Error occurs while processing event, details: {}", throwable.getMessage());
+			}
+		}
+
+
+		private void processEvent(UpdateEvent event){
 			ConfigItem configItem =  anoleConfigManager.getConfigItem(event.getKey());
 
 			if(configItem == null){
@@ -389,7 +396,7 @@ public class AnoleConfigManager implements ConfigManager{
 			Iterator<Entry<String,GraphNode>> iterator = relatedKeyMap.entrySet().iterator();
 			while(iterator.hasNext()){
 				Entry<String,GraphNode> node = iterator.next();
-				if(node.getValue().referenceNodes.isEmpty()){
+				if(!node.getValue().referenceNodes.isEmpty()){
 					// process the node without referencing other nodes.
 					parseDefinitionAndCalculateValue(getConfigItem(node.getKey()));
 					iterator.remove();
@@ -622,7 +629,7 @@ public class AnoleConfigManager implements ConfigManager{
 		for(SourceRetriever extensionRetriever : extensionSources){
 			String remoteValue = extensionRetriever.retrieve(key);
 			if(StringUtil.isNotEmpty(remoteValue)){
-				ConfigItem registerResult = registerConfigItemDefinition(key, remoteValue);
+				ConfigItem registerResult = registerAndSetValue(key, remoteValue);
 				logger.info("Retrieving value (definition) of '{}' from {} successfully", key, extensionRetriever.getName());
 				return registerResult;
 			}

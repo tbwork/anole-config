@@ -10,7 +10,7 @@ import java.lang.reflect.Method;
 /**
  * Field manager takes charge of all operations to fields registered into.
  */
-public interface BeanFieldManager {
+public interface BeanAutowiredValuePointManager {
 
 
     /**
