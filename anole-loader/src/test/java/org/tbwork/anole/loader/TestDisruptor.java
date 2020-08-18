@@ -7,7 +7,7 @@ import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
-import org.tbwork.anole.loader.core.manager.updater.impl.AnoleConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.modhub.impl.AnoleIncomeConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
 
 import java.util.concurrent.Executors;
@@ -32,39 +32,4 @@ public class TestDisruptor {
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
-
-        EventFactory<UpdateEvent> eventEventFactory = new AnoleConfigUpdateManager.UpdateEventFactory();
-        Disruptor<UpdateEvent> disruptor = new Disruptor<UpdateEvent>(eventEventFactory,
-                1024,
-                Executors.defaultThreadFactory(),
-                ProducerType.MULTI,// multiple publisher
-                new BlockingWaitStrategy());
-        disruptor.handleEventsWith(new UpdateEventHandler());
-
-        disruptor.publishEvent(new EventTranslator<UpdateEvent>() {
-            @Override
-            public void translateTo(UpdateEvent event, long sequence) {
-                    event.setNewValue("12312312");
-            }
-        });
-
-        disruptor.publishEvent(new EventTranslator<UpdateEvent>() {
-            @Override
-            public void translateTo(UpdateEvent event, long sequence) {
-                event.setNewValue("12312312");
-            }
-        });
-
-        disruptor.publishEvent(new EventTranslator<UpdateEvent>() {
-            @Override
-            public void translateTo(UpdateEvent event, long sequence) {
-                event.setNewValue("12312312");
-            }
-        });
-
-        TimeUnit.SECONDS.sleep(3L);
-        disruptor.start();
-
-    }
 }

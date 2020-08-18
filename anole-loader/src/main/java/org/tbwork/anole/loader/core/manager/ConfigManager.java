@@ -1,11 +1,15 @@
 package org.tbwork.anole.loader.core.manager;
 
-import org.tbwork.anole.loader.core.manager.remote.RemoteRetriever;
+import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
+import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;
 
 import java.util.List;
 
+/**
+ * The heart of Anole.
+ */
 public interface ConfigManager {
 
 
@@ -20,9 +24,17 @@ public interface ConfigManager {
 	 * value contains an other property like: a = ${b}-service
 	 * @param key the key of the configuration item.
 	 * @param definition the definition of the configuration item.
+	 * @return the registered config item.
 	 */
-	public void registerAndSetValue(String key, String definition);
+	public ConfigItem registerAndSetValue(String key, String definition);
 
+	/**
+	 * Lookup the key's value from all sources, and then register it.
+	 * If no value is found, just initialize an empty configItem.
+	 * @param key the given key.
+	 * @return the registered config item.
+	 */
+	public ConfigItem registerFromAnywhere(String key);
 
 	/**
 	 * Set configuration item into the Anole. Deeply digging will be used if
@@ -30,8 +42,9 @@ public interface ConfigManager {
 	 * @param key the key of the configuration item.
 	 * @param definition the definition of the configuration item.
 	 * @param updateTime the update time given by the caller
+	 * @return the registered config item.
 	 */
-	public void registerAndSetValue(String key, String definition, long updateTime);
+	public ConfigItem registerAndSetValue(String key, String definition, long updateTime);
 
 
 	/**
@@ -68,39 +81,59 @@ public interface ConfigManager {
 	public void refresh(boolean needCheckIntegrity);
 
 	/**
-	 * Add a remote retriever to retrieve configuration and
-	 * register a corresponding monitor to observe config change event.
-	 * @param remoteRetriever the remote retriever
+	 * Add an extended retriever to retrieve configuration.
+	 * @param sourceRetriever the extended retriever
 	 */
-	void addRemoteRetriever(RemoteRetriever remoteRetriever);
+	void addExtensionRetriever(SourceRetriever sourceRetriever);
 
 
 
 	/**
 	 * Start an update recorder to receive all config update events from the
-	 * remote servers like apollo, spring config etc..
+	 * outer config sources like apollo, spring config etc..
 	 */
-	void startUpdateRecorder();
+	void startReceiveIncomeUpdates();
 
 
 	/**
-	 * Start an executor to process all update events stored in the update recorder.
+	 * Start an executor to process all update events stored in the income update recorder.
 	 */
-	void startUpdateExecutor();
+	void startProcessIncomeUpdates();
+
+	/**
+	 * Start an update recorder to receive all config update events submitted by Anole itself.
+	 */
+	void startReceiveOutgoUpdates();
 
 
 	/**
-	 * Tell the update manager to shut down.
+	 * Start an executor to process all update events stored in the outgo update recorder.
 	 */
-	void stopUpdateManager();
+	void startProcessOutgoUpdates();
+
 
 	/**
-	 * Apply a update to a config. This operation means the change request will
-	 * be put into the update request queue, waiting for further process.
-	 * @param key
-	 * @param newValue
+	 * Tell the anole config manager to shut down.
 	 */
-	void applyChange(String key, String newValue);
+	void shutDown();
+
+	/**
+	 * Submit an income update of config. This operation means the change request will
+	 * be put into the update queue, waiting for further process.
+	 * @param key the given key
+	 * @param newValue the given new value
+	 */
+	void submitIncomeUpdate(String key, String newValue);
+
+
+	/**
+	 * Submit an outgo update of config. This operation means the change request will
+	 * be put into the update queue, waiting for further process.
+	 * @param key the given key
+	 * @param newValue the given new value
+	 */
+	void submitOutgoUpdate(String key, String newValue);
+
 
 
 }

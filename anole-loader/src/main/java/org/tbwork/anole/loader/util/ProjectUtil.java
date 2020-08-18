@@ -1,13 +1,13 @@
 package org.tbwork.anole.loader.util;
 
+import org.tbwork.anole.loader.AnoleApp;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.List;
 
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.context.AnoleApp;
-import org.tbwork.anole.loader.exceptions.AnoleNotReadyException; 
- 
 
 public class ProjectUtil {
 	
@@ -44,7 +44,7 @@ public class ProjectUtil {
 		if(callerClasspath != null && !callerClasspath.isEmpty()) {
 			return callerClasspath;
 		}
-		Class<?> mainClass = AnoleApp.getCallerClass(); 
+		Class<?> mainClass = AnoleApp.getCallerClass();
 		String fullClassName = mainClass.getName(); 
 		String packageName = mainClass.getPackage().getName();
 		String className = fullClassName.replace(packageName+".", "");
@@ -68,8 +68,21 @@ public class ProjectUtil {
 			programPath = programPath + "/";
 		return programPath;
 	}
-	
-	 
+
+	/**
+	 * Get potential class loaders.
+	 *
+	 * @return
+	 */
+	public static ClassLoader[] getClassLoaders() {
+		final Collection<ClassLoader> classLoaders = new LinkedHashSet<>();
+		classLoaders.add(ProjectUtil.class.getClassLoader());
+		final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+		if (systemClassLoader != null) {
+			classLoaders.add(systemClassLoader);
+		}
+		return classLoaders.toArray(new ClassLoader[classLoaders.size()]);
+	}
  
   
 }

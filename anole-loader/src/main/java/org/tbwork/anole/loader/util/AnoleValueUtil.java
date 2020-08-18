@@ -17,7 +17,7 @@ public class AnoleValueUtil {
      * Search and return all variables in the input string.
      * E.g.
      * <pre>
-     * 1. input : 123!{21212}2#{qwe1}13
+     * 1. input : 123${21212}2${qwe1}13
      * 2. result: ["21212", "qwe1"]
      * </pre>
      * @param value the input value
@@ -43,8 +43,8 @@ public class AnoleValueUtil {
      * Match and return all variables with cloth in the input string.
      * E.g.
      * <pre>
-     * 1. input : 123!{21212}2#{qwe1}13
-     * 2. result: ["!{21212}", "#{qwe1}"]
+     * 1. input : 123${21212}2${qwe1}13
+     * 2. result: ["${21212}", "${qwe1}"]
      * </pre>
      * @param value the input value
      * @param key for sake of trouble-shooting.
@@ -63,7 +63,7 @@ public class AnoleValueUtil {
             char icn = p < value.length()-1 ?  value.charAt(p+1) : ' ';
             if(checkHead(icl,ic, icn)){
                 if( vs > -1) {
-                    String message =  "Anole does not support a variable's name is the value of another variable like #{#{a}}.";
+                    String message =  "Anole does not support a variable's name is the value of another variable like ${${a}}.";
                     throw new ErrorSyntaxException(key, message);
                 }
                 else
@@ -75,7 +75,7 @@ public class AnoleValueUtil {
                     vs = -1;
                 }
                 else{
-                    String message =  "Lack of '#{': an left brace '#{' is needed to match the right brace'}'.";
+                    String message =  "Lack of '${': an left brace '${' is needed to match the right brace'}'.";
                     throw new ErrorSyntaxException(key, message);
                 }
             }
@@ -108,7 +108,7 @@ public class AnoleValueUtil {
      * Check whether the input value contains another variable or not.
      * E.g. following example input will cause the result of true.
      * <pre>
-     * 1. 123#{21212}213
+     * 1. 123${21212}213
      * </pre>
      * @param value the input value
      * @return true if the value contains another variable or more,
@@ -163,7 +163,7 @@ public class AnoleValueUtil {
 
 
     private static boolean isHeadChar(char a){
-        return a == '@' || a == '#' || a == '$';
+        return  a == '$';
     }
 
 

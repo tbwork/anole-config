@@ -1,8 +1,6 @@
 package org.tbwork.anole.loader;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
@@ -19,7 +17,11 @@ public class TestAnole {
 
 		AnoleApp.start(LogLevel.INFO);
 
-		logger.info(Anole.getProperty("test"));
+		System.out.println( Anole.getProperty("test"));
 
+		Anole.setProperty("dev_test", "${b}ppppp");
+
+
+		System.out.println(Anole.getProperty("b"));
 	}
 }

@@ -1,10 +1,13 @@
 package org.tbwork.anole.loader.util;
 
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.Anole;
+import org.tbwork.anole.loader.AnoleApp;
 import org.tbwork.anole.loader.exceptions.BasicConfigMustBeSpecifiedClearly;
 import org.tbwork.anole.loader.exceptions.ConfigNotSetException;
 
 public class AnoleAssertUtil {
+
+    private static final AnoleLogger logger = new AnoleLogger(AnoleApp.class);
 
     /**
      * Assert the config named key is already set, otherwise throw an exception.
@@ -12,7 +15,7 @@ public class AnoleAssertUtil {
      */
     public static void assertConfigPresent(String key){
         if(!Anole.isPresent(key)){
-            throw new ConfigNotSetException(key);
+            logAndThrow( new ConfigNotSetException(key) );
         }
     }
 
@@ -25,7 +28,7 @@ public class AnoleAssertUtil {
     public static void assertBasicConfigDefined(String key, String example){
         assertConfigPresent(key);
         if(AnoleValueUtil.containVariable(Anole.getRawValue(key))){
-            throw new BasicConfigMustBeSpecifiedClearly(key, example);
+            logAndThrow( new BasicConfigMustBeSpecifiedClearly(key, example) );
         }
     }
 
@@ -37,8 +40,13 @@ public class AnoleAssertUtil {
     public static void assertBasicConfigDefined(String key){
         assertConfigPresent(key);
         if(AnoleValueUtil.containVariable(Anole.getRawValue(key))){
-            throw new BasicConfigMustBeSpecifiedClearly(key);
+            logAndThrow(new BasicConfigMustBeSpecifiedClearly(key));
         }
+    }
+
+    private static void logAndThrow(RuntimeException e){
+        logger.error(e.getMessage());
+        throw e;
     }
 
 }

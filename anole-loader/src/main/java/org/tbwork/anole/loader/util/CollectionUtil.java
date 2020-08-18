@@ -1,8 +1,13 @@
 package org.tbwork.anole.loader.util;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+
+/**
+ *
+ * Collection Utility.
+ *
+ */
 public class CollectionUtil {
 
 	public static String [] list2StringArray(List<String> list){ 
@@ -28,4 +33,7 @@ public class CollectionUtil {
 	public static Boolean [] set2BooleanArray(Set<Boolean> set){
 		return set.toArray(new Boolean[set.size()]);  
 	}
+
+
+
 }

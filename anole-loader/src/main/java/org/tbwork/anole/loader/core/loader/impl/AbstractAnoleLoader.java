@@ -1,13 +1,12 @@
 package org.tbwork.anole.loader.core.loader.impl;
 
-import org.tbwork.anole.loader.context.Anole;
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.loader.AnoleLoader;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.core.parser.AnoleConfigFileParser;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.core.register.AnoleConfigRegister;
 import org.tbwork.anole.loader.core.resource.ResourceLoader;
-import org.tbwork.anole.loader.enums.FileLoadStatus;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
 

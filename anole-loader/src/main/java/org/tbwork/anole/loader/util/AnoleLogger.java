@@ -4,9 +4,7 @@ import java.util.regex.Matcher;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.core.loader.AnoleLoader;
-import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
+import org.tbwork.anole.loader.Anole;
 
 public class AnoleLogger {
 

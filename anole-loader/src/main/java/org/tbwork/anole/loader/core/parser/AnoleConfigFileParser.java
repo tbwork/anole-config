@@ -1,7 +1,5 @@
 package org.tbwork.anole.loader.core.parser;
 
-import org.tbwork.anole.loader.context.AnoleApp;
-import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;

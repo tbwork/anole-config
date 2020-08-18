@@ -1,0 +1,94 @@
+package org.tbwork.anole.spring.hotmod.reflection;
+
+import lombok.Data;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.beans.factory.config.Scope;
+import org.springframework.core.MethodParameter;
+import org.tbwork.anole.spring.statics.AnoleSpringNameBook;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+/**
+ * That point could be a field or a method, which means its value is refreshable
+ * according to the variable referenced by its @Value annotation's value.
+ */
+@Data
+public class RefreshablePoint {
+
+    /**
+     * The refreshable field. Specifically refers to those fields annotated by
+     * {@link org.springframework.beans.factory.annotation.Value} and not annotated
+     *  by {@link org.tbwork.anole.spring.annotation.Final}.
+     */
+    private Field field;
+
+
+    /**
+     * The refreshable method. Specifically refers to those methods annotated by
+     * {@link org.springframework.beans.factory.annotation.Value} and not annotated
+     *  by {@link org.tbwork.anole.spring.annotation.Final}.
+     */
+    private MethodParameter methodParameter;
+
+    /**
+     * The unique key managed in Anole config.
+     */
+    private String anoleKey;
+
+    /**
+     * Field's owner object.
+     */
+    private Object ownerInstance;
+
+    /**
+     * The owner bean's scope.
+     */
+    private Scope scope;
+
+
+    public RefreshablePoint(Method method, Object ownerInstance, String beanName, Scope scope){
+        this.methodParameter = new MethodParameter(method, 0);
+        this.ownerInstance = ownerInstance;
+        this.scope = scope;
+        this.anoleKey = String.format("%s.%s.%s", AnoleSpringNameBook.FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
+    }
+
+    public RefreshablePoint(Field field, Object ownerInstance, String beanName, Scope scope){
+        this.field = field;
+        this.ownerInstance = ownerInstance;
+        this.scope = scope;
+        this.anoleKey = String.format("%s.%s.%s", AnoleSpringNameBook.FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
+    }
+
+    public void setValue(Object value) throws IllegalAccessException, InvocationTargetException {
+
+        if(field == null){
+            injectByMethod(value);
+        }
+        else{
+            injectField(value);
+        }
+
+    }
+
+    private void injectField(Object value) throws IllegalAccessException{
+        boolean accessible = field.isAccessible();
+
+        if(!accessible){
+            field.setAccessible(true);
+        }
+
+        field.set(ownerInstance, value);
+
+        if(!accessible){
+            field.setAccessible(false);
+        }
+    }
+
+    private void injectByMethod(Object newVal) throws InvocationTargetException, IllegalAccessException {
+        methodParameter.getMethod().invoke(ownerInstance, newVal);
+    }
+
+}

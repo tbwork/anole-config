@@ -7,8 +7,9 @@ import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
-import org.tbwork.anole.loader.core.manager.updater.impl.AnoleConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.modhub.impl.AnoleIncomeConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
+import org.tbwork.anole.loader.core.model.UpdateEventFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -34,7 +35,7 @@ public class TestDisruptor {
 
     public static void main(String[] args) throws InterruptedException {
 
-        EventFactory<UpdateEvent> eventEventFactory = new AnoleConfigUpdateManager.UpdateEventFactory();
+        EventFactory<UpdateEvent> eventEventFactory = new UpdateEventFactory();
         Disruptor<UpdateEvent> disruptor = new Disruptor<UpdateEvent>(eventEventFactory,
                 1024,
                 Executors.defaultThreadFactory(),

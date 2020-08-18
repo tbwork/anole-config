@@ -3,11 +3,10 @@ package org.tbwork.anole.loader.core.register;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import org.tbwork.anole.loader.core.manager.remote.RemoteRetriever;
-import org.tbwork.anole.loader.core.model.ConfigItem;
+import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.ProjectUtil;
 
 import java.util.*;
 
@@ -46,41 +45,49 @@ public class AnoleConfigRegister {
         lcm.removeFromSystem();
 
         // start up the update recorder to prepare to receive update events from the remote config servers.
-        lcm.startUpdateRecorder();
+        lcm.startReceiveIncomeUpdates();
 
-        // initialize retrievers
-        initializeRemoteConfigServer();
+        // initialize extended config source
+        initializeExtendedConfigSource();
 
         // refresh all properties
         lcm.refresh(true);
 
         // start up the update executor to process update events from the remote config servers.
-        lcm.startUpdateExecutor();
+        lcm.startProcessIncomeUpdates();
+
+        // start to receive outgo update events
+        lcm.startReceiveOutgoUpdates();
+
+        // start to process outgo update events
+        lcm.startProcessOutgoUpdates();
     }
 
 
-    private void initializeRemoteConfigServer(){
-        Set<RemoteRetriever> remoteRetrievers = lookForRemoteServerBySpi();
-        logger.info("There are {} remote config providers found. Details: >>>>>>>>> ", remoteRetrievers.size());
-        for(RemoteRetriever retriever :remoteRetrievers){
-            logger.info("{} remote config provider is found.", retriever.getName());
-            lcm.addRemoteRetriever(retriever);
+    private void initializeExtendedConfigSource(){
+        Set<SourceRetriever> extensionSourceSet = lookForRemoteServerBySpi();
+        logger.info("There are {} extension config providers found. Details: >>>>>>>>> ", extensionSourceSet.size());
+        for(SourceRetriever retriever :extensionSourceSet){
+            logger.info("{} is found.", retriever.getName());
+            lcm.addExtensionRetriever(retriever);
         }
-        logger.info("Remote config providers are loaded successfully. <<<<<<<<<< ", remoteRetrievers.size());
+        if(extensionSourceSet.size() > 0){
+            logger.info("Extension config providers are loaded successfully. <<<<<<<<<< ", extensionSourceSet.size());
+        }
     }
 
-    private Set<RemoteRetriever> lookForRemoteServerBySpi(){
+    private Set<SourceRetriever> lookForRemoteServerBySpi(){
 
-        Set<RemoteRetriever> providers = new TreeSet<RemoteRetriever>(new Comparator<RemoteRetriever>(){
+        Set<SourceRetriever> providers = new TreeSet<SourceRetriever>(new Comparator<SourceRetriever>(){
             @Override
-            public int compare(RemoteRetriever o1, RemoteRetriever o2) {
+            public int compare(SourceRetriever o1, SourceRetriever o2) {
                 return o1.getClass().getName().compareTo(o2.getClass().getName());
             }
         });
 
-        for (final ClassLoader classLoader : getClassLoaders()) {
+        for (final ClassLoader classLoader : ProjectUtil.getClassLoaders()) {
             try {
-                for (final RemoteRetriever provider : ServiceLoader.load(RemoteRetriever.class, classLoader)) {
+                for (final SourceRetriever provider : ServiceLoader.load(SourceRetriever.class, classLoader)) {
                     providers.add(provider);
                 }
             } catch (final Throwable ex) {
@@ -92,15 +99,7 @@ public class AnoleConfigRegister {
 
     }
 
-    public ClassLoader[] getClassLoaders() {
-        final Collection<ClassLoader> classLoaders = new LinkedHashSet<>();
-        classLoaders.add(getClass().getClassLoader());
-        final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
-        if (systemClassLoader != null) {
-            classLoaders.add(systemClassLoader);
-        }
-        return classLoaders.toArray(new ClassLoader[classLoaders.size()]);
-    }
+
 
 
 }

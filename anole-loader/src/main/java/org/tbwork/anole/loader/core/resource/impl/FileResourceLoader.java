@@ -1,7 +1,7 @@
 package org.tbwork.anole.loader.core.resource.impl;
 
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.context.AnoleApp;
+import org.tbwork.anole.loader.Anole;
+import org.tbwork.anole.loader.AnoleApp;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.core.resource.ResourceLoader;
 import org.tbwork.anole.loader.util.*;

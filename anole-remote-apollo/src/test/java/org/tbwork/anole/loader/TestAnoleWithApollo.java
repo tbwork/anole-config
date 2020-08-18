@@ -1,16 +1,12 @@
 package org.tbwork.anole.loader;
 
+import org.apache.logging.log4j.core.config.plugins.util.PluginManager;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
-import org.tbwork.anole.loader.context.Anole;
-import org.tbwork.anole.loader.context.AnoleApp;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 @AnoleConfigLocation(locations="*.anole")
 public class TestAnoleWithApollo {
@@ -21,6 +17,8 @@ public class TestAnoleWithApollo {
 	public void getConfigFromApollo() throws IOException, InterruptedException {
 
 		Anole.setProperty("num", "123");
+
+		PluginManager.addPackage("org.tbwork.anole.loader.Anole");
 
 		AnoleApp.start(LogLevel.INFO);
 

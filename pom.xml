@@ -17,12 +17,13 @@
         <module>anole-loader</module>
         <module>spring-anole-loader</module>
 		<module>anole-remote-apollo</module>
+		<module>anole-log4j2</module>
 	</modules>
 
     <url>https://github.com/tbwork/anole-config</url>
 	<description>An awesome configuration loader for java. It could use different configurations according to the current environment, just like an anole.</description> 
 	<properties>
-		<revision>1.2.8</revision>
+		<revision>2.0.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.12</junit.version>
 		<google.guava>19.0</google.guava>
@@ -65,6 +66,7 @@
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>${lombok.version}</version>
+				<scope>compile</scope>
 			</dependency>
 			<dependency>
 			  <groupId>junit</groupId>

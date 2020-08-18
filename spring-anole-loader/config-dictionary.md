@@ -1,0 +1,2 @@
+## Supported Configurations
+* **anole.spring.profile.auto** Type: Boolean. Note: 'true' means Spring's active profile (specifically refers to 'spring.profiles.active') would be set as same as Anole's environment, and 'false' means the active profiles would be set manually. Default value is 'true'.  
