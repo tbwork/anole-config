@@ -3,7 +3,7 @@ package org.tbwork.anole.loader.core.manager.monitor;
 /**
  * 监听者
  */
-public interface Monitor {
+public interface RemoteMonitor {
 
 
     /**

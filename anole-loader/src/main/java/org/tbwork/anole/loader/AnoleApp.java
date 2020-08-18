@@ -176,7 +176,7 @@ public class AnoleApp {
 					anoleStartPostProcessors.add(processor);
 				}
 			} catch (final Throwable ex) {
-				logger.warn("There is something wrong occurred in searching post start processors step. Details: {}", ex.getMessage());
+				logger.error("There is something wrong occurred in searching post start processors step. Details: {}", ex.getMessage());
 			}
 		}
 

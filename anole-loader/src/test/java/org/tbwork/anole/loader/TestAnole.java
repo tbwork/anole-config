@@ -17,7 +17,11 @@ public class TestAnole {
 
 		AnoleApp.start(LogLevel.INFO);
 
-		logger.info(Anole.getProperty("test"));
+		System.out.println( Anole.getProperty("test"));
 
+		Anole.setProperty("dev_test", "${b}ppppp");
+
+
+		System.out.println(Anole.getProperty("b"));
 	}
 }

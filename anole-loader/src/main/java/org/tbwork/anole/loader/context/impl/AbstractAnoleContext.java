@@ -1,20 +1,12 @@
 package org.tbwork.anole.loader.context.impl;
 
-import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.AnoleContext;
-import org.tbwork.anole.loader.core.loader.AnoleLoader;
-import org.tbwork.anole.loader.core.loader.impl.AnoleClasspathLoader;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import org.tbwork.anole.loader.enums.FileLoadStatus;
-import org.tbwork.anole.loader.exceptions.ConfigFileDirectoryNotExistException;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.OsUtil;
-import org.tbwork.anole.loader.util.PathUtil;
 import org.tbwork.anole.loader.util.StringUtil;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
 
 public abstract class AbstractAnoleContext implements AnoleContext {
 
@@ -45,7 +37,7 @@ public abstract class AbstractAnoleContext implements AnoleContext {
 
     @Override
     public void close(){
-        AnoleConfigManager.getInstance().stopUpdateManager();
+        AnoleConfigManager.getInstance().shutDown();
     }
 
     @Override

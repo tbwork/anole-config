@@ -1,21 +1,23 @@
 package org.tbwork.anole.loader.core.manager.impl;
 
-import com.lmax.disruptor.EventHandler;
 import lombok.Data;
 import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolver;
 import org.tbwork.anole.loader.core.manager.expression.ExpressionResolverFactory;
-import org.tbwork.anole.loader.core.manager.monitor.impl.ConfigChangeMonitor;
+import org.tbwork.anole.loader.core.manager.modhub.impl.AnoleOutgoConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.monitor.impl.ConfigChangeRemoteMonitor;
 import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
-import org.tbwork.anole.loader.core.manager.updater.impl.AnoleConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.modhub.ConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.modhub.impl.AnoleIncomeConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
 import org.tbwork.anole.loader.exceptions.CircularDependencyException;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import org.tbwork.anole.loader.exceptions.NotReadyException;
+import org.tbwork.anole.loader.statics.BuiltInConfigKeyBook;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.AnoleValueUtil;
 import org.tbwork.anole.loader.util.StringUtil;
@@ -23,7 +25,8 @@ import org.tbwork.anole.loader.util.StringUtil;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
- 
+import java.util.stream.Collectors;
+
 /**
  * AnoleConfigManager is the heart of anole-loader, it manages all configs.
  * @see #registerConfigItemDefinition(String, String)
@@ -36,7 +39,6 @@ public class AnoleConfigManager implements ConfigManager{
 	
 	private static final Map<String, ConfigItem> configDefinitionMap = new ConcurrentHashMap<String, ConfigItem>();
 
-
 	private List<SourceRetriever> extensionSources = new ArrayList<>();
 
 	/**
@@ -44,7 +46,9 @@ public class AnoleConfigManager implements ConfigManager{
 	 */
 	private Set<String> tempStoreInSystemKeySet = new HashSet<>();
 
-	private AnoleConfigUpdateManager anoleConfigUpdater;
+	private ConfigUpdateManager anoleIncomeConfigUpdater;
+
+	private ConfigUpdateManager anoleOutgoConfigUpdater;
 
 	private static final ConfigManager INSTANCE = new AnoleConfigManager();
 
@@ -80,7 +84,7 @@ public class AnoleConfigManager implements ConfigManager{
 			parseDefinitionAndCalculateValue(configItem);
 		}
 		else {
-			configItem.setValue(calculateExpression(key, definition));
+			setConfigValue(configItem, calculateExpression(key, definition));
 		}
 		configItem.setLastUpdateTime(updateTime);
 		if(Anole.initialized){
@@ -144,33 +148,50 @@ public class AnoleConfigManager implements ConfigManager{
 	@Override
 	public void addExtensionRetriever(SourceRetriever sourceRetriever) {
 		extensionSources.add(sourceRetriever);
-		if(anoleConfigUpdater == null){
+		if(anoleIncomeConfigUpdater == null){
 			throw new NotReadyException("configUpdater component");
 		}
 		if(sourceRetriever instanceof RemoteRetriever){
-			((RemoteRetriever)sourceRetriever).registerMonitor(new ConfigChangeMonitor(anoleConfigUpdater, this));
+			((RemoteRetriever)sourceRetriever).registerMonitor(new ConfigChangeRemoteMonitor(anoleIncomeConfigUpdater, this));
 		}
 	}
 
 	@Override
-	public void startUpdateRecorder() {
-		anoleConfigUpdater = new AnoleConfigUpdateManager(new AnoleUpdateEventHandler(this));
-		anoleConfigUpdater.startRecord();
+	public void startReceiveIncomeUpdates() {
+		anoleIncomeConfigUpdater = new AnoleIncomeConfigUpdateManager();
+		anoleIncomeConfigUpdater.startRecord();
 	}
 
 	@Override
-	public void startUpdateExecutor() {
-		anoleConfigUpdater.startProcess();
+	public void startProcessIncomeUpdates() {
+		anoleIncomeConfigUpdater.startProcess();
 	}
 
 	@Override
-	public void stopUpdateManager() {
-		anoleConfigUpdater.shutDown();
+	public void startReceiveOutgoUpdates() {
+		anoleOutgoConfigUpdater = new AnoleOutgoConfigUpdateManager();
+		anoleOutgoConfigUpdater.startRecord();
 	}
 
 	@Override
-	public void applyChange(String key, String newValue) {
-		anoleConfigUpdater.publishEvent(new UpdateEvent(key, newValue));
+	public void startProcessOutgoUpdates() {
+		anoleOutgoConfigUpdater.startProcess();
+	}
+
+	@Override
+	public void shutDown() {
+		anoleIncomeConfigUpdater.shutDown();
+		anoleOutgoConfigUpdater.shutDown();
+	}
+
+	@Override
+	public void submitIncomeUpdate(String key, String newValue) {
+		anoleIncomeConfigUpdater.publishEvent(new UpdateEvent(key, newValue));
+	}
+
+	@Override
+	public void submitOutgoUpdate(String key, String newValue) {
+		anoleOutgoConfigUpdater.publishEvent(new UpdateEvent(key, newValue));
 	}
 
 
@@ -200,59 +221,6 @@ public class AnoleConfigManager implements ConfigManager{
 		return result;
 	}
 
-
-	/**
-	 * Event handler used to process update events.
-	 */
-	public static class AnoleUpdateEventHandler implements EventHandler<UpdateEvent> {
-
-		private ConfigManager anoleConfigManager;
-
-		public AnoleUpdateEventHandler(ConfigManager anoleConfigManager){
-			this.anoleConfigManager = anoleConfigManager;
-		}
-
-		@Override
-		public void onEvent(UpdateEvent event, long sequence, boolean endOfBatch) throws Exception {
-
-			try {
-				processEvent(event);
-			}
-			catch (Throwable throwable){
-				logger.error("Error occurs while processing event, details: {}", throwable.getMessage());
-			}
-		}
-
-
-		private void processEvent(UpdateEvent event){
-			ConfigItem configItem =  anoleConfigManager.getConfigItem(event.getKey());
-
-			if(configItem == null){
-				configItem = anoleConfigManager.registerAndSetValue(event.getKey(), event.getNewValue(), event.getCreateTime());
-			}
-
-			String oldDefinition = configItem.getDefinition();
-
-			if(oldDefinition == null && event.getNewValue() == null){
-				return ;
-			}
-
-			if(oldDefinition != null && oldDefinition.equals(event.getNewValue())){
-				return ;
-			}
-
-			if(configItem.getLastUpdateTime() > event.getCreateTime()){
-				return ; // ignore old version update
-			}
-
-			anoleConfigManager.registerAndSetValue(event.getKey(), event.getNewValue(), event.getCreateTime());
-
-			if(configItem != null){
-				configItem.setValue(event.getNewValue());
-				logger.info("The key named '{}' changed from '{}' to '{}'", event.getKey(), oldDefinition, event.getNewValue());
-			}
-		}
-	}
 
 
 	/**
@@ -307,20 +275,17 @@ public class AnoleConfigManager implements ConfigManager{
 		}
 		String oldDefinition = cItem.getDefinition();
 		cItem.setDefinition(valueDefinition);
-		// for plain value, set value immediately
+		// for plain value without variables, set value immediately
 		if(!AnoleValueUtil.containVariable(valueDefinition)){
+			String value = valueDefinition;
 			if(AnoleValueUtil.isExpression(valueDefinition)){
-				cItem.setValue(calculateExpression(key, AnoleValueUtil.getExpression(valueDefinition)));
+				value = calculateExpression(key, AnoleValueUtil.getExpression(valueDefinition));
 			}
-			else{
-				cItem.setValue(valueDefinition);
-			}
+			setConfigValue(cItem, value);
 		}
 		refreshReferenceRelationShip(key, oldDefinition, valueDefinition);
 		return cItem;
 	}
-
-
 
 	/**
 	 * Calculate expression for the given ownerKey.
@@ -346,7 +311,7 @@ public class AnoleConfigManager implements ConfigManager{
     	for(Entry<String,ConfigItem> item : entrySet){
     		if(StringUtil.isNotEmpty(item.getValue().strValue())){
 				String strValue = item.getValue().strValue();
-				item.getValue().setValue(StringUtil.replaceEscapeChars(strValue));
+				setConfigValue(item.getValue(), StringUtil.replaceEscapeChars(strValue));
 			}
     	}
     }
@@ -365,13 +330,13 @@ public class AnoleConfigManager implements ConfigManager{
 	@Data
 	static class GraphNode{
 
-    	private Set<GraphNode> referenceNodes;
+    	private Set<String> referenceNodeKeys;
 
     	private String key;
 
     	public GraphNode(String key){
     		this.key = key;
-    		this.referenceNodes = new HashSet<>();
+    		this.referenceNodeKeys = new HashSet<>();
 		}
 
 	}
@@ -392,29 +357,48 @@ public class AnoleConfigManager implements ConfigManager{
 		findRelatedKeysByDFS(relatedKeyMap, relatedKeyMap.get(startKey));
 
 		// topological sort
-		while(!relatedKeyMap.isEmpty()){
+		int lastSize = relatedKeyMap.size();
+		while(lastSize > 0){
 			Iterator<Entry<String,GraphNode>> iterator = relatedKeyMap.entrySet().iterator();
+			String firstKey = null;
 			while(iterator.hasNext()){
 				Entry<String,GraphNode> node = iterator.next();
-				if(!node.getValue().referenceNodes.isEmpty()){
+				if(firstKey == null){
+					firstKey = node.getKey();
+				}
+				if(node.getValue().referenceNodeKeys.isEmpty()){
 					// process the node without referencing other nodes.
 					parseDefinitionAndCalculateValue(getConfigItem(node.getKey()));
 					iterator.remove();
 					// remove the node from its parent nodes' referenceNodes set.
 					for(String parentKey : getConfigItem(node.getKey()).getParentConfigKeys()){
-						relatedKeyMap.get(parentKey).referenceNodes.remove(node.getValue());
+						relatedKeyMap.get(parentKey).referenceNodeKeys.remove(node.getKey());
 					}
 				}
 			}
+			if(lastSize == relatedKeyMap.size()){
+				StringBuilder stringBuilder = new StringBuilder();
+				iterator = relatedKeyMap.entrySet().iterator();
+				while(iterator.hasNext()){
+					Entry<String,GraphNode> node = iterator.next();
+					stringBuilder.append(node.getKey()).append("  --->  ");
+					stringBuilder.append(StringUtil.join(",", node.getValue().getReferenceNodeKeys().stream().collect(Collectors.toList())));
+					stringBuilder.append("\n");
+				}
+				logger.error("Dependency loop is found, current relationships are >>>>>>>>>>>>> \n {}", stringBuilder.toString());
+				throw new CircularDependencyException(firstKey);
+			}
+			lastSize = relatedKeyMap.size();
 		}
 	}
+
 
 	private void findRelatedKeysByDFS(Map<String, GraphNode> relatedKeyMap, GraphNode startNode){
 		for(String parentKey : getConfigItem(startNode.getKey()).getParentConfigKeys()){
 			if(!relatedKeyMap.containsKey(parentKey)){
 				relatedKeyMap.put(parentKey, new GraphNode(parentKey));
 			}
-			relatedKeyMap.get(parentKey).referenceNodes.add(startNode);
+			relatedKeyMap.get(parentKey).referenceNodeKeys.add(startNode.getKey());
 
 			findRelatedKeysByDFS(relatedKeyMap,  relatedKeyMap.get(parentKey));
 		}
@@ -464,8 +448,11 @@ public class AnoleConfigManager implements ConfigManager{
 				}
 			}
 
-			if(AnoleValueUtil.containVariable(vConfig.getDefinition())){
-				parseDefinitionAndCalculateValue(vConfig, unknownConfigSet);
+			if(Anole.initialized && Anole.getBoolProperty(BuiltInConfigKeyBook.FORCE_REFRESH_REFERENCING_KEYS, true)){
+				// force to refresh the referencing configs.
+				if(AnoleValueUtil.containVariable(vConfig.getDefinition())){
+					parseDefinitionAndCalculateValue(vConfig, unknownConfigSet);
+				}
 			}
 
 			if(vConfig.strValue() == null){
@@ -479,7 +466,7 @@ public class AnoleConfigManager implements ConfigManager{
 		if(AnoleValueUtil.isExpression(resolvedValue)){
 			resolvedValue = calculateExpression(configItem.getKey(), resolvedValue);
 		}
-		configItem.setValue(resolvedValue);
+		setConfigValue(configItem, resolvedValue);
 		unknownConfigSet.remove(configItem.getKey());
 	}
 
@@ -642,6 +629,15 @@ public class AnoleConfigManager implements ConfigManager{
 		ConfigItem cItem = new ConfigItem(key);
 		configDefinitionMap.put(key, cItem);
 		return cItem;
+	}
+
+
+	private void setConfigValue(ConfigItem config, String value){
+		value = StringUtil.replaceEscapeChars(value);
+    	config.setValue(value);
+    	if(Anole.initialized){
+			this.submitOutgoUpdate(config.getKey(), value);
+		}
 	}
 
 }

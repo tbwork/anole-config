@@ -1,47 +1,44 @@
-package org.tbwork.anole.loader.core.manager.updater.impl;
+package org.tbwork.anole.loader.core.manager.modhub.impl;
 
-import com.lmax.disruptor.*;
+import com.lmax.disruptor.BlockingWaitStrategy;
+import com.lmax.disruptor.EventFactory;
+import com.lmax.disruptor.EventHandler;
+import com.lmax.disruptor.EventTranslator;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
-import org.tbwork.anole.loader.core.manager.updater.ConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.modhub.ConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
+import org.tbwork.anole.loader.core.model.UpdateEventFactory;
 import org.tbwork.anole.loader.exceptions.UpdaterNotReadyException;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-/**
- * <p>Manage all update events, record them and then process them.</p>
- */
-public class AnoleConfigUpdateManager implements ConfigUpdateManager {
+public abstract class AbstractConfigUpdateManager implements ConfigUpdateManager {
 
     private Disruptor<UpdateEvent> disruptor = null;
 
     private volatile boolean startRecording = false;
 
-    private EventHandler eventHandler;
-
-    public AnoleConfigUpdateManager(EventHandler eventHandler){
-        this.eventHandler = eventHandler;
-    }
-
 
     @Override
     public void startRecord() {
         EventFactory<UpdateEvent> eventEventFactory = new UpdateEventFactory();
-        ThreadFactory threadFactory = new AnoleUpdaterThreadFactory();
+        String threadPrefix = getThreadPrefix();
+        ThreadFactory threadFactory =  new AnoleUpdaterThreadFactory(threadPrefix);
+        int queueSize = getQueueSize();
         disruptor = new Disruptor<UpdateEvent>(eventEventFactory,
-                1024,
+                queueSize,
                 threadFactory,
                 ProducerType.MULTI,// multiple publisher
                 new BlockingWaitStrategy());
-        disruptor.handleEventsWith(eventHandler);
+        disruptor.handleEventsWith(getEventHandler());
         startRecording = true;
     }
 
     @Override
     public void startProcess() {
-        if(!startRecording){
+        if (!startRecording) {
             throw new UpdaterNotReadyException();
         }
         disruptor.start();
@@ -49,7 +46,7 @@ public class AnoleConfigUpdateManager implements ConfigUpdateManager {
 
     @Override
     public void shutDown() {
-        if(!startRecording){
+        if (!startRecording) {
             throw new UpdaterNotReadyException();
         }
         disruptor.shutdown();
@@ -58,7 +55,7 @@ public class AnoleConfigUpdateManager implements ConfigUpdateManager {
     @Override
     public void publishEvent(final UpdateEvent updateEvent) {
 
-        if(!startRecording){
+        if (!startRecording) {
             throw new UpdaterNotReadyException();
         }
 
@@ -71,20 +68,13 @@ public class AnoleConfigUpdateManager implements ConfigUpdateManager {
             }
         });
 
-
     }
 
+    protected abstract Integer getQueueSize();
 
+    protected abstract EventHandler getEventHandler();
 
-
-
-    public static class UpdateEventFactory implements EventFactory<UpdateEvent> {
-        @Override
-        public UpdateEvent newInstance() {
-            return new UpdateEvent(null, null, 0);
-        }
-    }
-
+    protected abstract String getThreadPrefix();
 
 
     /**
@@ -96,11 +86,11 @@ public class AnoleConfigUpdateManager implements ConfigUpdateManager {
         private final AtomicInteger threadNumber = new AtomicInteger(1);
         private final String namePrefix;
 
-        AnoleUpdaterThreadFactory() {
+        AnoleUpdaterThreadFactory(String prefix) {
             SecurityManager s = System.getSecurityManager();
             group = (s != null) ? s.getThreadGroup() :
                     Thread.currentThread().getThreadGroup();
-            namePrefix = "anole-updater-" +
+            namePrefix = prefix +
                     poolNumber.getAndIncrement() +
                     "-thread-";
         }

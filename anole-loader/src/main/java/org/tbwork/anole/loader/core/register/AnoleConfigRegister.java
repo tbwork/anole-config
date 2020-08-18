@@ -3,7 +3,6 @@ package org.tbwork.anole.loader.core.register;
 import org.slf4j.LoggerFactory;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.model.RawKV;
 import org.tbwork.anole.loader.util.AnoleLogger;
@@ -46,7 +45,7 @@ public class AnoleConfigRegister {
         lcm.removeFromSystem();
 
         // start up the update recorder to prepare to receive update events from the remote config servers.
-        lcm.startUpdateRecorder();
+        lcm.startReceiveIncomeUpdates();
 
         // initialize extended config source
         initializeExtendedConfigSource();
@@ -55,7 +54,13 @@ public class AnoleConfigRegister {
         lcm.refresh(true);
 
         // start up the update executor to process update events from the remote config servers.
-        lcm.startUpdateExecutor();
+        lcm.startProcessIncomeUpdates();
+
+        // start to receive outgo update events
+        lcm.startReceiveOutgoUpdates();
+
+        // start to process outgo update events
+        lcm.startProcessOutgoUpdates();
     }
 
 

@@ -1,23 +1,23 @@
 package org.tbwork.anole.loader.core.manager.monitor.impl;
 
 import org.tbwork.anole.loader.core.manager.ConfigManager;
-import org.tbwork.anole.loader.core.manager.monitor.Monitor;
-import org.tbwork.anole.loader.core.manager.updater.ConfigUpdateManager;
+import org.tbwork.anole.loader.core.manager.monitor.RemoteMonitor;
+import org.tbwork.anole.loader.core.manager.modhub.ConfigUpdateManager;
 import org.tbwork.anole.loader.core.model.UpdateEvent;
 import org.tbwork.anole.loader.util.AnoleLogger;
 
 /**
  * Config change monitor.
  */
-public class ConfigChangeMonitor implements Monitor {
+public class ConfigChangeRemoteMonitor implements RemoteMonitor {
 
-    private static final AnoleLogger logger = new AnoleLogger(ConfigChangeMonitor.class);
+    private static final AnoleLogger logger = new AnoleLogger(ConfigChangeRemoteMonitor.class);
 
     private ConfigUpdateManager configUpdater;
 
     private ConfigManager configManager;
 
-    public ConfigChangeMonitor(ConfigUpdateManager configUpdater, ConfigManager configManager){
+    public ConfigChangeRemoteMonitor(ConfigUpdateManager configUpdater, ConfigManager configManager){
         this.configUpdater = configUpdater;
         this.configManager = configManager;
     }

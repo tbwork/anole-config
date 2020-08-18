@@ -1,9 +1,10 @@
-package org.tbwork.anole.loader.core.manager.updater;
+package org.tbwork.anole.loader.core.manager.modhub;
 
 import org.tbwork.anole.loader.core.model.UpdateEvent;
 
 /**
- * Retrieve the config updating event and process it.
+ * It is like a hub for all config update events, and also offers
+ * basic management.
  */
 public interface ConfigUpdateManager {
 
@@ -30,8 +31,6 @@ public interface ConfigUpdateManager {
      * @param updateEvent
      */
     public void publishEvent(UpdateEvent updateEvent);
-
-
 
 
 }

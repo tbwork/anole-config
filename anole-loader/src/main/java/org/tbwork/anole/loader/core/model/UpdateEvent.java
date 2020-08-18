@@ -3,6 +3,10 @@ package org.tbwork.anole.loader.core.model;
 
 import lombok.Data;
 
+/**
+ * Update events of configs. One update event could be submitted from outer triggers,
+ * or proposed by Anole itself.
+ */
 @Data
 public class UpdateEvent {
 

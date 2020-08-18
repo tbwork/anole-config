@@ -1,6 +1,6 @@
 package org.tbwork.anole.loader.core.manager.source;
 
-import org.tbwork.anole.loader.core.manager.monitor.Monitor;
+import org.tbwork.anole.loader.core.manager.monitor.RemoteMonitor;
 
 /**
  * <p>
@@ -26,9 +26,9 @@ public interface RemoteRetriever extends SourceRetriever{
 
     /**
      * Register a monitor to be aware of configuration change.
-     * @param monitor
+     * @param remoteMonitor
      */
-    void registerMonitor(Monitor monitor);
+    void registerMonitor(RemoteMonitor remoteMonitor);
 
     /**
      * Tell Anole to load configs from which environment of the remote config server.

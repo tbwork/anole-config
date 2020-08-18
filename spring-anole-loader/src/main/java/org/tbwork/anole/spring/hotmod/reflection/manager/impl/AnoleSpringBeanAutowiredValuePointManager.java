@@ -22,7 +22,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author tommy.tesla
  * @since 1.3.0
  */
-@Component
 public class AnoleSpringBeanAutowiredValuePointManager implements BeanAutowiredValuePointManager {
 
     private Map<BeanFactory /*the key is the bean factory*/,

@@ -106,7 +106,7 @@ public class Anole {
 	
 	public static void setProperty(String key, String value){
 		if(Anole.initialized){
-			cm.applyChange(key, value);
+			cm.submitIncomeUpdate(key, value);
 		}
 		else{
 			if(AnoleValueUtil.containVariable(value) || AnoleValueUtil.isExpression(value)){

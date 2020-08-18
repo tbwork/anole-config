@@ -5,7 +5,7 @@ import com.ctrip.framework.apollo.ConfigChangeListener;
 import com.ctrip.framework.apollo.ConfigService;
 import com.ctrip.framework.apollo.model.ConfigChangeEvent;
 import org.tbwork.anole.loader.Anole;
-import org.tbwork.anole.loader.core.manager.monitor.Monitor;
+import org.tbwork.anole.loader.core.manager.monitor.RemoteMonitor;
 import org.tbwork.anole.loader.core.manager.source.impl.AbstractRemoteRetriever;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.StringUtil;
@@ -52,13 +52,13 @@ public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
 
 
     @Override
-    public void registerMonitor(final Monitor monitor) {
+    public void registerMonitor(final RemoteMonitor remoteMonitor) {
         for(Config config : configList){
             config.addChangeListener(new ConfigChangeListener() {
                 @Override
                 public void onChange(ConfigChangeEvent changeEvent) {
                     for(String changedKey : changeEvent.changedKeys()){
-                        monitor.monitorChange( changedKey,
+                        remoteMonitor.monitorChange( changedKey,
                                 changeEvent.getChange(changedKey).getNewValue(),
                                 System.currentTimeMillis()
                         );
