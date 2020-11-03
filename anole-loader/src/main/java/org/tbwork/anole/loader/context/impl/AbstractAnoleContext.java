@@ -1,10 +1,11 @@
 package org.tbwork.anole.loader.context.impl;
 
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.context.AnoleContext;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.OsUtil;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.S;
 
 import java.io.File;
 
@@ -19,6 +20,8 @@ public abstract class AbstractAnoleContext implements AnoleContext {
     public AbstractAnoleContext(String [] configLocations) {
         this.configLocations = configLocations;
         this.environment = getCurrentEnvironment();
+        Anole.setProperty("anole.env", environment);
+        Anole.setProperty("anole.environment", environment);
     }
 
 
@@ -52,21 +55,21 @@ public abstract class AbstractAnoleContext implements AnoleContext {
         // 3. the environment file
         //check if the environment is already set or not
         String environment = System.getProperty("anole.env");
-        if(StringUtil.isNullOrEmpty(environment)){
+        if(S.isEmpty(environment)){
             environment = System.getProperty("anole.environment");
         }
-        if(StringUtil.isNullOrEmpty(environment)){
+        if(S.isEmpty(environment)){
             environment = System.getenv("ANOLE_ENV");
         }
-        if(StringUtil.isNullOrEmpty(environment)){
+        if(S.isEmpty(environment)){
             environment = System.getenv("ANOLE_ENVIRONMENT");
         }
 
-        if(StringUtil.isNullOrEmpty(environment)){
+        if(S.isEmpty(environment)){
             environment = getEnvFromFile();
         }
 
-        if(StringUtil.isNotEmpty(environment)) {
+        if(S.isNotEmpty(environment)) {
             return environment;
         }
 
@@ -87,7 +90,7 @@ public abstract class AbstractAnoleContext implements AnoleContext {
                 return getEnvFromFile("/etc/anole/");
             }
             case MAC:{
-                return getEnvFromFile("/Users/anole/");
+                return getEnvFromFile("/etc/anole/");
             }
             default: return null;
         }
@@ -99,7 +102,7 @@ public abstract class AbstractAnoleContext implements AnoleContext {
             File [] fileList = file.listFiles();
             for(File ifile : fileList){
                 String ifname = ifile.getName();
-                if(StringUtil.asteriskMatch("*.env", ifname)){
+                if(S.asteriskMatch("*.env", ifname)){
                     return ifname.replace(".env", "");
                 }
             }

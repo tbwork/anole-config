@@ -2,11 +2,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
-    </parent>
+<!--    <parent>-->
+<!--		<groupId>org.sonatype.oss</groupId>-->
+<!--		<artifactId>oss-parent</artifactId>-->
+<!--		<version>7</version>-->
+<!--    </parent>-->
 	 
 	<groupId>org.tbwork.anole</groupId>
     <artifactId>anole-config</artifactId>
@@ -23,15 +23,15 @@
     <url>https://github.com/tbwork/anole-config</url>
 	<description>An awesome configuration loader for java. It could use different configurations according to the current environment, just like an anole.</description> 
 	<properties>
-		<revision>2.0.0</revision>
+		<revision>2.0.0-SNAPSHOT</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.12</junit.version>
 		<google.guava>19.0</google.guava>
 		<fastjson.version>1.2.54</fastjson.version>
 		<servlet.api.version>2.5</servlet.api.version>
-		<lombok.version>1.16.8</lombok.version>
+		<lombok.version>1.18.4</lombok.version>
 		<slf4j.api.version>1.7.12</slf4j.api.version>
-		<gpg.skip>false</gpg.skip>
+		<gpg.skip>true</gpg.skip>
 		<javadoc.opts>-Xdoclint:none</javadoc.opts>
 		<disruptor.version>3.4.2</disruptor.version>
 		<java.version>1.7</java.version>
@@ -108,8 +108,6 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
 	</dependencies>
-
-
 
 	<build>
 	<plugins>
@@ -199,15 +197,21 @@
 		</plugin>
 	</plugins>
 	</build>
+<!--	<distributionManagement>-->
+<!--		<snapshotRepository>-->
+<!--			<id>tb_oss_snapshots</id>-->
+<!--			<url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
+<!--		</snapshotRepository>-->
+<!--		<repository>-->
+<!--			<id>tb_oss_release</id>-->
+<!--			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>-->
+<!--		</repository>-->
+<!--	</distributionManagement>-->
 	<distributionManagement>
 		<snapshotRepository>
-			<id>tb_oss_snapshots</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
+			<id>lanehub-nexus</id>
+			<url>http://nexus.lanehub.cn/repository/maven-snapshots/</url>
 		</snapshotRepository>
-		<repository>
-			<id>tb_oss_release</id>
-			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-		</repository>
 	</distributionManagement>
  
 </project>

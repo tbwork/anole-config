@@ -3,13 +3,10 @@ package org.tbwork.anole.loader;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
-import org.tbwork.anole.loader.exceptions.AnoleContextNotFoundException;
-import org.tbwork.anole.loader.exceptions.AnoleNotReadyException;
-import org.tbwork.anole.loader.exceptions.ConfigNotSetException;
-import org.tbwork.anole.loader.exceptions.OperationNotSupportedException;
+import org.tbwork.anole.loader.exceptions.*;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.AnoleValueUtil;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.core.manager.impl.AnoleValueManager;
+import org.tbwork.anole.loader.util.S;
 
 /**
  * <p> Anole provides basic retrieving 
@@ -36,12 +33,12 @@ public class Anole {
 	 */
 	public static boolean isPropertyEmptyOrNotExist(String key) {
 		String value = getProperty(key);
-		return StringUtil.isNullOrEmpty(value);
+		return S.isEmpty(value);
 	}
 	
 	public static String getProperty(String key, String defaultValue){
 		ConfigItem cItem = getConfig(key, cm);
-		return  cItem == null || StringUtil.isNullOrEmpty(cItem.strValue()) ? defaultValue : cItem.strValue();
+		return  cItem == null || S.isEmpty(cItem.strValue()) ? defaultValue : cItem.strValue();
 	}
 	
 	public static String getProperty(String key){ 
@@ -50,7 +47,7 @@ public class Anole {
 
 	public static int getIntProperty(String key, int defaultValue){
 		ConfigItem cItem = getConfig(key, cm);
-		return  cItem == null || StringUtil.isNullOrEmpty(cItem.strValue()) ? defaultValue : cItem.intValue();
+		return  cItem == null || S.isEmpty(cItem.strValue()) ? defaultValue : cItem.intValue();
 	}
 	
 	public static int getIntProperty(String key){
@@ -109,7 +106,7 @@ public class Anole {
 			cm.submitIncomeUpdate(key, value);
 		}
 		else{
-			if(AnoleValueUtil.containVariable(value) || AnoleValueUtil.isExpression(value)){
+			if(AnoleValueManager.containVariable(value) || AnoleValueManager.isExpression(value)){
 				throw new OperationNotSupportedException("Before initialization, you can and only can set a plain value for the given key.");
 			}
 			cm.registerAndSetValue(key, value);
@@ -162,7 +159,7 @@ public class Anole {
 	public static String getEnvironment(){
 		ConfigItem cItem = cm.getConfigItem("anole.env");
 		if(cItem == null){
-			throw new AnoleContextNotFoundException();
+			throw new EnvironmentNotSetException();
 		}
 		return cItem.strValue();
 	}
@@ -173,6 +170,10 @@ public class Anole {
 			 logger.error("Anole is not initialized yet, only getRawValue operation is accessible.");
 			 throw new AnoleNotReadyException();
 		 }
+
+		 int index = key.indexOf(":");
+
+
 
 		 ConfigItem cItem = cm.getConfigItem(key);
 
@@ -185,10 +186,12 @@ public class Anole {
 		 	logger.debug("An attempt to get key ‘{}’ failed due to that it does not exist.", key);
 		 	return null;
 		 }
-		if(StringUtil.isNotEmpty(cItem.getError())){
+
+		 if(S.isNotEmpty(cItem.getError())){
 			throw new ConfigNotSetException(cItem.getKey(), "There is a related config which is not set value yet, details message: " + cItem.getError());
-		}
-		return cItem;
+		 }
+
+		 return cItem;
 	} 
 
 }

@@ -17,7 +17,7 @@ public class EnvironmentNotSetException extends RuntimeException {
 			return "Please set environment file first. Create a file as 'C://anole/[env name].env' ";
 		}
 		case MAC:{
-			return "Please set environment file first. Create a file as '/Users/anole/[env name].env' ";
+			return "Please set environment file first. Create a file as '/etc/anole/[env name].env' ";
 		}
 		case LINUX:{
 			return "Please set environment file first. Create a file as '/etc/anole/[env name].env' ";

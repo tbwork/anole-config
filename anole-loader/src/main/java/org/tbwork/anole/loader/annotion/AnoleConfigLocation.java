@@ -1,6 +1,6 @@
 package org.tbwork.anole.loader.annotion;
 
-import org.tbwork.anole.loader.statics.DefaultValueNameBook;
+import org.tbwork.anole.loader.statics.StaticValueBook;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -31,12 +31,12 @@ public @interface AnoleConfigLocation {
 	 *
 	 * @return locations
 	 */
-	public String locations() default DefaultValueNameBook.ANOLE_CONFIG_LOCATIONS;
+	public String [] locations() default {"*.anole","*.properties"};
 
 	/**
 	 * This means including mode will be used. In this mode, only class-paths containing
 	 * the specified pattern directories can be scanned.<br/>
-	 * If {@link #excludeClassPathDirectoryPattern()} is also specified, “includePathPattern” will
+	 * If {@link #excludeClassPathDirectoryPatterns()} is also specified, “includePathPattern” will
 	 * take the priority. <br/>
 	 * Generally, the more specific the pattern is, the more effective the procedure of
 	 * scanning is.
@@ -45,17 +45,17 @@ public @interface AnoleConfigLocation {
 	 * "/opt/user/app/xxxx-service/" will be ignored.
 	 * @return pattern strings
 	 */
-	public String includeClassPathDirectoryPattern() default "";
+	public String [] includeClassPathDirectoryPatterns() default {};
 
 	/**
-	 * Opposite to the {@link #includeClassPathDirectoryPattern()}, which means the specified directory
+	 * Opposite to the {@link #includeClassPathDirectoryPatterns()}, which means the specified directory
 	 * patterns would be the blacklist, according to which, those class-paths matching the patterns
 	 * would be ignored. <br/>
-	 * Note that if {@link #includeClassPathDirectoryPattern()} is also specified, “includePathPattern” will
+	 * Note that if {@link #includeClassPathDirectoryPatterns()} is also specified, “includePathPattern” will
 	 *  take the priority. <br/>
 	 *
 	 * @return
 	 */
-	public String excludeClassPathDirectoryPattern() default "";
+	public String [] excludeClassPathDirectoryPatterns() default {};
 
 }

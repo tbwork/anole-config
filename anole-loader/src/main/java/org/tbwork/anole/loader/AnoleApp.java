@@ -4,10 +4,10 @@ import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.context.AnoleContext;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.ext.AnoleStartPostProcessor;
-import org.tbwork.anole.loader.statics.DefaultValueNameBook;
+import org.tbwork.anole.loader.statics.StaticValueBook;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.ProjectUtil;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.S;
 
 import java.util.Comparator;
 import java.util.ServiceLoader;
@@ -52,23 +52,19 @@ public class AnoleApp {
 	 */
 	public static void start(Class<?> targetRootClass, AnoleLogger.LogLevel logLevel) {
 		AnoleLogger.anoleLogLevel = logLevel;
-		String anoleConfigLocationString = DefaultValueNameBook.ANOLE_CONFIG_LOCATIONS;
-		String includeClassPathDirectoryPattern = "";
-		String excludeClassPathDirectoryPattern = "";
+		String [] anoleConfigLocations = {"*.anole","*.properties"};
+		String [] includeClassPathDirectoryPatterns = {};
+		String [] excludeClassPathDirectoryPatterns = {};
 		if(targetRootClass!=null && targetRootClass.isAnnotationPresent(AnoleConfigLocation.class)){
 			AnoleConfigLocation anoleConfig = targetRootClass.getAnnotation(AnoleConfigLocation.class);
-			anoleConfigLocationString = anoleConfig.locations();
-			includeClassPathDirectoryPattern = anoleConfig.includeClassPathDirectoryPattern();
-			excludeClassPathDirectoryPattern = anoleConfig.excludeClassPathDirectoryPattern();
+			anoleConfigLocations = anoleConfig.locations();
+			includeClassPathDirectoryPatterns = anoleConfig.includeClassPathDirectoryPatterns();
+			excludeClassPathDirectoryPatterns = anoleConfig.excludeClassPathDirectoryPatterns();
 		}
-		anoleContext = new AnoleClasspathConfigContext(StringUtil.splitString2Array(anoleConfigLocationString, ",")
-				, includeClassPathDirectoryPattern
-				, excludeClassPathDirectoryPattern
+		anoleContext = new AnoleClasspathConfigContext(anoleConfigLocations
+				, includeClassPathDirectoryPatterns
+				, excludeClassPathDirectoryPatterns
 		);
-
-		environment = anoleContext.getEnvironment();
-		Anole.setProperty("anole.env", environment);
-		Anole.setProperty("anole.environment", environment);
 
 		doSearchPostStartProcessors();
 
@@ -188,7 +184,7 @@ public class AnoleApp {
 			int anoleBootClassIndex = stackTraces.length;
 			for(int i= stackTraces.length - 1; i >=0 ; i-- ) {
 				String stackTraceClass = stackTraces[i].getClassName();
-				if(stackTraceClass.equals("org.tbwork.anole.loader.context.AnoleApp") 
+				if(stackTraceClass.equals("org.tbwork.anole.loader.AnoleApp")
 				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleFileConfigContext")
 				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext")
 				) {
@@ -217,7 +213,7 @@ public class AnoleApp {
 		try {
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
 			for (int i =0; i < stackTrace.length ; i++) {
-				if("org.tbwork.anole.loader.context.AnoleApp".equals(stackTrace[i].getClassName())) {
+				if("org.tbwork.anole.loader.AnoleApp".equals(stackTrace[i].getClassName())) {
 					return Class.forName(stackTrace[i+2].getClassName());
 				} 
 			}

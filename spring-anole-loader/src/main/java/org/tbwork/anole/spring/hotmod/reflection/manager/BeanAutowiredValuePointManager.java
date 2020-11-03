@@ -20,9 +20,8 @@ public interface BeanAutowiredValuePointManager {
      * @param field the refreshable field
      * @param instance the bean instance
      * @param beanName the bean name
-     * @param scope the bean's scope
      */
-    void register(BeanFactory beanFactory, Field field, Object instance, String beanName, Scope scope);
+    void register(BeanFactory beanFactory, Field field, Object instance, String beanName);
 
 
     /**
@@ -32,9 +31,8 @@ public interface BeanAutowiredValuePointManager {
      * @param method the refreshable method
      * @param instance the bean instance
      * @param beanName the bean name
-     * @param scope the bean's scope
      */
-    void register(BeanFactory beanFactory, Method method, Object instance, String beanName, Scope scope);
+    void register(BeanFactory beanFactory, Method method, Object instance, String beanName);
 
     /**
      * Update the given anoleKey's all relevant fields of beans with the given new value.

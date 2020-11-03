@@ -3,11 +3,10 @@ package org.tbwork.anole.loader.core.loader.impl;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
-import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.context.AnoleContext;
 import org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.StringUtil; 
+import org.tbwork.anole.loader.util.S;
 
 /**
  * <p>This is for old style war projects, and we strongly recommend you
@@ -58,16 +57,13 @@ public class WebAnoleLoaderListener implements ServletContextListener{
 		 String configLocationString =  sce.getServletContext().getInitParameter("anoleConfigLocation");
 		 String includeClasspathDirectoryPatterns = sce.getServletContext().getInitParameter("includeClasspathDirectoryPatterns");
 		 String excludeClasspathDirectoryPatterns = sce.getServletContext().getInitParameter("excludeClasspathDirectoryPatterns");
-		 if(StringUtil.isNotEmpty(configLocationString)){
-			 anoleContext = new AnoleClasspathConfigContext(StringUtil.splitString2Array(configLocationString, ",")
-					 , includeClasspathDirectoryPatterns
-					 , excludeClasspathDirectoryPatterns
+		 if(S.isNotEmpty(configLocationString)){
+			 anoleContext = new AnoleClasspathConfigContext(S.splitString2Array(configLocationString, ",")
+					 , S.splitString2Array(includeClasspathDirectoryPatterns, ",")
+					 ,  S.splitString2Array(excludeClasspathDirectoryPatterns, ",")
 			 );
 		 }
 
-		String environment = anoleContext.getEnvironment();
-		Anole.setProperty("anole.env", environment);
-		Anole.setProperty("anole.environment", environment);
 	}
 
 	@Override

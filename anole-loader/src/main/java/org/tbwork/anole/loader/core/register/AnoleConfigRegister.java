@@ -1,10 +1,12 @@
 package org.tbwork.anole.loader.core.register;
 
 import org.slf4j.LoggerFactory;
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.model.RawKV;
+import org.tbwork.anole.loader.statics.BuiltInConfigKeyBook;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.ProjectUtil;
 
@@ -41,9 +43,6 @@ public class AnoleConfigRegister {
 
         logger.info("Slf4j loggers initialized successfully.");
 
-        // remove from system
-        lcm.removeFromSystem();
-
         // start up the update recorder to prepare to receive update events from the remote config servers.
         lcm.startReceiveIncomeUpdates();
 
@@ -61,6 +60,11 @@ public class AnoleConfigRegister {
 
         // start to process outgo update events
         lcm.startProcessOutgoUpdates();
+
+        // remove anole configurations from system
+        if("true".equals(Anole.getRawValue(BuiltInConfigKeyBook.CLEAN_SYSTEM_PROPERTY_AFTER_INITIALIZATION))){
+            lcm.removeFromSystem();
+        }
     }
 
 

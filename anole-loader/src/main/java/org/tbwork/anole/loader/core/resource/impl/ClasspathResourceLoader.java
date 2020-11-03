@@ -1,7 +1,6 @@
 package org.tbwork.anole.loader.core.resource.impl;
 
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
-import org.tbwork.anole.loader.core.resource.ResourceLoader;
 import org.tbwork.anole.loader.util.*;
 
 import java.util.ArrayList;
@@ -58,7 +57,7 @@ public class ClasspathResourceLoader extends FileResourceLoader {
         Set<String> fullPathConfigLocations = new HashSet<String>();
         String callerClasspath = ProjectUtil.getCallerClasspath();
         for(String configLocation : configLocations) {
-            String fullPathPattern = PathUtil.uniformAbsolutePath(StringUtil.concat(callerClasspath, configLocation));
+            String fullPathPattern = PathUtil.uniformAbsolutePath(S.concat(callerClasspath, configLocation));
             fullPathConfigLocations.add(fullPathPattern);
         }
         return fullPathConfigLocations;
@@ -95,11 +94,11 @@ public class ClasspathResourceLoader extends FileResourceLoader {
             if(!path.startsWith("/")) //uniform the form of absolute path
                 path = "/" + path;
 
-            if(filterUseless(path))
+            if(needTobeFiltered(path))
                 continue;
 
             for(String configLocation : configLocations) {
-                String fullPathPattern = PathUtil.uniformAbsolutePath(StringUtil.concat(path, configLocation));
+                String fullPathPattern = PathUtil.uniformAbsolutePath(S.concat(path, configLocation));
                 fullPathConfigLocations.add(fullPathPattern);
             }
         }
@@ -109,24 +108,24 @@ public class ClasspathResourceLoader extends FileResourceLoader {
 
 
 
-    private boolean filterUseless(String configLocation){
+    private boolean needTobeFiltered(String configLocation){
         if(includedPatterns.length > 0){
             // filter those paths which does not match the includedPatterns.
             for(String pattern : includedPatterns){
                 if( PathUtil.directoryMatch(configLocation, pattern)){
-                    return true;
+                    return false; // do not need to be excluded.
                 }
             }
-            return false;
+            return true; // need to be filtered
         }
         if(excludePatterns.length > 0){
             // filter those paths which does match the excludePatterns.
             for(String pattern : excludePatterns){
                 if( PathUtil.directoryMatch(configLocation, pattern)){
-                    return false;
+                    return true; // need to be excluded
                 }
             }
-            return true;
+            return true; // do not need to be excluded.
         }
         // means all configuration location are valid and useful.
         return false;
@@ -138,14 +137,14 @@ public class ClasspathResourceLoader extends FileResourceLoader {
      * @return true if matched, otherwise return false
      */
     private boolean match(String fullpath, String part){
-        part = StringUtil.concat("*", part, "*");
-        return  StringUtil.asteriskMatch(part, fullpath);
+        part = S.concat("*", part, "*");
+        return  S.asteriskMatch(part, fullpath);
     }
 
 
     private String toDirectoryPath(String path){
-        String result = path.startsWith("/") ? path : StringUtil.concat("/", path);
-        result = result.endsWith("/") ? result : StringUtil.concat(result, "/");
+        String result = path.startsWith("/") ? path : S.concat("/", path);
+        result = result.endsWith("/") ? result : S.concat(result, "/");
         return result;
     }
 }

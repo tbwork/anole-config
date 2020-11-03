@@ -1,5 +1,6 @@
 package org.tbwork.anole.spring;
 
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.ext.AnoleStartPostProcessor;
@@ -7,6 +8,7 @@ import org.tbwork.anole.loader.ext.AnoleStartPostProcessor;
 /**
  * This would be hooked right after Anole startup, used in Spring applications.
  */
+@Component
 public class SpringAnoleStartPostProcessor implements AnoleStartPostProcessor {
 
     private static final String SPRING_PROFILES_ACTIVE_KEY = "spring.profiles.active";

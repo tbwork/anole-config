@@ -1,3 +1,4 @@
+#env:unknown
 a=true
 b = @@ ${a} ? yes : no
 # apollo
@@ -15,4 +16,6 @@ test=${dev_test}
 
 log4j.target.appender=console
 a = ${test}
-b = ${a}——${dev_test}
+b = ${a:${app.id:1}}——${dev_test}
+
+

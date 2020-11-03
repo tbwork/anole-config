@@ -13,15 +13,9 @@ public class TestAnole {
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 
-		Anole.setProperty("num", "123");
-
 		AnoleApp.start(LogLevel.INFO);
 
-		System.out.println( Anole.getProperty("test"));
-
-		Anole.setProperty("dev_test", "${b}ppppp");
-
-
 		System.out.println(Anole.getProperty("b"));
+
 	}
 }

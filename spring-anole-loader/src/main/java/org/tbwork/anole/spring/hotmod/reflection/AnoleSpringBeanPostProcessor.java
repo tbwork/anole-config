@@ -36,12 +36,12 @@ public class AnoleSpringBeanPostProcessor implements BeanPostProcessor, Priority
         if( !(beanFactory instanceof ConfigurableListableBeanFactory) ){
             return bean;
         }
-        Scope scope = getScopeOfBean(beanName);
+
         for (Field field : getFields(clazz)) {
-            beanAutowiredValuePointManager.register(beanFactory, field, bean, beanName, scope);
+            beanAutowiredValuePointManager.register(beanFactory, field, bean, beanName);
         }
         for (Method method : getMethods(clazz)) {
-            beanAutowiredValuePointManager.register(beanFactory, method, bean, beanName, scope);
+            beanAutowiredValuePointManager.register(beanFactory, method, bean, beanName);
         }
         return bean;
     }
@@ -78,15 +78,4 @@ public class AnoleSpringBeanPostProcessor implements BeanPostProcessor, Priority
         return candidates;
     }
 
-    private Scope getScopeOfBean(String beanName){
-        if(!(beanFactory instanceof ConfigurableListableBeanFactory)){
-            return null;
-        }
-        ConfigurableListableBeanFactory configurableListableBeanFactory = ((ConfigurableListableBeanFactory)beanFactory);
-        BeanDefinition beanDefinition = configurableListableBeanFactory.getMergedBeanDefinition(beanName);
-        if(beanDefinition == null){
-            return null;
-        }
-        return configurableListableBeanFactory.getRegisteredScope(beanDefinition.getScope());
-    }
 }

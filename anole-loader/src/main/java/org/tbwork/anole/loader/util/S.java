@@ -1,13 +1,11 @@
 package org.tbwork.anole.loader.util;
 
-import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StringUtil {
+public class S {
 
 	 private final static char [] escapeChars = {'~','!','@','#','$'};
 	 /**
@@ -52,7 +50,7 @@ public class StringUtil {
 
 	 public static String [] splitString2Array(String targetString, String delimiter){
 		 targetString = targetString.trim();
-		return  isNullOrEmpty(targetString) ? new String[]{"*.anole"} : targetString.split(delimiter);
+		return  isEmpty(targetString) ? new String[]{"*.anole"} : targetString.split(delimiter);
 	 }
 
 	 public static String replaceEscapeChars(String input){
@@ -92,13 +90,13 @@ public class StringUtil {
 		 return sb.toString();
 	 }
 	 
-	 public static boolean isNullOrEmpty(String inputString) {
+	 public static boolean isEmpty(String inputString) {
 		 return inputString == null || inputString.isEmpty();
 	 }
 
-	public static boolean isNotEmpty(String inputString) {
-		return !isNullOrEmpty(inputString);
-	}
+	 public static boolean isNotEmpty(String inputString) {
+		return !isEmpty(inputString);
+	 }
 	 
 	 
 	 /**

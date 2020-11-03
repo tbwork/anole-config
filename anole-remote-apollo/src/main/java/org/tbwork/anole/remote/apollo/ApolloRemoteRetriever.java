@@ -8,7 +8,7 @@ import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.manager.monitor.RemoteMonitor;
 import org.tbwork.anole.loader.core.manager.source.impl.AbstractRemoteRetriever;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.S;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +43,7 @@ public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
 
         for(Config config : configList){
            String tempValue = config.getProperty(key, null);
-           if(StringUtil.isNotEmpty(tempValue)){
+           if(S.isNotEmpty(tempValue)){
                return tempValue;
            }
         }
@@ -82,7 +82,7 @@ public class ApolloRemoteRetriever extends AbstractRemoteRetriever {
     @Override
     protected void doInitialization() {
         configList = new ArrayList<>();
-        String [] namespaces = StringUtil.trimStrings(Anole.getRawValue("apollo.namespaces").trim().split(","));
+        String [] namespaces = S.trimStrings(Anole.getRawValue("apollo.namespaces").trim().split(","));
         for(String namespace : namespaces){
             configList.add( ConfigService.getConfig(namespace));
         }

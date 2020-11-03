@@ -52,6 +52,12 @@ public class ConfigItem {
 	 * Keys of configs which are referenced by the current config key.
 	 */
 	private Set<String> childConfigKeys;
+
+
+	/**
+	 * Number converters.
+	 */
+	private static final DigitalConverter digitalConverter = new DigitalConverter();
 	
 	public ConfigItem(String key){
 		this.key = key.trim();
@@ -61,6 +67,9 @@ public class ConfigItem {
 	}
 
 
+	public boolean hasChildren(){
+		return childConfigKeys != null && !childConfigKeys.isEmpty();
+	}
 
 
 	/**
@@ -74,7 +83,7 @@ public class ConfigItem {
 		value = value.trim();
 		this.strValue = value;
 		this.error = null;
-		BigDecimal bigDecimal =new DigitalConverter().convert(strValue);
+		BigDecimal bigDecimal = digitalConverter.convert(strValue);
 		if(bigDecimal != null){
 			this.doubleValue = bigDecimal.doubleValue();
 			this.floatValue = bigDecimal.floatValue();

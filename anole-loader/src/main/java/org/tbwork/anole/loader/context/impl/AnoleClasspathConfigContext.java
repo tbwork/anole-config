@@ -2,7 +2,7 @@ package org.tbwork.anole.loader.context.impl;
 
 import org.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import org.tbwork.anole.loader.core.loader.impl.AnoleClasspathLoader;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.S;
 
 /**
  * <p>Before using Anole to manage your configuration, 
@@ -29,22 +29,19 @@ public class AnoleClasspathConfigContext extends AbstractAnoleContext{
 	private String [] includeClasspathPatterns;
 	private String [] excludeClasspathPatterns;
 
-	public AnoleClasspathConfigContext(String [] configLocations, String includeClassPathDirectoryPattern,
-									   String excludeClassPathDirectoryPattern){
+	public AnoleClasspathConfigContext(String [] configLocations, String [] includeClassPathDirectoryPatterns,
+									   String [] excludeClassPathDirectoryPatterns){
 		super(configLocations);
 
-		if(StringUtil.isNotEmpty(includeClassPathDirectoryPattern)){
-			String includeDirectory = includeClassPathDirectoryPattern.trim();
-			includeClasspathPatterns =  StringUtil.isNullOrEmpty(includeDirectory) ? new String[0] : includeDirectory.split(",");
+		if(includeClassPathDirectoryPatterns.length != 0){
+			includeClasspathPatterns =  includeClassPathDirectoryPatterns;
 		}
 		else{
 			includeClasspathPatterns = new String[0] ;
 		}
 
-		if(StringUtil.isNotEmpty(excludeClassPathDirectoryPattern)){
-			String excludeDirectory = excludeClassPathDirectoryPattern.trim();
-			excludeClasspathPatterns = StringUtil.isNullOrEmpty(excludeDirectory) ? new String[0] :
-					excludeDirectory.split(",");
+		if( excludeClassPathDirectoryPatterns.length != 0){
+			excludeClasspathPatterns = excludeClassPathDirectoryPatterns;
 		}
 		else{
 			excludeClasspathPatterns = new String[0] ;

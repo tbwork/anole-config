@@ -48,7 +48,8 @@ public class AnoleConfigFileParser {
 		currentFileName = fileName;
 		while(s.hasNextLine()){
 			lineNumber++;
-			RawKV rawKV = parseLine(StringUtil.trim(s.nextLine()));
+			String lineText = s.nextLine().trim();
+			RawKV rawKV = parseLine(lineText, s);
 			if(rawKV != null){
 				result.add(rawKV);
 			}
@@ -56,7 +57,8 @@ public class AnoleConfigFileParser {
 		return result;
 	}
 	
-	private RawKV parseLine(String content){
+	private RawKV parseLine(String content, Scanner scanner){
+
 		if(content == null || content.isEmpty()){
 			return null;
 		}
@@ -73,6 +75,12 @@ public class AnoleConfigFileParser {
 			return null;
 		}
 
+
+		while( content.endsWith("\\") && scanner.hasNextLine()){
+			content = content.substring(0, content.length()-1);
+			content =  content +  scanner.nextLine().trim();
+		}
+
 		return new RawKV(separateKV(content));
 	}
 
@@ -85,21 +93,21 @@ public class AnoleConfigFileParser {
 		// 3. the environment file
 		//check if the environment is already set or not
 		sysEnv = System.getProperty("anole.env");
-		if(StringUtil.isNullOrEmpty(sysEnv)){
+		if(S.isEmpty(sysEnv)){
 			sysEnv = System.getProperty("anole.environment");
 		}
-		if(StringUtil.isNullOrEmpty(sysEnv)){
+		if(S.isEmpty(sysEnv)){
 			sysEnv = System.getenv("ANOLE_ENV");
 		}
-		if(StringUtil.isNullOrEmpty(sysEnv)){
+		if(S.isEmpty(sysEnv)){
 			sysEnv = System.getenv("ANOLE_ENVIRONMENT");
 		}
 
-		if(StringUtil.isNullOrEmpty(sysEnv)){
+		if(S.isEmpty(sysEnv)){
 			sysEnv = getEnvFromFile();
 		}
 
-		if(StringUtil.isNotEmpty(sysEnv)) {
+		if(S.isNotEmpty(sysEnv)) {
 			return sysEnv;
 		}
 
@@ -133,7 +141,7 @@ public class AnoleConfigFileParser {
 			File [] fileList = file.listFiles();
 			for(File ifile : fileList){
 				String ifname = ifile.getName();
-				if(StringUtil.asteriskMatch("*.env", ifname)){
+				if(S.asteriskMatch("*.env", ifname)){
 					sysEnv = ifname.replace(".env", "");
 					return sysEnv;
 				}

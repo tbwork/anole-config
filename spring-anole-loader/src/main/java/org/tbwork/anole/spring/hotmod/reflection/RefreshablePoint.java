@@ -43,22 +43,29 @@ public class RefreshablePoint {
     private Object ownerInstance;
 
     /**
-     * The owner bean's scope.
+     * The owner bean's name.
      */
-    private Scope scope;
+    private String beanName;
+
+    /**
+     * Field's type.
+     */
+    private Class valueType;
 
 
-    public RefreshablePoint(Method method, Object ownerInstance, String beanName, Scope scope){
+    public RefreshablePoint(Method method, Object ownerInstance, String beanName){
         this.methodParameter = new MethodParameter(method, 0);
+        this.valueType = this.methodParameter.getParameterType();
         this.ownerInstance = ownerInstance;
-        this.scope = scope;
+        this.beanName = beanName;
         this.anoleKey = String.format("%s.%s.%s", AnoleSpringNameBook.FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
     }
 
-    public RefreshablePoint(Field field, Object ownerInstance, String beanName, Scope scope){
+    public RefreshablePoint(Field field, Object ownerInstance, String beanName){
         this.field = field;
+        this.valueType = field.getType();
         this.ownerInstance = ownerInstance;
-        this.scope = scope;
+        this.beanName = beanName;
         this.anoleKey = String.format("%s.%s.%s", AnoleSpringNameBook.FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
     }
 

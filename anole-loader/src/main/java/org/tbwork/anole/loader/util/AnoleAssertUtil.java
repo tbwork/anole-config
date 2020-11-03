@@ -2,6 +2,7 @@ package org.tbwork.anole.loader.util;
 
 import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.AnoleApp;
+import org.tbwork.anole.loader.core.manager.impl.AnoleValueManager;
 import org.tbwork.anole.loader.exceptions.BasicConfigMustBeSpecifiedClearly;
 import org.tbwork.anole.loader.exceptions.ConfigNotSetException;
 
@@ -27,7 +28,7 @@ public class AnoleAssertUtil {
      */
     public static void assertBasicConfigDefined(String key, String example){
         assertConfigPresent(key);
-        if(AnoleValueUtil.containVariable(Anole.getRawValue(key))){
+        if(AnoleValueManager.containVariable(Anole.getRawValue(key))){
             logAndThrow( new BasicConfigMustBeSpecifiedClearly(key, example) );
         }
     }
@@ -39,7 +40,7 @@ public class AnoleAssertUtil {
      */
     public static void assertBasicConfigDefined(String key){
         assertConfigPresent(key);
-        if(AnoleValueUtil.containVariable(Anole.getRawValue(key))){
+        if(AnoleValueManager.containVariable(Anole.getRawValue(key))){
             logAndThrow(new BasicConfigMustBeSpecifiedClearly(key));
         }
     }

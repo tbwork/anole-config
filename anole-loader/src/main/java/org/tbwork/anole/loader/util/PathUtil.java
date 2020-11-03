@@ -104,7 +104,7 @@ public class PathUtil {
             pathPartList = SetUtil.newArrayList(fullPath.split("\\\\|/"));
         }
 
-        public boolean  isFuzzyDirectory(){
+        public boolean isFuzzyDirectory(){
             int i = 0;
             for(i = 0; i < pathPartList.size(); i++){
                 if(pathPartList.get(i).contains("*")){
@@ -116,7 +116,7 @@ public class PathUtil {
 
         public boolean directoryMatch(String directoryPattern){
             for(String part : pathPartList){
-                if(StringUtil.asteriskMatch(directoryPattern, part)){
+                if(S.asteriskMatch(directoryPattern, part)){
                     return true;
                 }
             }
@@ -130,15 +130,17 @@ public class PathUtil {
                     break;
                 }
             }
-            return StringUtil.join("/", pathPartList.subList(0, Math.min(i, pathPartList.size()-1))) + "/";
+            return "/" + S.join("/", pathPartList.subList(0, Math.min(i, pathPartList.size()-1))) + "/";
         }
 
         public boolean match(AnoleFilePath target){
+
+
             if( this.pathPartList.size() != target.pathPartList.size()){
                 return false;
             }
             for(int i = 0 ; i < this.pathPartList.size(); i ++){
-                if(!StringUtil.asteriskMatch(this.pathPartList.get(i), target.pathPartList.get(i))){
+                if(!S.asteriskMatch(this.pathPartList.get(i), target.pathPartList.get(i))){
                     return false;
                 }
             }
@@ -147,7 +149,7 @@ public class PathUtil {
 
         public boolean preMatch(AnoleFilePath target){
             for(int i = 0 ; i < Math.min(this.pathPartList.size(), target.pathPartList.size()); i ++){
-                if(!StringUtil.asteriskMatch(this.pathPartList.get(i), target.pathPartList.get(i))){
+                if(!S.asteriskMatch(this.pathPartList.get(i), target.pathPartList.get(i))){
                     return false;
                 }
             }

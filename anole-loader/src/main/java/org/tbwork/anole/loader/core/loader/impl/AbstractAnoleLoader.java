@@ -8,7 +8,7 @@ import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.core.register.AnoleConfigRegister;
 import org.tbwork.anole.loader.core.resource.ResourceLoader;
 import org.tbwork.anole.loader.util.AnoleLogger;
-import org.tbwork.anole.loader.util.StringUtil;
+import org.tbwork.anole.loader.util.S;
 
 import java.io.InputStream;
 import java.util.*;
@@ -146,7 +146,7 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
             int blankSize = customSize - customString.length();
             int foreBlankSize = blankSize/2;
             int tailBlankSize = blankSize - foreBlankSize;
-            customString = StringUtil.getRepeatCharString(blankChar, foreBlankSize) + customString + StringUtil.getRepeatCharString(blankChar, tailBlankSize);
+            customString = S.getRepeatCharString(blankChar, foreBlankSize) + customString + S.getRepeatCharString(blankChar, tailBlankSize);
             for(int i = start; i < start + customSize;  i ++){
                 chars.set(i, (int) customString.charAt(i-start));
             }
