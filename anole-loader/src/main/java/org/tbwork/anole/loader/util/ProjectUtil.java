@@ -55,17 +55,23 @@ public class ProjectUtil {
 				resultClasspath = classpath;
 				break;
 			}
-			else if(classpath.endsWith(".jar")){
-				if(classpath.contains("/")){
-					resultClasspath = classpath;
-					break;
-				}
-				else{
-					resultClasspath = System.getProperty("user.dir")+"/"+classpath;
-					break;
+		}
+
+		if(resultClasspath == null) {
+			for(String classpath : classpaths){
+				if(classpath.endsWith(".jar")){
+					if(classpath.contains("/")){
+						resultClasspath = classpath;
+						break;
+					}
+					else{
+						resultClasspath = System.getProperty("user.dir")+"/"+classpath;
+						break;
+					}
 				}
 			}
 		}
+
 		resultClasspath = PathUtil.getNakedAbsolutePath(resultClasspath);
 		if(AnoleFileUtil.isSpringFatJar(resultClasspath)){
 			return resultClasspath+"!/BOOT-INF!/classes!/";
