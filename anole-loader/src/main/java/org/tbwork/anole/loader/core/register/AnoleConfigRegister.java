@@ -50,7 +50,12 @@ public class AnoleConfigRegister {
         initializeExtendedConfigSource();
 
         // refresh all properties
-        lcm.refresh(true);
+        if(lcm.isRunInStrictMode()){
+            lcm.refresh(true);
+        }
+        else{
+            lcm.refresh(false);
+        }
 
         // start up the update executor to process update events from the remote config servers.
         lcm.startProcessIncomeUpdates();

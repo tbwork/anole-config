@@ -135,5 +135,12 @@ public interface ConfigManager {
 	void submitOutgoUpdate(String key, String newValue);
 
 
+	/**
+	 * Whether the situation of miss retrieving value should throw an exception or not.
+	 * @return true means throwing an exception in case of miss finding value, otherwise
+	 * return false.
+	 */
+	boolean isRunInStrictMode();
+
 
 }

@@ -7,6 +7,7 @@ import org.tbwork.anole.loader.core.parser.AnoleConfigFileParser;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.core.register.AnoleConfigRegister;
 import org.tbwork.anole.loader.core.resource.ResourceLoader;
+import org.tbwork.anole.loader.statics.StaticValueBook;
 import org.tbwork.anole.loader.util.AnoleLogger;
 import org.tbwork.anole.loader.util.S;
 
@@ -35,7 +36,7 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
     public void load(String... configLocations) {
 
         // logo print
-        LogoUtil.decompress("/logo.cps",  "::Anole Loader::   (v1.2.8)");
+        LogoUtil.decompress("/logo.cps",  String.format("::Anole Loader::   (%s)", StaticValueBook.ANOLE_VERSION));
 
         // locate and load as input stream
         ConfigFileResource [] configFileResources = resourceLoader.load(configLocations);

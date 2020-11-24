@@ -3,10 +3,8 @@ package org.tbwork.anole.loader.core.resource.impl;
 import org.tbwork.anole.loader.core.model.ConfigFileResource;
 import org.tbwork.anole.loader.util.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class ClasspathResourceLoader extends FileResourceLoader {
 
@@ -49,13 +47,12 @@ public class ClasspathResourceLoader extends FileResourceLoader {
     }
 
 
-
     /**
      *  Get configuration locations under the caller's classpath.<br>
      */
     private static Set<String> getConfigLocationUnderCallerClasspath(String ... configLocations) {
         Set<String> fullPathConfigLocations = new HashSet<String>();
-        String callerClasspath = ProjectUtil.getCallerClasspath();
+        String callerClasspath = ProjectUtil.getAppClasspath();
         for(String configLocation : configLocations) {
             String fullPathPattern = PathUtil.uniformAbsolutePath(S.concat(callerClasspath, configLocation));
             fullPathConfigLocations.add(fullPathPattern);
@@ -68,7 +65,11 @@ public class ClasspathResourceLoader extends FileResourceLoader {
         String programPath = ProjectUtil.getProgramPath();
         //get all classpathes
         String classPath = System.getProperty("java.class.path");
-        String  [] pathElements = classPath.split(System.getProperty("path.separator"));
+        List<String> pathElements = Arrays.stream(classPath.split(System.getProperty("path.separator"))).map(item->item.trim()).collect(Collectors.toList());
+        String userSpecifiedPath = System.getProperty("anole.class.path");
+        if(S.isNotEmpty(userSpecifiedPath)){
+            pathElements.addAll(Arrays.stream(userSpecifiedPath.split(",")).map(item->item.trim()).collect(Collectors.toList()));
+        }
         for(String path : pathElements) {
             path = PathUtil.format2Slash(path);
             if(!PathUtil.isAbsolutePath(path)){
@@ -109,26 +110,28 @@ public class ClasspathResourceLoader extends FileResourceLoader {
 
 
     private boolean needTobeFiltered(String configLocation){
+        boolean includedMatch = true; // if the include path is not set, all paths are included.
         if(includedPatterns.length > 0){
+            includedMatch = false; // once the include path is set, only matched path is valid.
             // filter those paths which does not match the includedPatterns.
             for(String pattern : includedPatterns){
                 if( PathUtil.directoryMatch(configLocation, pattern)){
-                    return false; // do not need to be excluded.
+                    includedMatch = true; // do not need to be excluded.
                 }
             }
-            return true; // need to be filtered
+
         }
+        boolean excludedMatch = false; // if the exclude path is not set, no path is excluded.
         if(excludePatterns.length > 0){
             // filter those paths which does match the excludePatterns.
             for(String pattern : excludePatterns){
                 if( PathUtil.directoryMatch(configLocation, pattern)){
-                    return true; // need to be excluded
+                    excludedMatch =  true; // need to be excluded
                 }
             }
-            return true; // do not need to be excluded.
         }
-        // means all configuration location are valid and useful.
-        return false;
+
+        return excludedMatch || (!excludedMatch && !includedMatch);
     }
 
     /**

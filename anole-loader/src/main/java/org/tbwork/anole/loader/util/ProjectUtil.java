@@ -13,7 +13,6 @@ public class ProjectUtil {
 	
 	public static List<String> localResourceProtocals = SetUtil.newArrayList("file:", "jar:", "mailTo:");
 
-	private static String callerClasspath; 
 	private static String programPath;
 	
 	public static String getJarPath(String fullPath){
@@ -33,26 +32,48 @@ public class ProjectUtil {
 	}
 	
 	/**
-	 * The classpath of the class which called Anole boot classes directly.<br>
+	 * The classpath of the application which may have the following cases:<br>
 	 * For <b>normal java-file application within IDE</b>, it returns: "/.../classes/".<br>
 	 * For <b>JUnit java-file application within IDE</b>, it returns: "/.../test-classes/".<br>
-	 * For <b>other java-file application</b>, it returns the root directory of the program.<br>
 	 * For <b>normal jar-file application</b>, it returns: "/.../xxx.jar!/".<br>
-	 * For <b>spring jar-file application</b>, it returns: "/.../xxx.jar!/BOOT-INF/classes!/".<br>
+	 * For <b>spring jar-file application</b>, it returns: "/.../xxx.jar!/BOOT-INF!/classes!/".<br>
 	 */
-	public static String getCallerClasspath() {
-		if(callerClasspath != null && !callerClasspath.isEmpty()) {
-			return callerClasspath;
+	public static String getAppClasspath() {
+		String classpathsString = System.getProperty("java.class.path");
+		if(classpathsString == null){
+			classpathsString = "";
 		}
-		Class<?> mainClass = AnoleApp.getCallerClass();
-		String fullClassName = mainClass.getName(); 
-		String packageName = mainClass.getPackage().getName();
-		String className = fullClassName.replace(packageName+".", "");
-		String classRelativePath = mainClass.getPackage().getName().replace(".", "/")+"/"+className+".class";
-		URL resourcePath = Thread.currentThread().getContextClassLoader().getResource(classRelativePath); 
-		callerClasspath = PathUtil.getNakedAbsolutePath(resourcePath.toString().replace(classRelativePath, ""));
-		callerClasspath = PathUtil.format2Slash(callerClasspath);
-		return callerClasspath;
+		String [] classpaths = classpathsString.split(System.getProperty("path.separator"));
+		String resultClasspath = null;
+		for(String classpath : classpaths){
+			classpath = PathUtil.format2Slash(classpath);
+			if(classpath.contains("/target/classes")){
+				resultClasspath = classpath;
+				break;
+			}
+			else if(classpath.contains("/target/test-classes")){
+				resultClasspath = classpath;
+				break;
+			}
+			else if(classpath.endsWith(".jar")){
+				if(classpath.contains("/")){
+					resultClasspath = classpath;
+					break;
+				}
+				else{
+					resultClasspath = System.getProperty("user.dir")+"/"+classpath;
+					break;
+				}
+			}
+		}
+		resultClasspath = PathUtil.getNakedAbsolutePath(resultClasspath);
+		if(AnoleFileUtil.isSpringFatJar(resultClasspath)){
+			return resultClasspath+"!/BOOT-INF!/classes!/";
+		}
+		resultClasspath =  resultClasspath.endsWith("/") ? resultClasspath : resultClasspath+"/";
+
+		return resultClasspath.startsWith("/") ? resultClasspath : "/" + resultClasspath;
+
 	}
 	
 	/**

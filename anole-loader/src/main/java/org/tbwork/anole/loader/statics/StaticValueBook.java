@@ -6,4 +6,6 @@ package org.tbwork.anole.loader.statics;
 public interface StaticValueBook {
 
     String STRICT_MODE = "strict";
+
+    String ANOLE_VERSION = "2.0.0";
 }

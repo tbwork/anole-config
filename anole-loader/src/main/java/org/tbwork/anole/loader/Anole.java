@@ -24,6 +24,10 @@ public class Anole {
 	 */
 	public static boolean initialized = false;
 
+	public static void refreshContext(boolean needCheckIntegrity){
+		cm.refresh(needCheckIntegrity);
+	}
+
 	/**
 	 * Check whether the value of the key is existing and
 	 * not blank, or not.

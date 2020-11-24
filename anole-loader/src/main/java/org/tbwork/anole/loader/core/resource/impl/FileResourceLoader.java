@@ -31,7 +31,7 @@ public class FileResourceLoader implements ResourceLoader {
     @Override
     public ConfigFileResource [] load(String... configurationFilePaths) {
 
-        AnoleApp.setRuningInJar(ProjectUtil.getCallerClasspath().contains(".jar!"));
+        AnoleApp.setRuningInJar(ProjectUtil.getAppClasspath().contains(".jar!"));
         logger.debug("Current environment is {}", Anole.getEnvironment());
         List<ConfigFileResource> result = new ArrayList<ConfigFileResource>();
 
@@ -40,7 +40,7 @@ public class FileResourceLoader implements ResourceLoader {
         // set loading order
         for(String configurationFilePath : configurationFilePaths) {
 
-            if(configurationFilePath.startsWith(ProjectUtil.getCallerClasspath())){
+            if(configurationFilePath.startsWith(ProjectUtil.getAppClasspath())){
                 // inner project, load at the end
                 candidates.put(configurationFilePath, 99);
             }
@@ -83,7 +83,7 @@ public class FileResourceLoader implements ResourceLoader {
 
     private List<String> getFullPathForProjectInfoFiles() {
         List<String> result = new ArrayList<String>();
-        String projectInfoPath =  ProjectUtil.getCallerClasspath();
+        String projectInfoPath =  ProjectUtil.getAppClasspath();
         projectInfoPath = projectInfoPath.replace("test-classes", "classes");
         if(projectInfoPath.contains(".jar!/")) {
             int index = projectInfoPath.indexOf(".jar!/");

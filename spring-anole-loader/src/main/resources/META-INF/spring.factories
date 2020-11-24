@@ -1,0 +1,1 @@
+org.springframework.boot.env.EnvironmentPostProcessor=org.tbwork.anole.spring.retriever.SpringPropertyRetriever

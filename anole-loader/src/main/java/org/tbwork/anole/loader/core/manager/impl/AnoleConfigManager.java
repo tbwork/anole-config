@@ -450,12 +450,12 @@ public class AnoleConfigManager implements ConfigManager{
 	}
 
 
-	private boolean isRunInStrictMode(){
+	public boolean isRunInStrictMode(){
 		ConfigItem configItem = getConfigItem(BuiltInConfigKeyBook.ANOLE_MODE_KEY);
 		if(configItem != null){
 			return StaticValueBook.STRICT_MODE.equals(configItem.getDefinition());
 		}
-		return true;
+		return false;// default
 	}
 
 

@@ -25,6 +25,32 @@ public class AnoleFileUtil {
 	}
 
 
+	public static boolean isSpringFatJar(String solidJarPath){
+		if(!solidJarPath.contains(".jar")){
+			return false;
+		}
+		JarFile file;
+		try {
+			file = new JarFile(solidJarPath);
+		}
+		catch(FileNotFoundException e) {
+			throw new RuntimeException(String.format("File '%s' is not existed!", solidJarPath));
+		}
+		catch(Exception e) {
+			throw new BadJarFileException(solidJarPath);
+		}
+		Enumeration<JarEntry> entrys = file.entries();
+		while(entrys.hasMoreElements()){
+			JarEntry fileInJar = entrys.nextElement();
+			String fileInJarName = fileInJar.getName();
+			if(fileInJarName.contains("BOOT-INF")){
+				return true;
+			}
+		}
+		return false;
+	}
+
+
 	/**
 	 * @param patternedPath like : /D://prject/a.jar!/BOOT-INF!/classes!/*.properties
 	 */
@@ -97,6 +123,9 @@ public class AnoleFileUtil {
 		List<File> result = new ArrayList<File>();
 		File file = new File(solidDirectory);
 		File[] fileList = file.listFiles();
+		if(fileList == null){
+			return result;
+		}
 		for (int i = 0; i < fileList.length; i++) {
 			File tempFile = fileList[i];
 			if(tempFile.isDirectory()){
@@ -122,8 +151,8 @@ public class AnoleFileUtil {
 			ZipEntry zipEntry = null;
 			while ((zipEntry = jarInputStream.getNextEntry()) != null) {
 				String fileInZipName = zipEntry.getName();
-				if(PathUtil.asteriskMatch(relativePattern, PathUtil.format2Slash(fileInZipName))){
-					String fullPath = directoryName+"/"+fileInZipName;
+				String fullPath = directoryName+"/"+fileInZipName;
+				if(PathUtil.asteriskMatch(relativePattern, PathUtil.format2Slash(fullPath))){
 					result.put(fullPath , IOUtil.getZipInputStream(jarInputStream, zipEntry));
 				}
 			}
