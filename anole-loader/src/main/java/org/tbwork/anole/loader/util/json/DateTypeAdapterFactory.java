@@ -28,11 +28,16 @@ public class DateTypeAdapterFactory implements TypeAdapterFactory {
                     oldInstance.write(out, value);
                 }
                 public Date read(JsonReader in) throws IOException {
-                    String valueString = in.nextString();
-                    if(isNumeric(valueString)){
-                        return new Date(Long.valueOf(valueString)*1000);
+                    try {
+                        in.nextNull();
+                    } catch (Exception ex) {
+                        String valueString = in.nextString();
+                        if (isNumeric(valueString)) {
+                            return new Date(Long.valueOf(valueString) * 1000);
+                        }
+                        return oldInstance.read(in);
                     }
-                    return oldInstance.read(in);
+                    return null;
                 }
             };
             return (TypeAdapter) newInstance;
