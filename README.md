@@ -1,4 +1,4 @@
-# Anole-Loader [![](https://jitpack.io/v/org.tbwork.anole/anole-config.svg)](https://jitpack.io/#org.tbwork.anole/anole-config)
+# Anole-Loader [![](https://jitpack.io/v/tbwork/anole-config.svg)](https://jitpack.io/#tbwork/anole-config)
 
 # What it is
 
