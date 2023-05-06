@@ -27,7 +27,7 @@ public class ClasspathResourceLoader extends FileResourceLoader {
     @Override
     public ConfigFileResource[] load(String... configurationFilePaths) {
         // User specified classpath.
-        Set<String> configLocationsUnderUserSpecifiedClasspathes = getConfigLocationsUnderUserSpecifiedClasspath(configurationFilePaths);
+        Set<String> configLocationsUnderUserSpecifiedClasspathes = getConfigLocationsUnderJavaClasspath(configurationFilePaths);
         Set<String> configLocationUnderApplicationClasspathes = getConfigLocationUnderCallerClasspath(configurationFilePaths);
         // remove duplicate path
         for(String configLocationUnderApplicationClasspath : configLocationUnderApplicationClasspathes) {
@@ -60,7 +60,7 @@ public class ClasspathResourceLoader extends FileResourceLoader {
         return fullPathConfigLocations;
     }
 
-    private Set<String> getConfigLocationsUnderUserSpecifiedClasspath(String ... configLocations) {
+    private Set<String> getConfigLocationsUnderJavaClasspath(String ... configLocations) {
         Set<String> fullPathConfigLocations = new HashSet<String>();
         String programPath = ProjectUtil.getProgramPath();
         //get all classpathes
