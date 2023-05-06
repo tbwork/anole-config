@@ -1,4 +1,4 @@
-# Anole-Loader ![](https://badgen.net/badge/release/1.2.7/orange)
+# Anole-Loader [![](https://jitpack.io/v/org.tbwork.anole/anole-config.svg)](https://jitpack.io/#org.tbwork.anole/anole-config)
 
 # What it is
 
