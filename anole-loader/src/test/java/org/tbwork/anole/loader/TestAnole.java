@@ -16,6 +16,7 @@ public class TestAnole {
 		AnoleApp.start(LogLevel.INFO);
 
 		System.out.println(Anole.getProperty("b"));
+		System.out.println(Anole.getProperty("abcdef"));
 
 	}
 }

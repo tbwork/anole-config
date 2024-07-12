@@ -18,4 +18,4 @@ log4j.target.appender=console
 a = ${test}
 b = ${a:${app.id:1}}——${dev_test}
 
-
+abcdef=

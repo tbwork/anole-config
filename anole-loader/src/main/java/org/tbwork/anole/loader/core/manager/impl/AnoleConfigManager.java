@@ -73,7 +73,7 @@ public class AnoleConfigManager implements ConfigManager{
 	}
 
 	@Override
-	public ConfigItem registerFromAnywhere(String key) {
+	public ConfigItem registerFromEverywhere(String key) {
 		ConfigItem configItem = extendibleGetConfigItem(key);
 		return configItem;
 	}

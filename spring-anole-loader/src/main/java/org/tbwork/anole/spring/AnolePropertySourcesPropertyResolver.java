@@ -20,10 +20,9 @@ public class AnolePropertySourcesPropertyResolver extends AbstractPropertyResolv
     @Override
     protected String getPropertyAsRawString(String key) {
 
-        key = String.format("${%s}", key);
-        AnoleValueManager.ValueDefinition valueDefinition = AnoleValueManager.compile(key, null);
-
-        return valueDefinition.toString();
+            key = String.format("${%s}", key);
+            AnoleValueManager.ValueDefinition valueDefinition = AnoleValueManager.compile(key, null);
+            return valueDefinition.toString();
 
     }
 

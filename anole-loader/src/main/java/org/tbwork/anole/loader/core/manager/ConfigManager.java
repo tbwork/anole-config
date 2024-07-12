@@ -1,6 +1,5 @@
 package org.tbwork.anole.loader.core.manager;
 
-import org.tbwork.anole.loader.core.manager.source.RemoteRetriever;
 import org.tbwork.anole.loader.core.manager.source.SourceRetriever;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.core.model.RawKV;
@@ -34,7 +33,7 @@ public interface ConfigManager {
 	 * @param key the given key.
 	 * @return the registered config item.
 	 */
-	public ConfigItem registerFromAnywhere(String key);
+	public ConfigItem registerFromEverywhere(String key);
 
 	/**
 	 * Set configuration item into the Anole. Deeply digging will be used if

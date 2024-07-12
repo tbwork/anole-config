@@ -183,7 +183,7 @@ public class Anole {
 
 		 if(cItem == null){
 		 	// Attempt to load the config from extension source
-			 cItem = cm.registerFromAnywhere(key);
+			 cItem = cm.registerFromEverywhere(key);
 		 }
 
 		 if(cItem == null){

@@ -2,6 +2,7 @@ package org.tbwork.anole.loader.core.manager.impl;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.tbwork.anole.loader.Anole;
 import org.tbwork.anole.loader.core.manager.ConfigManager;
 import org.tbwork.anole.loader.core.model.ConfigItem;
 import org.tbwork.anole.loader.exceptions.ErrorSyntaxException;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 public class AnoleValueManager {
 
     private final static ConfigManager configManager = AnoleConfigManager.getInstance();
+
+    private final static String NOT_FOUND_WARNING = "There is no manual-set or default-set value for '%s'.";
 
     @Data
     @AllArgsConstructor
@@ -54,14 +57,19 @@ public class AnoleValueManager {
 
         @Override
         public String toString(){
-            ConfigItem referencingConfig = configManager.registerFromAnywhere(referencingKey);
+            ConfigItem referencingConfig = configManager.registerFromEverywhere(referencingKey);
             if(referencingConfig != null){
                 return referencingConfig.strValue();
             }
             else{
                 if( defaultValue == null ){
-                    String errorMessage = String.format("There is no manual-set or default-set value for '%s'.", referencingKey);
-                    throw new ErrorSyntaxException(referencingKey, errorMessage);
+                    if(Anole.getBoolProperty("strictMode", false)){
+                        String errorMessage = String.format(NOT_FOUND_WARNING, referencingKey);
+                        throw new ErrorSyntaxException(referencingKey, errorMessage);
+                    }
+                    else{
+                        return "";
+                    }
                 }
                 return defaultValue.toString();
             }
@@ -110,8 +118,16 @@ public class AnoleValueManager {
         int p = 0;
         int currentStackDepth = 0;
         int segmentStart = 0;
-        if(definition == null)
-            throw new RuntimeException("There is no manual-set or default-set value for '" + key + "'.");
+        if(definition == null){
+            if(Anole.getBoolProperty("strictMode", false)){
+                String errorMessage = String.format(NOT_FOUND_WARNING, key);
+                throw new RuntimeException(errorMessage);
+            }
+            else {
+                return result;
+            }
+        }
+
         while( p < definition.length())
         {
             char icl = p > 0 ? definition.charAt(p-1) : ' ';
