@@ -1,2 +1,10 @@
 jdk:
-  - oraclejdk8
+  version: openjdk11
+build:
+  commands:
+    - mvn clean install -DskipTests
+artifacts:
+  - anole-loader/target/anole-loader-*.jar
+  - spring-anole-loader/target/spring-anole-loader-*.jar
+  - anole-remote-apollo/target/anole-remote-apollo-*.jar
+  - anole-log4j2/target/anole-log4j2-*.jar
