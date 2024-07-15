@@ -34,18 +34,6 @@ public class S {
 		}
 		return result.toArray(strs);
 	 }
-	 
-
-	 
-	 /**
-	  * Remove all the blank chars from the input str.
-	  * @param str the input str
-	  */
-	 public static String trim(String str){  
-		 //return str.replaceAll("\\s", "") ;
-		 return str.trim();
-	 }
-
 
 
 	 public static String [] splitString2Array(String targetString, String delimiter){
@@ -115,7 +103,7 @@ public class S {
     	 return sb.toString();
      }
 	 
-	 public static String [] trimStrings(String ... strings) {
+	 public static String [] trimStringArray(String ... strings) {
 		 String [] result = new String[strings.length];
 		 for(int i =0 ; i < strings.length; i++) {
 			 result[i] = strings[i].trim();

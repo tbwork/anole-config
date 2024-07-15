@@ -79,9 +79,7 @@ public class AnoleSpringBeanAutowiredValuePointManager implements BeanAutowiredV
 
             try {
                 affectedField.setValue(newValueWithType);
-            } catch (IllegalAccessException e ) {
-                throw new IllegalStateException(e);
-            } catch (InvocationTargetException e){
+            } catch (IllegalAccessException | InvocationTargetException e ) {
                 throw new IllegalStateException(e);
             }
 

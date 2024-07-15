@@ -9,7 +9,7 @@ import com.github.tbwork.anole.loader.core.manager.impl.AnoleValueManager;
 /**
  * Used for Spring to load properties from Anole-config source.
  */
-@Component
+//@Component
 public class AnolePropertySourcesPropertyResolver extends AbstractPropertyResolver {
 
 

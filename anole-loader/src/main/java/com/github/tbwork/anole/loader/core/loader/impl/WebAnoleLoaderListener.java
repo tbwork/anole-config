@@ -31,7 +31,7 @@ import com.github.tbwork.anole.loader.util.S;
  *      &lt;/context-param&gt; 
  *      ...
  *      &lt;listener&gt;
- *            &lt;listener-class&gt;org.tbwork.anole.loader.core.loader.impl.WebAnoleLoaderListener&lt;/listener-class&gt;
+ *            &lt;listener-class&gt;com.github.tbwork.anole.loader.core.loader.impl.WebAnoleLoaderListener&lt;/listener-class&gt;
  *      &lt;/listener&gt; 
  * </pre> 
  * <p> <b>Tips:</b> If you use the default naming style of configuration
@@ -68,7 +68,6 @@ public class WebAnoleLoaderListener implements ServletContextListener{
 
 	@Override
 	public void contextDestroyed(ServletContextEvent sce) {
-		anoleContext.close();
 		logger.info("[:)] Application is shutting down..." ); 
 	}
    

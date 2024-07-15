@@ -1,10 +1,6 @@
 package com.github.tbwork.anole.spring.annotation;
-
-import com.github.tbwork.anole.spring.AnolePropertySourcesPlaceholderConfigurer;
+import com.github.tbwork.anole.spring.AnoleSpringStarter;
 import org.springframework.context.annotation.Import;
-import com.github.tbwork.anole.spring.hotmod.reflection.AnoleSpringBeanPostProcessor;
-import com.github.tbwork.anole.spring.hotmod.reflection.manager.impl.AnoleSpringBeanAutowiredValuePointManager;
-
 import java.lang.annotation.*;
 
 @Target(ElementType.TYPE)
@@ -12,9 +8,7 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Import( {
-        AnolePropertySourcesPlaceholderConfigurer.class,
-        AnoleSpringBeanAutowiredValuePointManager.class,
-        AnoleSpringBeanPostProcessor.class
+        AnoleSpringStarter.class
 })
-public @interface EnableSpringAnole {
+public @interface EnableSpringAnole{
 }

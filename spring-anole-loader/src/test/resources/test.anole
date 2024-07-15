@@ -13,3 +13,5 @@ config.remote.types.supported=apollo
 test=${dev_test}
 
 log4j.target.appender=console
+anole.xml.greeting=Hello, Spring!
+anole.code.greeting=Hello, Spring!

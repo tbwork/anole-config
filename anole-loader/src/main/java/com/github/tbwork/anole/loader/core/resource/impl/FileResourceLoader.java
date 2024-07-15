@@ -7,7 +7,6 @@ import com.github.tbwork.anole.loader.util.ProjectUtil;
 import com.github.tbwork.anole.loader.Anole;
 import com.github.tbwork.anole.loader.AnoleApp;
 import com.github.tbwork.anole.loader.core.resource.ResourceLoader;
-import org.tbwork.anole.loader.util.*;
 
 import java.io.File;
 import java.io.InputStream;

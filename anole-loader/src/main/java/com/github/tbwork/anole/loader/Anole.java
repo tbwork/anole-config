@@ -5,11 +5,11 @@ import com.github.tbwork.anole.loader.exceptions.AnoleNotReadyException;
 import com.github.tbwork.anole.loader.exceptions.ConfigNotSetException;
 import com.github.tbwork.anole.loader.exceptions.EnvironmentNotSetException;
 import com.github.tbwork.anole.loader.exceptions.OperationNotSupportedException;
+import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.S;
 import com.github.tbwork.anole.loader.core.manager.ConfigManager;
 import com.github.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import org.tbwork.anole.loader.exceptions.*;
 import com.github.tbwork.anole.loader.core.manager.impl.AnoleValueManager;
 
 /**
@@ -26,7 +26,7 @@ public class Anole {
 	/**
 	 * Indicates that local anole is loaded successfully.
 	 */
-	public static boolean initialized = false;
+	public static volatile boolean initialized = false;
 
 	public static void refreshContext(boolean needCheckIntegrity){
 		cm.refresh(needCheckIntegrity);
@@ -110,15 +110,10 @@ public class Anole {
 	}
 	
 	public static void setProperty(String key, String value){
-		if(Anole.initialized){
-			cm.submitIncomeUpdate(key, value);
+		if(AnoleValueManager.containVariable(value) || AnoleValueManager.isExpression(value)){
+			throw new OperationNotSupportedException("Before initialization, you can and only can set a plain value for the given key.");
 		}
-		else{
-			if(AnoleValueManager.containVariable(value) || AnoleValueManager.isExpression(value)){
-				throw new OperationNotSupportedException("Before initialization, you can and only can set a plain value for the given key.");
-			}
-			cm.registerAndSetValue(key, value);
-		}
+		cm.registerAndSetValue(key, value);
 	}
 
 	/**
@@ -172,17 +167,16 @@ public class Anole {
 		return cItem.strValue();
 	}
 
+
+
 	protected static ConfigItem getConfig(String key, ConfigManager cm)
 	{ 
-		 if(!initialized){
-			 logger.error("Anole is not initialized yet, only getRawValue operation is accessible.");
-			 throw new AnoleNotReadyException();
+		 if(!initialized && !BuiltInConfigKeys.isBuiltInKeys(key)){
+			 logger.error("Anole is not initialized yet. The key ({}) is not available now!", key);
+			 throw new AnoleNotReadyException(key);
 		 }
 
 		 int index = key.indexOf(":");
-
-
-
 		 ConfigItem cItem = cm.getConfigItem(key);
 
 		 if(cItem == null){

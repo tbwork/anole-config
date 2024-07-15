@@ -4,13 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>anole-config</artifactId>
-        <groupId>org.tbwork.anole</groupId>
+        <groupId>com.github.tbwork</groupId>
         <version>${revision}</version>
     </parent>
-    <modelVersion>4.0.0</modelVersion>
-
     <artifactId>anole-log4j2</artifactId>
-
+    <modelVersion>4.0.0</modelVersion>
     <name>anole-log4j2</name>
 
     <properties>
@@ -22,7 +20,7 @@
     <dependencies>
 
         <dependency>
-            <groupId>org.tbwork.anole</groupId>
+            <groupId>com.github.tbwork</groupId>
             <artifactId>anole-loader</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -36,11 +34,10 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.13.3</version>
         </dependency>
-
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
+            <groupId>com.github.tbwork</groupId>
+            <artifactId>anole-test</artifactId>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

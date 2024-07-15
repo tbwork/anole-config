@@ -10,6 +10,7 @@ import com.github.tbwork.anole.loader.statics.StaticValueBook;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.S;
 import com.github.tbwork.anole.loader.core.loader.AnoleLoader;
+import org.slf4j.LoggerFactory;
 
 import java.io.InputStream;
 import java.util.*;
@@ -47,12 +48,22 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
         // register configs
         anoleConfigRegister.register(rawKVS);
 
-
         logger.info("[:)] Anole configurations are loaded successfully.");
 
         Anole.initialized = true;
-    }
 
+
+//
+//        logger.info("Local configurations are loaded successfully. Slf4j loggers is initializing...");
+//
+//        Anole.initialized = true;
+//
+//        // Initialize the SLF4j logger factory.
+//        LoggerFactory.getLogger(AnoleConfigRegister.class);
+//
+//        logger.info("Slf4j loggers initialized successfully.");
+
+    }
 
 
     private List<RawKV> parse(ConfigFileResource [] configFileResources){

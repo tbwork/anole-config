@@ -1,16 +1,17 @@
 package com.github.tbwork.anole.spring.retriever;
 
+import com.github.tbwork.anole.loader.AnoleApp;
+import com.github.tbwork.anole.loader.core.manager.source.ConfigSource;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.stereotype.Component;
 import com.github.tbwork.anole.loader.Anole;
-import com.github.tbwork.anole.loader.core.manager.source.SourceRetriever;
 
 
 @Component
-public class SpringPropertyRetriever implements EnvironmentPostProcessor, SourceRetriever, Ordered {
+public class SpringPropertyRetriever implements EnvironmentPostProcessor, ConfigSource, Ordered {
 
     // Before ConfigFileApplicationListener
     private int order = Integer.MAX_VALUE;
@@ -26,8 +27,12 @@ public class SpringPropertyRetriever implements EnvironmentPostProcessor, Source
     public void postProcessEnvironment(ConfigurableEnvironment environment,
                                        SpringApplication application) {
         SpringPropertyRetriever.environment = environment;
-        Anole.refreshContext(true);
-
+        if(!Anole.initialized){
+            AnoleApp.start();
+        }
+        else{
+            Anole.refreshContext(true);
+        }
     }
 
     private String getProperty(String key){

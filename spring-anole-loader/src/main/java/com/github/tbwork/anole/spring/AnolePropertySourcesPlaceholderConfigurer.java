@@ -15,7 +15,7 @@ import java.util.Properties;
  * @author Tommy.Tesla
  * @since 1.3.0
  */
-@Component
+//@Component
 public class AnolePropertySourcesPlaceholderConfigurer extends PlaceholderConfigurerSupport {
 
     /**

@@ -7,7 +7,7 @@ import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.OsUtil;
 import com.github.tbwork.anole.loader.util.S;
 import com.github.tbwork.anole.loader.util.SetUtil;
-import org.tbwork.anole.loader.util.*;
+import com.github.tbwork.anole.loader.util.*;
 
 import java.io.File;
 import java.io.InputStream;

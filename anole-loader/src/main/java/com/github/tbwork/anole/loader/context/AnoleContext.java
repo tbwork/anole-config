@@ -6,12 +6,6 @@ package com.github.tbwork.anole.loader.context;
 public interface AnoleContext {
 
     /**
-     * Close the Anole context gracefully.
-     * @return get the current environment.
-     */
-    void close();
-
-    /**
      * Get environment.
      * @return get the current environment.
      */

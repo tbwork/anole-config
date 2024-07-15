@@ -3,18 +3,11 @@ package com.github.tbwork.anole.loader.core.manager.impl;
 import com.github.tbwork.anole.loader.Anole;
 import com.github.tbwork.anole.loader.core.manager.expression.ExpressionResolver;
 import com.github.tbwork.anole.loader.core.manager.expression.ExpressionResolverFactory;
-import com.github.tbwork.anole.loader.core.manager.modhub.ConfigUpdateManager;
-import com.github.tbwork.anole.loader.core.manager.modhub.impl.AnoleIncomeConfigUpdateManager;
-import com.github.tbwork.anole.loader.core.manager.modhub.impl.AnoleOutgoConfigUpdateManager;
-import com.github.tbwork.anole.loader.core.manager.monitor.impl.ConfigChangeRemoteMonitor;
-import com.github.tbwork.anole.loader.core.manager.source.RemoteRetriever;
-import com.github.tbwork.anole.loader.core.manager.source.SourceRetriever;
+import com.github.tbwork.anole.loader.core.manager.source.ConfigSource;
 import com.github.tbwork.anole.loader.core.model.ConfigItem;
 import com.github.tbwork.anole.loader.core.model.RawKV;
-import com.github.tbwork.anole.loader.core.model.UpdateEvent;
 import com.github.tbwork.anole.loader.exceptions.CircularDependencyException;
-import com.github.tbwork.anole.loader.exceptions.NotReadyException;
-import com.github.tbwork.anole.loader.statics.BuiltInConfigKeyBook;
+import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.statics.StaticValueBook;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.S;
@@ -39,16 +32,13 @@ public class AnoleConfigManager implements ConfigManager{
 	
 	private static final Map<String, ConfigItem> configDefinitionMap = new ConcurrentHashMap<String, ConfigItem>();
 
-	private List<SourceRetriever> extensionSources = new ArrayList<>();
+	private List<ConfigSource> extensionSources = new ArrayList<>();
 
 	/**
 	 * Store keys to system property manger temporarily.
 	 */
 	private Map<String, String> tempStoreInSystemKeyMap = new HashMap<String,String>();
 
-	private ConfigUpdateManager anoleIncomeConfigUpdater;
-
-	private ConfigUpdateManager anoleOutgoConfigUpdater;
 
 	private static final ConfigManager INSTANCE = new AnoleConfigManager();
 
@@ -56,7 +46,6 @@ public class AnoleConfigManager implements ConfigManager{
 		return INSTANCE;
 	}
 
-	private volatile boolean needCheckIntegrity = false;
 
 	@Override
 	public void batchRegisterDefinition(List<RawKV> rawKVList) {
@@ -126,8 +115,6 @@ public class AnoleConfigManager implements ConfigManager{
 	@Override
 	public void refresh(boolean needCheckIntegrity) {
 
-		this.needCheckIntegrity = needCheckIntegrity;
-
 		calculateValueForNotPlainConfigs();
 
 		cleanEscapeCharacters();
@@ -144,52 +131,8 @@ public class AnoleConfigManager implements ConfigManager{
 
 
 	@Override
-	public void addExtensionRetriever(SourceRetriever sourceRetriever) {
-		extensionSources.add(sourceRetriever);
-		if(anoleIncomeConfigUpdater == null){
-			throw new NotReadyException("configUpdater component");
-		}
-		if(sourceRetriever instanceof RemoteRetriever){
-			((RemoteRetriever)sourceRetriever).registerMonitor(new ConfigChangeRemoteMonitor(anoleIncomeConfigUpdater, this));
-		}
-	}
-
-	@Override
-	public void startReceiveIncomeUpdates() {
-		anoleIncomeConfigUpdater = new AnoleIncomeConfigUpdateManager();
-		anoleIncomeConfigUpdater.startRecord();
-	}
-
-	@Override
-	public void startProcessIncomeUpdates() {
-		anoleIncomeConfigUpdater.startProcess();
-	}
-
-	@Override
-	public void startReceiveOutgoUpdates() {
-		anoleOutgoConfigUpdater = new AnoleOutgoConfigUpdateManager();
-		anoleOutgoConfigUpdater.startRecord();
-	}
-
-	@Override
-	public void startProcessOutgoUpdates() {
-		anoleOutgoConfigUpdater.startProcess();
-	}
-
-	@Override
-	public void shutDown() {
-		anoleIncomeConfigUpdater.shutDown();
-		anoleOutgoConfigUpdater.shutDown();
-	}
-
-	@Override
-	public void submitIncomeUpdate(String key, String newValue) {
-		anoleIncomeConfigUpdater.publishEvent(new UpdateEvent(key, newValue));
-	}
-
-	@Override
-	public void submitOutgoUpdate(String key, String newValue) {
-		anoleOutgoConfigUpdater.publishEvent(new UpdateEvent(key, newValue));
+	public void addExtensionRetriever(ConfigSource configSource) {
+		extensionSources.add(configSource);
 	}
 
 
@@ -450,7 +393,7 @@ public class AnoleConfigManager implements ConfigManager{
 
 
 	public boolean isRunInStrictMode(){
-		ConfigItem configItem = getConfigItem(BuiltInConfigKeyBook.ANOLE_MODE_KEY);
+		ConfigItem configItem = getConfigItem(BuiltInConfigKeys.ANOLE_STRICT_MODE);
 		if(configItem != null){
 			return StaticValueBook.STRICT_MODE.equals(configItem.getDefinition());
 		}
@@ -592,7 +535,7 @@ public class AnoleConfigManager implements ConfigManager{
 		if(configItem != null && configItem.strValue() != null){
 			return configItem;
 		}
-		for(SourceRetriever extensionRetriever : extensionSources){
+		for(ConfigSource extensionRetriever : extensionSources){
 			String remoteValue = extensionRetriever.retrieve(key);
 			if(S.isNotEmpty(remoteValue)){
 				ConfigItem registerResult = registerAndSetValue(key, remoteValue);
@@ -614,9 +557,6 @@ public class AnoleConfigManager implements ConfigManager{
 	private void setConfigValue(ConfigItem config, String value){
 		value = S.replaceEscapeChars(value);
     	config.setValue(value);
-    	if(Anole.initialized){
-			this.submitOutgoUpdate(config.getKey(), value);
-		}
 	}
 
 }

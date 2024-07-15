@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+<!--    <Properties>
+    </Properties>-->
     <Appenders>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout pattern=" %d{yy-MM-dd HH:mm:ss.SSS} %c{2} [%t] %-5level %logger{36} - %msg%n" />

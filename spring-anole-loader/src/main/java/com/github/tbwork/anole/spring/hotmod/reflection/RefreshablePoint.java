@@ -3,7 +3,6 @@ package com.github.tbwork.anole.spring.hotmod.reflection;
 import com.github.tbwork.anole.spring.annotation.Final;
 import lombok.Data;
 import org.springframework.core.MethodParameter;
-import com.github.tbwork.anole.spring.statics.AnoleSpringNameBook;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -15,6 +14,13 @@ import java.lang.reflect.Method;
  */
 @Data
 public class RefreshablePoint {
+
+
+
+    /**
+     * Prefix used to decorate auto created field configs' key.
+     */
+    String FILED_ANOLE_KEY_PREFIX = "__field__";
 
     /**
      * The refreshable field. Specifically refers to those fields annotated by
@@ -57,7 +63,7 @@ public class RefreshablePoint {
         this.valueType = this.methodParameter.getParameterType();
         this.ownerInstance = ownerInstance;
         this.beanName = beanName;
-        this.anoleKey = String.format("%s.%s.%s", AnoleSpringNameBook.FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
+        this.anoleKey = String.format("%s.%s.%s", FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
     }
 
     public RefreshablePoint(Field field, Object ownerInstance, String beanName){
@@ -65,7 +71,7 @@ public class RefreshablePoint {
         this.valueType = field.getType();
         this.ownerInstance = ownerInstance;
         this.beanName = beanName;
-        this.anoleKey = String.format("%s.%s.%s", AnoleSpringNameBook.FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
+        this.anoleKey = String.format("%s.%s.%s", FILED_ANOLE_KEY_PREFIX, beanName, field.getName());
     }
 
     public void setValue(Object value) throws IllegalAccessException, InvocationTargetException {

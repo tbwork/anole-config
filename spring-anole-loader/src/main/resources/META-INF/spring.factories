@@ -1,1 +1,1 @@
-org.springframework.boot.env.EnvironmentPostProcessor=retriever.spring.com.github.anole.SpringPropertyRetriever
+org.springframework.context.ApplicationListener=com.github.tbwork.anole.spring.AnoleSpringStarter

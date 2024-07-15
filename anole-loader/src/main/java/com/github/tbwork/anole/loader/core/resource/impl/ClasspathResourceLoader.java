@@ -2,8 +2,12 @@ package com.github.tbwork.anole.loader.core.resource.impl;
 
 import com.github.tbwork.anole.loader.core.model.ConfigFileResource;
 import com.github.tbwork.anole.loader.util.*;
-import org.tbwork.anole.loader.util.*;
 
+import java.io.File;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -64,14 +68,12 @@ public class ClasspathResourceLoader extends FileResourceLoader {
     private Set<String> getConfigLocationsUnderJavaClasspath(String ... configLocations) {
         Set<String> fullPathConfigLocations = new HashSet<String>();
         String programPath = ProjectUtil.getProgramPath();
-        //get all classpathes
-        String classPath = System.getProperty("java.class.path");
-        List<String> pathElements = Arrays.stream(classPath.split(System.getProperty("path.separator"))).map(item->item.trim()).collect(Collectors.toList());
+        List<String> candidatePaths = getJavaClasspaths();
         String userSpecifiedPath = System.getProperty("anole.class.path");
         if(S.isNotEmpty(userSpecifiedPath)){
-            pathElements.addAll(Arrays.stream(userSpecifiedPath.split(",")).map(item->item.trim()).collect(Collectors.toList()));
+            candidatePaths.addAll(Arrays.stream(userSpecifiedPath.split(",")).map(item->item.trim()).collect(Collectors.toList()));
         }
-        for(String path : pathElements) {
+        for(String path : candidatePaths) {
             path = PathUtil.format2Slash(path);
             if(!PathUtil.isAbsolutePath(path)){
                 // Suffix with the root path if the current path is not an absolute path
@@ -150,5 +152,45 @@ public class ClasspathResourceLoader extends FileResourceLoader {
         String result = path.startsWith("/") ? path : S.concat("/", path);
         result = result.endsWith("/") ? result : S.concat(result, "/");
         return result;
+    }
+
+
+    private List<String> getJavaClasspaths() {
+        List<String> paths = new ArrayList<>();
+
+        String classpath = System.getProperty("java.class.path");
+        if (classpath != null) {
+            for (String path : classpath.split(File.pathSeparator)) {
+                paths.add(path);
+            }
+        }
+
+        return paths;
+    }
+
+    private Path getPathForResource(String resource) {
+        URL resourceUrl = this.getClass().getResource(resource);
+        if (resourceUrl != null) {
+            try {
+                return Paths.get(resourceUrl.toURI()).getParent();
+            } catch (URISyntaxException e) {
+                logger.error("Exceptions thrown in getting class paths...");
+                throw  new RuntimeException(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    private Path getCurrentJarPath() {
+        URL jarUrl = this.getClass().getProtectionDomain().getCodeSource().getLocation();
+        if (jarUrl != null) {
+            try {
+                return Paths.get(jarUrl.toURI()).getParent();
+            } catch (URISyntaxException e) {
+                logger.error("Exceptions thrown in getting class paths...");
+                throw  new RuntimeException(e.getMessage());
+            }
+        }
+        return null;
     }
 }

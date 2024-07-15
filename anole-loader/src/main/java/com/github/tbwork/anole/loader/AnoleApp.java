@@ -4,8 +4,10 @@ import com.github.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import com.github.tbwork.anole.loader.context.AnoleContext;
 import com.github.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
 import com.github.tbwork.anole.loader.ext.AnoleStartPostProcessor;
+import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.ProjectUtil;
+import com.github.tbwork.anole.loader.util.S;
 
 import java.util.Comparator;
 import java.util.ServiceLoader;
@@ -78,6 +80,10 @@ public class AnoleApp {
 		start(AnoleLogger.LogLevel.INFO);
 	}
 
+	public static void start(Class<?> targetRootClass){
+		start(targetRootClass, AnoleLogger.LogLevel.INFO);
+	}
+
 	public static boolean runingInJar(){
 		return runingInJar;
 	}
@@ -86,9 +92,6 @@ public class AnoleApp {
 		AnoleApp.runingInJar = runingInJar;
 	}
 
-	public static void stop(){
-		anoleContext.close();
-	}
 
 
 	/**
@@ -115,7 +118,20 @@ public class AnoleApp {
 	}
 	
 	public static String getCurrentEnvironment(){
-		return Anole.getProperty("anole.runtime.currentEnvironment");
+		String env = Anole.getProperty(BuiltInConfigKeys.ANOLE_ENV);
+
+		if(S.isNotEmpty(env)){
+			return env;
+		}
+
+		env = Anole.getProperty(BuiltInConfigKeys.ANOLE_ENV_SHORT);
+
+		if(S.isNotEmpty(env)){
+			return env;
+		}
+
+		return Anole.getProperty(BuiltInConfigKeys.ANOLE_ENV_SHORT_CAMEL);
+
 	}
 	
 	
@@ -182,9 +198,9 @@ public class AnoleApp {
 			int anoleBootClassIndex = stackTraces.length;
 			for(int i= stackTraces.length - 1; i >=0 ; i-- ) {
 				String stackTraceClass = stackTraces[i].getClassName();
-				if(stackTraceClass.equals("org.tbwork.anole.loader.AnoleApp")
-				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleFileConfigContext")
-				|| stackTraceClass.equals("org.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext")
+				if(stackTraceClass.equals("com.github.tbwork.anole.loader.AnoleApp")
+				|| stackTraceClass.equals("com.github.tbwork.anole.loader.context.impl.AnoleFileConfigContext")
+				|| stackTraceClass.equals("com.github.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext")
 				) {
 					anoleBootClassIndex = i;
 					break;
@@ -210,10 +226,10 @@ public class AnoleApp {
 	private static Class<?> getAnoleRootClassByStackTrace(){
 		try {
 			StackTraceElement[] stackTrace = new RuntimeException().getStackTrace();
-			for (int i =0; i < stackTrace.length ; i++) {
-				if("org.tbwork.anole.loader.AnoleApp".equals(stackTrace[i].getClassName())) {
+			for (int i = 0; i < stackTrace.length ; i ++) {
+				if("com.github.tbwork.anole.loader.AnoleApp".equals(stackTrace[i].getClassName())) {
 					return Class.forName(stackTrace[i+2].getClassName());
-				} 
+				}
 			}
 			throw new ClassNotFoundException("Can not find anole's root class, please check your start codes.");
 		}

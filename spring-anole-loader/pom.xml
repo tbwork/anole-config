@@ -15,40 +15,38 @@
     </build>
 
     <parent>
-		<groupId>org.tbwork.anole</groupId>
+		<groupId>com.github.tbwork</groupId>
 		<artifactId>anole-config</artifactId>
 		<version>${revision}</version>
 	</parent>
 
-	<groupId>org.tbwork.anole</groupId>
+
+	<groupId>com.github.tbwork</groupId>
 	<artifactId>spring-anole-loader</artifactId> 
 	<packaging>jar</packaging>
   
 	<dependencies>
 		<dependency>
-			<groupId>org.tbwork.anole</groupId>
+			<groupId>com.github.tbwork</groupId>
 			<artifactId>anole-loader</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-core</artifactId>
-			<version>[5.1.17.RELEASE, )</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot</artifactId>
+			<version>2.3.4.RELEASE</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot</artifactId>
-			<version>[2.3.4.RELEASE,)</version>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<version>2.3.4.RELEASE</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>[5.1.17.RELEASE, )</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>[5.1.17.RELEASE, )</version>
+			<groupId>com.github.tbwork</groupId>
+			<artifactId>anole-test</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

@@ -135,7 +135,6 @@ public class PathUtil {
 
         public boolean match(AnoleFilePath target){
 
-
             if( this.pathPartList.size() != target.pathPartList.size()){
                 return false;
             }

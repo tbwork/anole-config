@@ -1,0 +1,11 @@
+#env:all
+a=true
+b = @@ ${a} ? yes : no
+dev_test=ooooooo
+test=${dev_test}
+
+log4j.target.appender=console
+a = ${test}
+b = ${a:${app.id:1}}——${dev_test}
+
+abcdef=

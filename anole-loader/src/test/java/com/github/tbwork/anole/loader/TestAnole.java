@@ -6,17 +6,12 @@ import com.github.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 import java.io.IOException;
 
-@AnoleConfigLocation(locations="*.anole")
+@AnoleConfigLocation(locations={"*.anole"})
 public class TestAnole {
 
-	private static final AnoleLogger logger = new AnoleLogger(TestAnole.class);
-
-	public static void main(String[] args) throws IOException, InterruptedException {
+	public static void main(String[] args) {
 
 		AnoleApp.start(LogLevel.INFO);
-
-		System.out.println(Anole.getProperty("b"));
-		System.out.println(Anole.getProperty("abcdef"));
 
 	}
 }

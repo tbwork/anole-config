@@ -10,7 +10,6 @@ import java.util.List;
 public class ProjectUtil {
 	
 	public static List<String> localResourceProtocals = SetUtil.newArrayList("file:", "jar:", "mailTo:");
-
 	private static String programPath;
 	
 	public static String getJarPath(String fullPath){

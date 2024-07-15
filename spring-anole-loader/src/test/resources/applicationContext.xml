@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="enableplaceholder" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer" />
+
+    <!-- 定义一个简单的 Bean -->
+    <bean id="greeting" class="com.github.tbwork.anole.loader.GreetingService">
+        <!-- 可以通过属性注入来设置 Bean 的属性 -->
+        <property name="greetings" value="${anole.xml.greeting}"/>
+    </bean>
+
+</beans>

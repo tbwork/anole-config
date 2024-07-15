@@ -3,6 +3,7 @@ package com.github.tbwork.anole.loader.core.manager.impl;
 import com.github.tbwork.anole.loader.Anole;
 import com.github.tbwork.anole.loader.core.model.ConfigItem;
 import com.github.tbwork.anole.loader.exceptions.ErrorSyntaxException;
+import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.util.S;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -63,7 +64,7 @@ public class AnoleValueManager {
             }
             else{
                 if( defaultValue == null ){
-                    if(Anole.getBoolProperty("strictMode", false)){
+                    if(Anole.getBoolProperty(BuiltInConfigKeys.ANOLE_STRICT_MODE, false)){
                         String errorMessage = String.format(NOT_FOUND_WARNING, referencingKey);
                         throw new ErrorSyntaxException(referencingKey, errorMessage);
                     }
@@ -85,7 +86,7 @@ public class AnoleValueManager {
      * 2. result: [{"key":"21212", "defaultValue":null}, {"key":"qwe1", "defaultValue":1}]
      * </pre>
      * @param value the input value
-     * @param key for sake of trouble-shooting.
+     * @param key for sake of troubleshooting.
      * @return the variables referenced by the given key
      */
     public static ValueDefinition compile(String value, String key){
@@ -119,7 +120,7 @@ public class AnoleValueManager {
         int currentStackDepth = 0;
         int segmentStart = 0;
         if(definition == null){
-            if(Anole.getBoolProperty("strictMode", false)){
+            if(Anole.getBoolProperty(BuiltInConfigKeys.ANOLE_STRICT_MODE, false)){
                 String errorMessage = String.format(NOT_FOUND_WARNING, key);
                 throw new RuntimeException(errorMessage);
             }

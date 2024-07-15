@@ -7,9 +7,8 @@ An awesome configuration loader for java.
 # Why we need it.
 In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc
 . to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and
- file-name, it would be annoying if you manage those files together. Anole-loader is a light framework to tackle with
-  this issue. By using it, you could manage all configurations together. We strongly recommend putting all those unclassified
-  configurations to local properties file so that reviewers can be aware of the change points in the code-review stage. 
+ file-name, it would be annoying if you manage those files together. Anole-loader is a light framework to deal with
+  this situation. By using it, you could manage all configurations together.
 
 # What does it support
 
@@ -25,15 +24,15 @@ In enterprise java development, we use different kinds of third-party frameworks
 For maven, import it using:
 ```
 <dependency>
-  <groupId>org.tbwork.anole</groupId>
+  <groupId>com.github.tbwork</groupId>
   <artifactId>anole-loader</artifactId>
-  <version>1.2.7</version>
+  <version>2.1.0</version>
 </dependency>
 ```
 
 ## 2 Specify the runtime environment. There are 3 ways to specify the runtime enviroment.
 
-> If you just want to use Anole-Loader's basic function for retrieving properties without distinguishing the environments, you can skip this step. And the default environment would be 'all'.
+> The default environment would be 'all'.
 
 **Option 1**: Create an enviroment file in your disk.**
  * For windows: create a $env.env (e.g. test.env) file under `C://anole/`
@@ -42,7 +41,7 @@ For maven, import it using:
 
 **Option 2**: Specify a VM parameter named **"anole.runtime.currentEnvironment"** when you start java application, for example:
 ```
-  java -Danole.runtime.currentEnvironment=test -jar XXX.jar
+    java -DanoleEnv=test -jar XXX.jar
 ```
 **Option 3**: Set the operating system environment variable named **"anole.runtime.currentEnvironment"**
  
@@ -61,9 +60,13 @@ For maven, import it using:
   ## define a boolean
   switch = true
   
+  #env:test
+  message=I'm\
+  a test message
+  
   ```
   Within the first line, `#env` means the following properties will be loaded in and only in this environment
-  , while `all` means it is suitable for all enviroments.
+  , while `all` means it is suitable for all environments.
   
 ### 3.1 Recursive variable reference
 
@@ -73,27 +76,35 @@ You can define a variable by referencing another variable using “${}”, see
 name = tangbo
 helloworld=hello, ${name}
 ```
+
+> Once you update a property manually, all variables depend on this property would be refreshed automatically. 
   
 ## 4 Start your java program as an Anole application.
 
 (1) Use the annotation of **@AnoleConfigLocation**
 ```
-  @AnoleConfigLocation()
-  public class Case1
-  {  
-      public static void main(String[] args) {
-       AnoleApp.start();
-     }
-  }
+    @AnoleConfigLocation()
+    public class Case1
+    {  
+        public static void main(String[] args) {
+            AnoleApp.start();
+        }
+    }
 ```
 The anole will load all \*.anole files in the classpath directory. 
-When you use like below:
+
+Wanna custom the configuration files' locations? Do like this:
 ```
- @AnoleConfigLocation(locations="config.anole,config2.anyExtName")
+ @AnoleConfigLocation(locations = {"*.anole", "/*/jar/*op/*.txt"})
 ```
 You can specify the ext-name of configuration file as you like.
 
+
+
 (2) For Tomcat web application
+
+> Obviously, this is out of date for now.
+
 Configure the below lines in web.xml
 ```
       <context-param>
@@ -123,7 +134,47 @@ Configure the below lines in web.xml
 	Anole.getShortProperty("key-name");
 ```
 
-## 6 Support Spring
+## 6 Spring Support
+
+### 6.1 Code-based Configuration.
+
+Starts manually like:
+
+```java
+
+@AnoleConfigLocation(locations={"*.anole"})
+public class TestAnole {
+	public static void main(String[] args) {
+		AnoleApp.start(LogLevel.INFO);
+	}
+}
+```
+Or using the default settings:
+```java
+public class TestAnole {
+    public static void main(String[] args) {
+		AnoleApp.start();
+	}
+}
+```
+
+And then inject them into bean's fields like:
+
+```java
+public class GreetingService {
+
+    @Value("${anole.code.greeting}")
+    private String greetings;
+
+    public String greet() {
+        return this.greetings;
+    }
+
+}
+```
+
+
+### 6.2 XML-based Configuration
 
 First, enable the Spring placeholder function by adding below codes to the spring configuration files(e.g. context.xml):
 ```
@@ -134,32 +185,54 @@ Then, Use **"${}"** to reference your variables like:
 <bean id="test" class="${test.bean.name}" />
 ```
 
-## 7 Support other frameworks
 
-Anole support popular third-party frameworks via injecting the properties to the Java runtime system properties.
-So to support those frameworks, you just neet to use the method like referencing a system properties.
-For example, to Log4j, it would be like :
+## 7 Other Frameworks Support
+
+Anole supports most third-party frameworks, as long as these frameworks themselves read configurations from JVM runtime system properties. Therefore, in most cases, you can access Anole configurations using the common “${key}” syntax.
+
+However, there are some exceptions, with slight differences, such as Log4j2. 
+
+### 7.1 Log4j2 Support.
+
+You can just use the "${sys:key}" syntax without any settings. Maybe someday, if the authors of Log4j2 ever stop being particular about the prefix, you might be able to remove the "sys:" prefix.
+
+OR, you can import the anole-log4j2 dependency as :
+
+```xml
+<dependency>
+    <groupId>com.github.tbwork</groupId>
+    <artifactId>anole-log4j2</artifactId>
+    <version>2.1.0</version> 
+</dependency>
 ```
-${key}
-```
-To Log4j2, it would be like:
-```
-${sys:key}
+Then, you can access configurations managed by Anole using either ${anole:key} or ${a:key}.
+
+Alternatively, you can define an empty <Properties></Properties> element in your `log4j2.xml`, which will activate Anole’s configuration interception plugin. 
+In this case, you can use ${key} to access Anole configurations.
+
+## 8 Integrate with JUnit5
+
+Import the dependency like:
+```xml
+<dependency>
+    <groupId>com.github.tbwork</groupId>
+    <artifactId>anole-test</artifactId>
+    <version>2.1.0</version> 
+</dependency>
+
 ```
 
-## 8 Integrate with JUnit
-
-It is very easy to integrate Anole with JUnit, for example (using JUnit 4):
+It is very easy to integrate Anole with JUnit5:
 
 ```
-public class XXXUnitTest{ 
-	@Before
-	public void setUp() throws Exception {
-		super.setUp();
-		AnoleConfigContext acc = new AnoleClasspathConfigContext(LogLevel.INFO, "config.properties");
-		System.out.println(Anole.getProperty("variable.name"));
-	} 
+@AnoleTest
+public class UserTest{ 
+    @Test
+    public void test(){
+        // your test codes go here.
+    } 
 }
+
 ```
 
 ## 9 What is the principle

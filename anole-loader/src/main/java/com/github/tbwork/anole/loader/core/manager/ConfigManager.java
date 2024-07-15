@@ -1,6 +1,6 @@
 package com.github.tbwork.anole.loader.core.manager;
 
-import com.github.tbwork.anole.loader.core.manager.source.SourceRetriever;
+import com.github.tbwork.anole.loader.core.manager.source.ConfigSource;
 import com.github.tbwork.anole.loader.core.model.ConfigItem;
 import com.github.tbwork.anole.loader.core.model.RawKV;
 
@@ -37,7 +37,7 @@ public interface ConfigManager {
 
 	/**
 	 * Set configuration item into the Anole. Deeply digging will be used if
-	 * value contains an other property like: a = ${b}-service
+	 * value contains another property like: a = ${b}-service
 	 * @param key the key of the configuration item.
 	 * @param definition the definition of the configuration item.
 	 * @param updateTime the update time given by the caller
@@ -59,7 +59,7 @@ public interface ConfigManager {
 
 
 	/**
-	 * Judge whether the given key is interested by the current application.
+	 * Judge whether the given key is used in the current application.
 	 * @param key the key of the configuration item.
 	 * @return true if the application interests the given key.
 	 */
@@ -81,65 +81,9 @@ public interface ConfigManager {
 
 	/**
 	 * Add an extended retriever to retrieve configuration.
-	 * @param sourceRetriever the extended retriever
+	 * @param customConfigSource the extended retriever
 	 */
-	void addExtensionRetriever(SourceRetriever sourceRetriever);
-
-
-
-	/**
-	 * Start an update recorder to receive all config update events from the
-	 * outer config sources like apollo, spring config etc..
-	 */
-	void startReceiveIncomeUpdates();
-
-
-	/**
-	 * Start an executor to process all update events stored in the income update recorder.
-	 */
-	void startProcessIncomeUpdates();
-
-	/**
-	 * Start an update recorder to receive all config update events submitted by Anole itself.
-	 */
-	void startReceiveOutgoUpdates();
-
-
-	/**
-	 * Start an executor to process all update events stored in the outgo update recorder.
-	 */
-	void startProcessOutgoUpdates();
-
-
-	/**
-	 * Tell the anole config manager to shut down.
-	 */
-	void shutDown();
-
-	/**
-	 * Submit an income update of config. This operation means the change request will
-	 * be put into the update queue, waiting for further process.
-	 * @param key the given key
-	 * @param newValue the given new value
-	 */
-	void submitIncomeUpdate(String key, String newValue);
-
-
-	/**
-	 * Submit an outgo update of config. This operation means the change request will
-	 * be put into the update queue, waiting for further process.
-	 * @param key the given key
-	 * @param newValue the given new value
-	 */
-	void submitOutgoUpdate(String key, String newValue);
-
-
-	/**
-	 * Whether the situation of miss retrieving value should throw an exception or not.
-	 * @return true means throwing an exception in case of miss finding value, otherwise
-	 * return false.
-	 */
-	boolean isRunInStrictMode();
+	void addExtensionRetriever(ConfigSource customConfigSource);
 
 
 }

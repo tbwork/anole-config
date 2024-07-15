@@ -12,14 +12,5 @@ public class SetUtil {
 		}
 		return result;
 	}
-	
-	
-	public static String [] copyArray(String [] target, int start, int end) {
-		String [] result = new String[end - start];
-		for(int i = start ; i < end; i++) {
-			result[i-start] = target[i];
-		}
-		return result;
-	}
-	 
+
 }

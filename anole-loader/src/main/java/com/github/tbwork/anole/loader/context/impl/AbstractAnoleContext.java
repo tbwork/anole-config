@@ -37,12 +37,6 @@ public abstract class AbstractAnoleContext implements AnoleContext {
      */
     protected abstract void create();
 
-
-    @Override
-    public void close(){
-        AnoleConfigManager.getInstance().shutDown();
-    }
-
     @Override
     public String getEnvironment() {
         return environment;
