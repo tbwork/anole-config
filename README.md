@@ -1,10 +1,18 @@
 # Anole-Loader [![](https://jitpack.io/v/tbwork/anole-config.svg)](https://jitpack.io/#tbwork/anole-config)
 
 # What it is
-
 An awesome configuration loader for java. 
 
 # Why we need it.
+## Reason 1
+Most configuration frameworks do not support configuring multiple environments within the same file. Sometimes, 
+duplicating the same configuration item across multiple files can be very painful to manage. Anole offers a more 
+flexible approach—it encourages users to split configuration files by functionality. You’ll appreciate the beauty of this approach. 
+This way, the same configuration item for different environments can be managed within the same file, making it easy to compare differences across environments. 
+Of course, Anole also supports the traditional method of having different files for different environments; 
+you just need to add #env:xxx at the beginning of the file.
+
+## Reason 2
 In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc
 . to develop applications rapidly. However, each framework has own configuration file, format, even the file-path and
  file-name, it would be annoying if you manage those files together. Anole-loader is a light framework to deal with
@@ -20,7 +28,7 @@ In enterprise java development, we use different kinds of third-party frameworks
 
 # How to use it
 
-## 1 Add anole-loader to your build path manually or via maven dependency.
+## 1 Import by Maven or Gradle.
 For maven, import it using:
 ```
 <dependency>
