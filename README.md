@@ -16,7 +16,7 @@ Of course, Anole also supports the traditional method of having different files 
 you just need to add #env:xxx at the beginning of the file.
 
 ## Reason 2
-Sometimes our configurations depend on another configuration. When we update one configuration, all other dependent configurations will be automatically updated. Anole natively supports this functionality.
+Sometimes our configurations depend on another configuration. We hope when we update one configuration, all other dependent configurations should be updated automatically. Anole natively supports this functionality.
 
 
 ## Reason 3

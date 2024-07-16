@@ -17,7 +17,7 @@
     <url>https://github.com/tbwork/anole-config</url>
 	<description>An awesome configuration loader for java. It could use different configurations according to the current environment, just like an anole.</description> 
 	<properties>
-		<revision>2.0.1</revision>
+		<revision>2.1.0</revision>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<junit.version>4.12</junit.version>
 		<google.guava>19.0</google.guava>
