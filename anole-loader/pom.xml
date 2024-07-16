@@ -7,6 +7,7 @@
 		<artifactId>anole-config</artifactId>
 		<version>${revision}</version>
 	</parent>
+	<groupId>com.github.tbwork</groupId>
 	<artifactId>anole-loader</artifactId> 
 	<packaging>jar</packaging>
     <properties>

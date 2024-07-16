@@ -1,9 +1,9 @@
-package com.github.tbwork.anole.loader.core.manager.source;
+package com.github.tbwork.anole.loader.spiext;
 
 /**
  *  Custom source to further look up configurations.
  */
-public interface ConfigSource {
+public interface ConfigSource extends Sortable{
 
 
     /**

@@ -8,5 +8,5 @@ artifacts:
   paths:
     - anole-loader/target/*.jar
     - spring-anole-loader/target/*.jar
-    - anole-remote-apollo/target/*.jar
     - anole-log4j2/target/*.jar
+    - anole-test/target/*.jar

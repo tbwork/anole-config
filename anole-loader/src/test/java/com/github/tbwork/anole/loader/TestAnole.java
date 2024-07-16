@@ -1,7 +1,6 @@
 package com.github.tbwork.anole.loader;
 
 import com.github.tbwork.anole.loader.annotion.AnoleConfigLocation;
-import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.AnoleLogger.LogLevel;
 
 import java.io.IOException;

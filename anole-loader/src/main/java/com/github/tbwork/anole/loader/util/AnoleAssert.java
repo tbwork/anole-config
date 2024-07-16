@@ -4,7 +4,7 @@ import com.github.tbwork.anole.loader.exceptions.BasicConfigMustBeSpecifiedClear
 import com.github.tbwork.anole.loader.exceptions.ConfigNotSetException;
 import com.github.tbwork.anole.loader.Anole;
 import com.github.tbwork.anole.loader.AnoleApp;
-import com.github.tbwork.anole.loader.core.manager.impl.AnoleValueManager;
+import com.github.tbwork.anole.loader.core.manager.AnoleValueManager;
 
 public class AnoleAssert {
 

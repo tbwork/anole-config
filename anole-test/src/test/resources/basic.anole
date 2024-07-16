@@ -1,0 +1,6 @@
+#env:all
+a=true
+b=@@ ${a}?hello:hey
+c=${b}, ${d}
+d=anole
+

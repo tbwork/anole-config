@@ -1,6 +1,6 @@
 package com.github.tbwork.anole.loader.core.manager;
 
-import com.github.tbwork.anole.loader.core.manager.source.ConfigSource;
+import com.github.tbwork.anole.loader.spiext.ConfigSource;
 import com.github.tbwork.anole.loader.core.model.ConfigItem;
 import com.github.tbwork.anole.loader.core.model.RawKV;
 

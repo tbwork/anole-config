@@ -16,12 +16,17 @@ Of course, Anole also supports the traditional method of having different files 
 you just need to add #env:xxx at the beginning of the file.
 
 ## Reason 2
+Sometimes our configurations depend on another configuration. When we update one configuration, all other dependent configurations will be automatically updated. Anole natively supports this functionality.
+
+
+## Reason 3
 In enterprise java development, we use different kinds of third-party frameworks like Spring, Spring-Boot, Log4j, etc
 . to develop applications rapidly. 
 
 However, each framework has own configuration file, format, even the file-path and file-name, it would be annoying if you manage those files together. 
 
 Anole-loader is a light framework to deal with this situation. By using it, you could manage all configurations together.
+
 
 # What does it support
 
@@ -73,6 +78,15 @@ For maven, import it using:
   ## define a boolean
   switch = true
   
+  ## Manage the same configuration for multiple environments in one place
+  #env:prod
+  home.page=/url/prod
+  #env:test
+  home.page=/url/test
+  #env:dev
+  home.page=/url/dev
+  
+  ## wrap the long text
   #env:test
   message=I'm\
   a test message
@@ -155,18 +169,23 @@ Starts manually like:
 
 ```java
 
-@AnoleConfigLocation(locations={"*.anole"})
-public class TestAnole {
-	public static void main(String[] args) {
-		AnoleApp.start(LogLevel.INFO);
-	}
+@AnoleConfigLocation
+@SpringBootApplication
+public class SpringExample {
+  public static void main(String[] args) {
+    AnoleApp.start(); // must call before SpringApplication
+    SpringApplication.run(SpringExample.class);
+  }
 }
+
 ```
 Or using the default settings:
 ```java
+@SpringBootApplication
 public class TestAnole {
     public static void main(String[] args) {
 		AnoleApp.start();
+        SpringApplication.run(SpringExample.class);
 	}
 }
 ```
@@ -186,8 +205,38 @@ public class GreetingService {
 }
 ```
 
+### 6.2 Spring Injection Value Auto-Update
 
-### 6.2 XML-based Configuration
+If you wish to hot-update the property values of beans injected when Spring starts, Anole can help you achieve this effortlessly:
+
+Step 1: Include the spring-anole-loader dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.tbwork</groupId>
+    <artifactId>spring-anole-loader</artifactId> 
+    <version>2.1.0</version>
+</dependency> 
+```
+
+Step 2: Add the annotation above your main class or the main class of your unit tests:
+
+```java
+
+@EnableAnoleAutoRefresh
+public class MainClass {}
+
+```
+
+Alternatively, using the `@EnableSpringAnole` annotation can achieve the same effect. The latter also includes the functionality of the `@UsingAnoleEnvAsProfile` annotation.
+
+> @UsingAnoleEnvAsProfile is used to set the Spring Profile environment to be the same as the Anole environment. Use this when you have enabled Spring Profiles. Note that you should ensure the Anole environment enumeration matches the Profile environment enumeration.
+
+When you change the configuration value using   `Anole.setProperty`, all bean fields that have this configuration injected will automatically update to the latest value. 
+If you do not want a specific field to be updated, please use the @Final annotation.
+
+
+### 6.3 XML-based Configuration
 
 First, enable the Spring placeholder function by adding below codes to the spring configuration files(e.g. context.xml):
 ```
@@ -248,6 +297,17 @@ public class UserTest{
 
 ```
 
-## 9 What is the principle
+
+## 9 Advanced Tricks
+
+In addition to regular text configurations, Anole also supports some expressions:
+```properties
+a = true
+b = @@ ${a} ? hello : hey
+c = ${b}, world!
+```
+The b corresponds to a binary expression, which will take its value based on the value of a.
+
+## 10 What is the principle
 
 Anole-loader's principle is simple. It based on a fact that a vast majority of common-used third-party frameworks retrieve properties first from the JVM system properties and then from their own mechanisms. So, what anole-loader does is resolving property resources from different locations and registering them to JVM system property table. 

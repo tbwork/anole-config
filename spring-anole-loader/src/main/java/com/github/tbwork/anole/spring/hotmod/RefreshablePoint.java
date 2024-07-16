@@ -1,4 +1,4 @@
-package com.github.tbwork.anole.spring.hotmod.reflection;
+package com.github.tbwork.anole.spring.hotmod;
 
 import com.github.tbwork.anole.spring.annotation.Final;
 import lombok.Data;

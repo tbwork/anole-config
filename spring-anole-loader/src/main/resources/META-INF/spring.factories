@@ -1,1 +1,1 @@
-org.springframework.context.ApplicationListener=com.github.tbwork.anole.spring.AnoleSpringStarter
+org.springframework.context.ApplicationListener=com.github.tbwork.anole.spring.SpringProfileAnoleActivator

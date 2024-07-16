@@ -3,7 +3,8 @@ package com.github.tbwork.anole.loader;
 import com.github.tbwork.anole.loader.annotion.AnoleConfigLocation;
 import com.github.tbwork.anole.loader.context.AnoleContext;
 import com.github.tbwork.anole.loader.context.impl.AnoleClasspathConfigContext;
-import com.github.tbwork.anole.loader.ext.AnoleStartPostProcessor;
+import com.github.tbwork.anole.loader.spiext.AnoleStartPostProcessor;
+import com.github.tbwork.anole.loader.spiext.SpiExtensionManager;
 import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.ProjectUtil;
@@ -27,14 +28,6 @@ public class AnoleApp {
 	private static AnoleContext anoleContext = null;
 
 	private static final AnoleLogger logger = new AnoleLogger(AnoleApp.class);
-
-	private static final Set<AnoleStartPostProcessor> anoleStartPostProcessors = new TreeSet<AnoleStartPostProcessor>(
-			new Comparator<AnoleStartPostProcessor>() {
-				@Override
-				public int compare(AnoleStartPostProcessor o1, AnoleStartPostProcessor o2) {
-					return o1.getClass().getName().compareTo(o2.getClass().getName());
-				}
-			});
 
 	/**
 	 * Start an anole application.
@@ -61,15 +54,16 @@ public class AnoleApp {
 			includeClassPathDirectoryPatterns = anoleConfig.includeClassPathDirectoryPatterns();
 			excludeClassPathDirectoryPatterns = anoleConfig.excludeClassPathDirectoryPatterns();
 		}
+
+		SpiExtensionManager.loadExtensionsFromSpi();
+
 		anoleContext = new AnoleClasspathConfigContext(anoleConfigLocations
 				, includeClassPathDirectoryPatterns
 				, excludeClassPathDirectoryPatterns
 		);
 
-		doSearchPostStartProcessors();
-
-		for(AnoleStartPostProcessor anoleStartPostProcessor : anoleStartPostProcessors){
-				anoleStartPostProcessor.execute();
+		for(AnoleStartPostProcessor anoleStartPostProcessor : SpiExtensionManager.anoleStartPostProcessors){
+				anoleStartPostProcessor.process();
 		}
 	}
 
@@ -175,22 +169,8 @@ public class AnoleApp {
 			// Swallow and continue
 			return null;
 		} 
-	} 
-
-
-	private static void doSearchPostStartProcessors(){
-
-		for (final ClassLoader classLoader : ProjectUtil.getClassLoaders()) {
-			try {
-				for (final AnoleStartPostProcessor processor : ServiceLoader.load(AnoleStartPostProcessor.class, classLoader)) {
-					anoleStartPostProcessors.add(processor);
-				}
-			} catch (final Throwable ex) {
-				logger.error("There is something wrong occurred in searching post start processors step. Details: {}", ex.getMessage());
-			}
-		}
-
 	}
+
 
 	private static Class<?> getCallerClassByStackTrace(){
 		try {

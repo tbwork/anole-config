@@ -7,6 +7,7 @@
         <groupId>com.github.tbwork</groupId>
         <version>${revision}</version>
     </parent>
+    <groupId>com.github.tbwork</groupId>
     <artifactId>anole-log4j2</artifactId>
     <modelVersion>4.0.0</modelVersion>
     <name>anole-log4j2</name>

@@ -1,4 +1,4 @@
-package com.github.tbwork.anole.spring.hotmod.reflection.manager;
+package com.github.tbwork.anole.spring.hotmod.manager;
 
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;

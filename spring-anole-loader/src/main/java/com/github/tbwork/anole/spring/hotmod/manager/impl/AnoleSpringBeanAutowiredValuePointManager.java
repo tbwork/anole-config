@@ -1,14 +1,13 @@
-package com.github.tbwork.anole.spring.hotmod.reflection.manager.impl;
+package com.github.tbwork.anole.spring.hotmod.manager.impl;
 
+import com.github.tbwork.anole.spring.hotmod.RefreshablePoint;
+import com.github.tbwork.anole.spring.hotmod.manager.BeanAutowiredValuePointManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.*;
-import org.springframework.stereotype.Component;
 import com.github.tbwork.anole.loader.Anole;
 import com.github.tbwork.anole.loader.core.manager.ConfigManager;
 import com.github.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import com.github.tbwork.anole.spring.hotmod.reflection.RefreshablePoint;
-import com.github.tbwork.anole.spring.hotmod.reflection.manager.BeanAutowiredValuePointManager;
 import com.github.tbwork.anole.spring.util.TypeUtils;
 
 import java.lang.reflect.Field;
@@ -22,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author tommy.tesla
  * @since 1.3.0
  */
-@Component
 public class AnoleSpringBeanAutowiredValuePointManager implements BeanAutowiredValuePointManager {
 
     private Map<BeanFactory /*the key is the bean factory*/,

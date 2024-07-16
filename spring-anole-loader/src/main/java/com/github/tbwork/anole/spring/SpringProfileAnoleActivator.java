@@ -1,15 +1,11 @@
 package com.github.tbwork.anole.spring;
 
 import com.github.tbwork.anole.loader.Anole;
-import com.github.tbwork.anole.loader.AnoleApp;
-import com.github.tbwork.anole.loader.util.AnoleLogger;
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.SpringApplicationRunListener;
 import org.springframework.boot.context.event.ApplicationStartingEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.util.StringUtils;
 
-public class AnoleSpringStarter implements ApplicationListener<ApplicationStartingEvent> {
+public class SpringProfileAnoleActivator implements ApplicationListener<ApplicationStartingEvent> {
 
 
     private static final String SPRING_PROFILES_ACTIVE_KEY = "spring.profiles.active";
@@ -25,17 +21,14 @@ public class AnoleSpringStarter implements ApplicationListener<ApplicationStarti
      */
     String ANOLE_SPRING_PROFILE_AUTO_KEY = "anole.spring.profile.auto";
 
-    public AnoleSpringStarter() {
+    public SpringProfileAnoleActivator() {
 
     }
 
     @Override
     public void onApplicationEvent(ApplicationStartingEvent event) {
         if(!Anole.initialized){
-            AnoleApp.start( AnoleLogger.LogLevel.INFO);
-        }
-        else{
-            Anole.refreshContext(false);
+            throw new RuntimeException("Please make sure you've already started the Anole context by AnoleApp.start() or @AnoleTest (for JUnit5 tests).");
         }
 
         if(Anole.getBoolProperty(ANOLE_SPRING_PROFILE_AUTO_KEY, true)){

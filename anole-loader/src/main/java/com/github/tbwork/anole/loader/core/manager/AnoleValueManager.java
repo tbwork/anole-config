@@ -1,6 +1,7 @@
-package com.github.tbwork.anole.loader.core.manager.impl;
+package com.github.tbwork.anole.loader.core.manager;
 
 import com.github.tbwork.anole.loader.Anole;
+import com.github.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
 import com.github.tbwork.anole.loader.core.model.ConfigItem;
 import com.github.tbwork.anole.loader.exceptions.ErrorSyntaxException;
 import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;

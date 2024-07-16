@@ -1,7 +1,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-    <build>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>META-INF/services/*</include>
+				</includes>
+			</resource>
+		</resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -12,6 +20,7 @@
                 </configuration>
             </plugin>
         </plugins>
+
     </build>
 
     <parent>
@@ -49,6 +58,4 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
-  
 </project>

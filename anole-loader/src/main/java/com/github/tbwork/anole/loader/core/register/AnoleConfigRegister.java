@@ -1,11 +1,10 @@
 package com.github.tbwork.anole.loader.core.register;
 
-import com.github.tbwork.anole.loader.core.manager.source.ConfigSource;
+import com.github.tbwork.anole.loader.spiext.ConfigSource;
 import com.github.tbwork.anole.loader.core.model.RawKV;
 import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.ProjectUtil;
-import org.slf4j.LoggerFactory;
 import com.github.tbwork.anole.loader.Anole;
 import com.github.tbwork.anole.loader.core.manager.ConfigManager;
 import com.github.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
@@ -36,9 +35,6 @@ public class AnoleConfigRegister {
         // register to system for other framework to read.
         lcm.registerToSystem();
 
-        // initialize extended config source
-        initializeExtendedConfigSource();
-
         // refresh all properties
         if(Anole.getBoolProperty(BuiltInConfigKeys.ANOLE_STRICT_MODE, false)){
             lcm.refresh(true);
@@ -52,39 +48,6 @@ public class AnoleConfigRegister {
             lcm.removeFromSystem();
         }
     }
-
-
-    private void initializeExtendedConfigSource(){
-        Set<ConfigSource> extensionSourceSet = lookForRemoteServerBySpi();
-        logger.info("There are {} extension config providers found. Details: >>>>>>>>> ", extensionSourceSet.size());
-        for(ConfigSource retriever :extensionSourceSet){
-            logger.info("{} is found.", retriever.getName());
-            lcm.addExtensionRetriever(retriever);
-        }
-        if(extensionSourceSet.size() > 0){
-            logger.info("Extension config providers are loaded successfully. <<<<<<<<<< ", extensionSourceSet.size());
-        }
-    }
-
-    private Set<ConfigSource> lookForRemoteServerBySpi(){
-
-        Set<ConfigSource> providers = new TreeSet<>(Comparator.comparing(o -> o.getClass().getName()));
-
-        for (final ClassLoader classLoader : ProjectUtil.getClassLoaders()) {
-            try {
-                for (final ConfigSource provider : ServiceLoader.load(ConfigSource.class, classLoader)) {
-                    providers.add(provider);
-                }
-            } catch (final Throwable ex) {
-                logger.warn("There is something wrong occurred in provider lookup step. Details: {}", ex.getMessage());
-            }
-        }
-
-        return providers;
-
-    }
-
-
 
 
 }

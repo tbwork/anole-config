@@ -10,7 +10,7 @@ import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.S;
 import com.github.tbwork.anole.loader.core.manager.ConfigManager;
 import com.github.tbwork.anole.loader.core.manager.impl.AnoleConfigManager;
-import com.github.tbwork.anole.loader.core.manager.impl.AnoleValueManager;
+import com.github.tbwork.anole.loader.core.manager.AnoleValueManager;
 
 /**
  * <p> Anole provides basic retrieving 

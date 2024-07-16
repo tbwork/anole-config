@@ -1,19 +1,22 @@
 package com.github.tbwork.anole.loader.core.manager.impl;
 
 import com.github.tbwork.anole.loader.Anole;
+import com.github.tbwork.anole.loader.core.manager.AnoleValueManager;
 import com.github.tbwork.anole.loader.core.manager.expression.ExpressionResolver;
 import com.github.tbwork.anole.loader.core.manager.expression.ExpressionResolverFactory;
-import com.github.tbwork.anole.loader.core.manager.source.ConfigSource;
+import com.github.tbwork.anole.loader.spiext.AnoleUpdatePostProcessor;
+import com.github.tbwork.anole.loader.spiext.ConfigSource;
 import com.github.tbwork.anole.loader.core.model.ConfigItem;
 import com.github.tbwork.anole.loader.core.model.RawKV;
 import com.github.tbwork.anole.loader.exceptions.CircularDependencyException;
+import com.github.tbwork.anole.loader.spiext.SpiExtensionManager;
 import com.github.tbwork.anole.loader.statics.BuiltInConfigKeys;
 import com.github.tbwork.anole.loader.statics.StaticValueBook;
 import com.github.tbwork.anole.loader.util.AnoleLogger;
 import com.github.tbwork.anole.loader.util.S;
 import lombok.Data;
 import com.github.tbwork.anole.loader.core.manager.ConfigManager;
-import com.github.tbwork.anole.loader.core.manager.impl.AnoleValueManager.ValueDefinition;
+import com.github.tbwork.anole.loader.core.manager.AnoleValueManager.ValueDefinition;
 
 import java.util.*;
 import java.util.Map.Entry;
@@ -32,7 +35,6 @@ public class AnoleConfigManager implements ConfigManager{
 	
 	private static final Map<String, ConfigItem> configDefinitionMap = new ConcurrentHashMap<String, ConfigItem>();
 
-	private List<ConfigSource> extensionSources = new ArrayList<>();
 
 	/**
 	 * Store keys to system property manger temporarily.
@@ -76,6 +78,7 @@ public class AnoleConfigManager implements ConfigManager{
 		if(Anole.initialized){
 			// means any change could cause other related changes as a chain reaction.
 			processChainReaction(key);
+
 		}
 		return configItem;
 	}
@@ -132,7 +135,7 @@ public class AnoleConfigManager implements ConfigManager{
 
 	@Override
 	public void addExtensionRetriever(ConfigSource configSource) {
-		extensionSources.add(configSource);
+		SpiExtensionManager.configSources.add(configSource);
 	}
 
 
@@ -535,10 +538,10 @@ public class AnoleConfigManager implements ConfigManager{
 		if(configItem != null && configItem.strValue() != null){
 			return configItem;
 		}
-		for(ConfigSource extensionRetriever : extensionSources){
-			String remoteValue = extensionRetriever.retrieve(key);
-			if(S.isNotEmpty(remoteValue)){
-				ConfigItem registerResult = registerAndSetValue(key, remoteValue);
+		for(ConfigSource extensionRetriever : SpiExtensionManager.configSources){
+			String extendedValue = extensionRetriever.retrieve(key);
+			if(S.isNotEmpty(extendedValue)){
+				ConfigItem registerResult = registerAndSetValue(key, extendedValue);
 				logger.info("Retrieving value (definition) of '{}' from {} successfully", key, extensionRetriever.getName());
 				return registerResult;
 			}
@@ -556,7 +559,16 @@ public class AnoleConfigManager implements ConfigManager{
 
 	private void setConfigValue(ConfigItem config, String value){
 		value = S.replaceEscapeChars(value);
+		String oldValue = config.strValue();
     	config.setValue(value);
+		if(Anole.initialized){
+			for (AnoleUpdatePostProcessor anoleUpdatePostProcessor : SpiExtensionManager.anoleUpdatePostProcessors) {
+				boolean result = anoleUpdatePostProcessor.process(config.getKey(), oldValue, value);
+				if(result){
+					return;
+				}
+			}
+		}
 	}
 
 }

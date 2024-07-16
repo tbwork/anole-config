@@ -52,17 +52,6 @@ public abstract class AbstractAnoleLoader implements AnoleLoader {
 
         Anole.initialized = true;
 
-
-//
-//        logger.info("Local configurations are loaded successfully. Slf4j loggers is initializing...");
-//
-//        Anole.initialized = true;
-//
-//        // Initialize the SLF4j logger factory.
-//        LoggerFactory.getLogger(AnoleConfigRegister.class);
-//
-//        logger.info("Slf4j loggers initialized successfully.");
-
     }
 
 
