@@ -9,7 +9,7 @@
     </parent>
     <artifactId>anole-test</artifactId>
     <modelVersion>4.0.0</modelVersion>
-    <name>anole-log4j2</name>
+    <name>anole-test</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

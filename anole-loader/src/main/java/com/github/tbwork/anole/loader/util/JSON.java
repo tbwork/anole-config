@@ -5,7 +5,9 @@ import com.github.tbwork.anole.loader.util.json.TypeReference;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,9 +110,17 @@ public class JSON {
      * @return a JsonArray object
      */
     public static JsonArray parseArray(String jsonString){
-        JsonObject jsonObject = GsonRepository.gson.fromJson(jsonString, JsonObject.class);
-        return jsonObject.getAsJsonArray();
 
+        List<JsonObject> jsonObjects = parseArray(jsonString, JsonObject.class);
+        JsonArray result = new JsonArray();
+        if(jsonObjects == null) {
+            return result;
+        }
+        for (JsonObject jsonObject : jsonObjects) {
+            result.add(jsonObject);
+        }
+
+        return result;
     }
 
 
@@ -125,13 +135,8 @@ public class JSON {
      * @return the array list.
      */
     public static <T> List<T> parseArray(String jsonString, Class<T> clazz){
-        JsonArray jsonArray = parseArray(jsonString);
-        List<T> result = new ArrayList<>();
-
-        for(JsonElement ele : jsonArray){
-            result.add( GsonRepository.gson.fromJson(ele, clazz));
-        }
-        return result;
+        Type type = TypeToken.getParameterized(List.class, clazz).getType();
+        return GsonRepository.gson.fromJson(jsonString, type);
     }
 
 
