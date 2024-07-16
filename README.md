@@ -50,7 +50,7 @@ For maven, import it using:
 
 ## 2 Specify the runtime environment. There are 3 ways to specify the runtime enviroment.
 
-> The default environment would be 'all'.
+> The default environment is 'all'.
 
 **Option 1**: Create an enviroment file in your disk.**
  * For windows: create a $env.env (e.g. test.env) file under `C://anole/`
