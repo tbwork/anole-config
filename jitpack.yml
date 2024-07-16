@@ -2,11 +2,4 @@ jdk:
   - openjdk17
 
 install:
-  - mvn clean install -DskipTests=true
-
-artifacts:
-  paths:
-    - anole-loader/target/*.jar
-    - spring-anole-loader/target/*.jar
-    - anole-log4j2/target/*.jar
-    - anole-test/target/*.jar
+  - mvn clean install
