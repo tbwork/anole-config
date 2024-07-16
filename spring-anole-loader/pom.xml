@@ -24,19 +24,16 @@
     </build>
 
     <parent>
-		<groupId>com.github.tbwork</groupId>
+		<groupId>com.github.tbwork.anole-config</groupId>
 		<artifactId>anole-config</artifactId>
 		<version>${revision}</version>
 	</parent>
-
-
-	<groupId>com.github.tbwork</groupId>
 	<artifactId>spring-anole-loader</artifactId> 
 	<packaging>jar</packaging>
   
 	<dependencies>
 		<dependency>
-			<groupId>com.github.tbwork</groupId>
+			<groupId>com.github.tbwork.anole-config</groupId>
 			<artifactId>anole-loader</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -52,7 +49,7 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.github.tbwork</groupId>
+			<groupId>com.github.tbwork.anole-config</groupId>
 			<artifactId>anole-test</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>

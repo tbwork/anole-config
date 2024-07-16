@@ -3,11 +3,10 @@
   <modelVersion>4.0.0</modelVersion>
 
     <parent>
-		<groupId>com.github.tbwork</groupId>
+		<groupId>com.github.tbwork.anole-config</groupId>
 		<artifactId>anole-config</artifactId>
 		<version>${revision}</version>
 	</parent>
-	<groupId>com.github.tbwork</groupId>
 	<artifactId>anole-loader</artifactId> 
 	<packaging>jar</packaging>
     <properties>

@@ -1,8 +1,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-	<groupId>com.github.tbwork</groupId>
+	<groupId>com.github.tbwork.anole-config</groupId>
     <artifactId>anole-config</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
@@ -124,7 +123,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
-				<version>2.4</version>
+				<version>3.2.1</version>
 				<configuration>
 				</configuration>
 				<executions>
@@ -132,7 +131,7 @@
 						<id>attach-sources</id>
 						<phase>package</phase>
 						<goals>
-							<goal>jar-no-fork</goal>
+							<goal>jar</goal>
 						</goals>
 					</execution>
 				</executions>
