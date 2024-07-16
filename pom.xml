@@ -88,11 +88,6 @@
 				<artifactId>slf4j-api</artifactId>
 				<version>${slf4j.api.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>com.ctrip.framework.apollo</groupId>
-				<artifactId>apollo-client</artifactId>
-				<version>1.6.2</version>
-			</dependency>
 		</dependencies>
     </dependencyManagement>
 
