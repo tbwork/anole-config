@@ -1,7 +1,10 @@
 package com.github.tbwork.anole.loader.util;
 
+import com.github.tbwork.anole.loader.Anole;
+
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -35,7 +38,8 @@ public class ProjectUtil {
 	 * For <b>normal jar-file application</b>, it returns: "/.../xxx.jar!/".<br>
 	 * For <b>spring jar-file application</b>, it returns: "/.../xxx.jar!/BOOT-INF!/classes!/".<br>
 	 */
-	public static String getAppClasspath() {
+	public static List<String> getAppClasspaths() {
+		List<String> result = new ArrayList<>();
 		String classpathsString = System.getProperty("java.class.path");
 		if(classpathsString == null){
 			classpathsString = "";
@@ -70,13 +74,18 @@ public class ProjectUtil {
 		}
 
 		resultClasspath = PathUtil.getNakedAbsolutePath(resultClasspath);
-		if(AnoleFileUtil.isSpringFatJar(resultClasspath)){
-			return resultClasspath+"!/BOOT-INF!/classes!/";
-		}
 		resultClasspath =  resultClasspath.endsWith("/") ? resultClasspath : resultClasspath+"/";
+		resultClasspath =  resultClasspath.startsWith("/") ? resultClasspath : "/" + resultClasspath;
 
-		return resultClasspath.startsWith("/") ? resultClasspath : "/" + resultClasspath;
+		if(!AnoleFileUtil.isSpringFatJar(resultClasspath)){
+			result.add(resultClasspath);
+			return result;
+		}
 
+		// Spring Fat Jar
+		result.add(resultClasspath + "!/BOOT-INF!/classes!/");
+		result.add(resultClasspath + "!/BOOT-INF!/lib!/*.jar/");
+		return result;
 	}
 	
 	/**

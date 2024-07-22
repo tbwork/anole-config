@@ -57,10 +57,12 @@ public class ClasspathResourceLoader extends FileResourceLoader {
      */
     private static Set<String> getConfigLocationUnderCallerClasspath(String ... configLocations) {
         Set<String> fullPathConfigLocations = new HashSet<String>();
-        String callerClasspath = ProjectUtil.getAppClasspath();
-        for(String configLocation : configLocations) {
-            String fullPathPattern = PathUtil.uniformAbsolutePath(S.concat(callerClasspath, configLocation));
-            fullPathConfigLocations.add(fullPathPattern);
+        List<String> callerClasspaths = ProjectUtil.getAppClasspaths();
+        for (String callerClasspath : callerClasspaths) {
+            for(String configLocation : configLocations) {
+                String fullPathPattern = PathUtil.uniformAbsolutePath(S.concat(callerClasspath, configLocation));
+                fullPathConfigLocations.add(fullPathPattern);
+            }
         }
         return fullPathConfigLocations;
     }
