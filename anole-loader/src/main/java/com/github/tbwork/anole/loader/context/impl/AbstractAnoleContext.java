@@ -9,6 +9,8 @@ import com.github.tbwork.anole.loader.util.S;
 
 import java.io.File;
 
+import static com.github.tbwork.anole.loader.statics.BuiltInConfigKeys.*;
+
 public abstract class AbstractAnoleContext implements AnoleContext {
 
     private final AnoleLogger logger = new AnoleLogger(getClass());
@@ -43,20 +45,24 @@ public abstract class AbstractAnoleContext implements AnoleContext {
     }
 
     private String getCurrentEnvironment(){
-        // check by the following order
-        // 1. the jvm system property
-        // 2. the os system property
-        // 3. the environment file
-        //check if the environment is already set or not
-        String environment = System.getProperty("anole.env");
+
+        String environment = System.getenv(ANOLE_ENV);
         if(S.isEmpty(environment)){
-            environment = System.getProperty("anole.environment");
+            environment = System.getProperty(ANOLE_ENV);
         }
         if(S.isEmpty(environment)){
-            environment = System.getenv("ANOLE_ENV");
+            environment = System.getenv(ANOLE_ENV_SHORT);
         }
         if(S.isEmpty(environment)){
-            environment = System.getenv("ANOLE_ENVIRONMENT");
+            environment = System.getProperty(ANOLE_ENV_SHORT);
+        }
+
+        if(S.isEmpty(environment)){
+            environment = System.getenv(ANOLE_ENV_SHORT_CAMEL);
+        }
+
+        if(S.isEmpty(environment)){
+            environment = System.getProperty(ANOLE_ENV_SHORT_CAMEL);
         }
 
         if(S.isEmpty(environment)){
